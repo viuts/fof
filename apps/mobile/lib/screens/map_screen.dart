@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/foundation.dart' show kDebugMode;
+import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart' as latlong2;
 import 'package:geolocator/geolocator.dart';
@@ -19,6 +19,9 @@ import '../constants/category_colors.dart';
 import '../theme/app_theme.dart';
 import '../utils/geo_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
+import 'package:provider/provider.dart';
+import '../services/map_style_service.dart';
 
 class MapScreen extends StatefulWidget {
   final Shop? questShop;
@@ -112,6 +115,8 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
         },
       );
       _loadInitialData();
+    } catch (e) {
+      debugPrint('Error starting location service: $e');
     }
   }
 
@@ -768,6 +773,8 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
 
   @override
   Widget build(BuildContext context) {
+    final mapStyleService = Provider.of<MapStyleService>(context);
+
     return KeyboardListener(
       focusNode: _focusNode,
       autofocus: true,
@@ -792,11 +799,14 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
             options: MapOptions(
               initialCenter: _currentLocation ?? const latlong2.LatLng(35.6812, 139.7671),
               initialZoom: 15,
+              interactionOptions: const InteractionOptions(
+                flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
+              ),
             ),
             children: [
               TileLayer(
-                urlTemplate: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
-                subdomains: const ['a', 'b', 'c', 'd'],
+                urlTemplate: mapStyleService.currentStyle.urlTemplate,
+                subdomains: mapStyleService.currentStyle.subdomains,
                 userAgentPackageName: 'com.viuts.fof',
               ),
               FogLayer(
@@ -805,68 +815,58 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
                 visionRadius: 100,
                 clearedRings: FogLayer.parseGeoJson(_clearedAreaGeojson),
               ),
-                MarkerLayer(
-                  markers: [
-                    if (_currentLocation != null)
-                      Marker(
-                        point: _currentLocation!,
-                        width: 50,
-                        height: 50,
-                        child: Stack(
-                          alignment: Alignment.center,
-                          clipBehavior: Clip.none,
-                          children: [
-                            // Quest Direction Arrow
-                            if (widget.questShop != null)
-                              Builder(
-                                builder: (context) {
-                                  final bearing = Geolocator.bearingBetween(
-                                    _currentLocation!.latitude,
-                                    _currentLocation!.longitude,
-                                    widget.questShop!.lat,
-                                    widget.questShop!.lng,
-                                  );
-                                  return Transform.rotate(
-                                    angle: bearing * (math.pi / 180),
-                                    child: CustomPaint(
-                                      painter: QuestDirectionPainter(),
-                                      size: const Size(80, 80),
-                                    ),
-                                  );
-                                }
-                              ),
-                            // User Heading Avatar
-                            Transform.rotate(
-                              angle: _currentHeading != null 
-                                  ? (_currentHeading! * 3.141592653589793 / 180.0) // Convert degrees to radians
-                                  : 0,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: AppTheme.accentColor,
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: Colors.white,
-                                    width: 3,
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: AppTheme.accentColor.withValues(alpha: 0.4),
-                                      blurRadius: 10,
-                                      spreadRadius: 2,
-                                    ),
-                                  ],
-                                ),
-                                child: const Icon(
-                                  Icons.navigation, // Directional arrow icon
-                                  color: Colors.white,
-                                  size: 24,
-                                ),
-                              ),
-                            ),
-                          ],
+              CurrentLocationLayer(
+                style: LocationMarkerStyle(
+                  marker: Container(
+                    decoration: BoxDecoration(
+                      color: AppTheme.accentColor,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 3),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.2),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
                         ),
+                      ],
+                    ),
+                  ),
+                  markerSize: const Size(24, 24),
+                  markerDirection: MarkerDirection.heading,
+                  showAccuracyCircle: true,
+                  accuracyCircleColor: AppTheme.accentColor.withValues(alpha: 0.3),
+                  headingSectorColor: AppTheme.accentColor.withValues(alpha: 0.4),
+                  headingSectorRadius: 60,
+                  showHeadingSector: true,
+                ),
+              ),
+              MarkerLayer(
+                markers: [
+                  // Quest Direction Arrow (Standalone)
+                  if (_currentLocation != null && widget.questShop != null)
+                    Marker(
+                      point: _currentLocation!,
+                      width: 100,
+                      height: 100,
+                      child: Builder(
+                        builder: (context) {
+                          final bearing = Geolocator.bearingBetween(
+                            _currentLocation!.latitude,
+                            _currentLocation!.longitude,
+                            widget.questShop!.lat,
+                            widget.questShop!.lng,
+                          );
+                          return Transform.rotate(
+                            angle: bearing * (math.pi / 180),
+                            child: CustomPaint(
+                              painter: QuestDirectionPainter(),
+                              size: const Size(100, 100),
+                            ),
+                          );
+                        }
                       ),
-                    ...(() {
+                    ),
+                  ...(() {
                       final allShops = <String, Shop>{};
                       for (var s in _nearbyShops) {
                         allShops[s.id] = s;
@@ -933,12 +933,25 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
             _buildQuestOverlay(),
           // Blast animation layer
           _buildBlastLayer(radiusInMeters: 250.0),
-          // Virtual D-pad for development
-          if (kDebugMode)
+          // Virtual D-pad for development (Web only)
+          if (kDebugMode && kIsWeb)
             _buildVirtualDPad(),
           
           // Level Badge
           _buildLevelBadge(),
+
+          // Recenter FAB
+          Positioned(
+            bottom: 32,
+            right: 16,
+            child: FloatingActionButton(
+              heroTag: 'recenter_fab',
+              backgroundColor: AppTheme.accentColor,
+              shape: const CircleBorder(),
+              onPressed: recenter,
+              child: const Icon(Icons.gps_fixed, color: Colors.white),
+            ),
+          ),
 
           // Filter Bar
           _buildFilterBar(),
@@ -1041,8 +1054,14 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
   }
 
   Widget _buildFilterBar() {
-    return Positioned(
-      top: MediaQuery.of(context).padding.top + 16,
+    // Use the same logic as LevelBadge to avoid overlap
+    final topPadding = MediaQuery.of(context).padding.top + 
+        (_isEntering ? 180 : (widget.questShop != null ? 170 : 16));
+
+    return AnimatedPositioned(
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+      top: topPadding,
       right: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,

@@ -463,6 +463,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{minutes}m {seconds}s remaining'**
   String remainingTime(int minutes, int seconds);
+
+  /// No description provided for @achNameFirstSteps.
+  ///
+  /// In en, this message translates to:
+  /// **'First Steps'**
+  String get achNameFirstSteps;
+
+  /// No description provided for @achDescFirstSteps.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit your first shop.'**
+  String get achDescFirstSteps;
+
+  /// No description provided for @achNameRamenFan.
+  ///
+  /// In en, this message translates to:
+  /// **'Ramen Fan'**
+  String get achNameRamenFan;
+
+  /// No description provided for @achDescRamenFan.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit 3 Ramen shops.'**
+  String get achDescRamenFan;
+
+  /// No description provided for @achNameChainBreaker.
+  ///
+  /// In en, this message translates to:
+  /// **'Chain-Breaker'**
+  String get achNameChainBreaker;
+
+  /// No description provided for @achDescChainBreaker.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit 10 Independent (non-chain) shops.'**
+  String get achDescChainBreaker;
+
+  /// No description provided for @achNameLightBringer.
+  ///
+  /// In en, this message translates to:
+  /// **'Light-Bringer'**
+  String get achNameLightBringer;
+
+  /// No description provided for @achDescLightBringer.
+  ///
+  /// In en, this message translates to:
+  /// **'Trigger 50 \'Dining Blasts\' (Shop visits).'**
+  String get achDescLightBringer;
+
+  /// No description provided for @achNameCuisineAlchemist.
+  ///
+  /// In en, this message translates to:
+  /// **'Cuisine Alchemist'**
+  String get achNameCuisineAlchemist;
+
+  /// No description provided for @achDescCuisineAlchemist.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit one shop from 5 different categories.'**
+  String get achDescCuisineAlchemist;
+
+  /// No description provided for @achNameNightOwl.
+  ///
+  /// In en, this message translates to:
+  /// **'Midnight Snack'**
+  String get achNameNightOwl;
+
+  /// No description provided for @achDescNightOwl.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit a shop between 12:00 AM and 4:00 AM.'**
+  String get achDescNightOwl;
+
+  /// No description provided for @achCategoryAll.
+  ///
+  /// In en, this message translates to:
+  /// **'ALL'**
+  String get achCategoryAll;
+
+  /// No description provided for @achCategoryExploration.
+  ///
+  /// In en, this message translates to:
+  /// **'EXPLORE'**
+  String get achCategoryExploration;
+
+  /// No description provided for @achCategoryFoodie.
+  ///
+  /// In en, this message translates to:
+  /// **'FOODIE'**
+  String get achCategoryFoodie;
+
+  /// No description provided for @achCategoryQuest.
+  ///
+  /// In en, this message translates to:
+  /// **'QUEST'**
+  String get achCategoryQuest;
+
+  /// No description provided for @achCategorySocial.
+  ///
+  /// In en, this message translates to:
+  /// **'SOCIAL'**
+  String get achCategorySocial;
+
+  /// No description provided for @achievementTabTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Achievements'**
+  String get achievementTabTitle;
 }
 
 class _AppLocalizationsDelegate

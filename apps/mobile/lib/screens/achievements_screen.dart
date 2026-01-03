@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../services/api_service.dart';
 import '../api/fof/v1/fof.pb.dart';
+import '../l10n/app_localizations.dart';
+import '../utils/achievement_localization.dart';
 
 extension UserAchievementStatusExtension on UserAchievementStatus {
   double get progress => targetValue > 0 ? currentValue / targetValue : 0.0;
@@ -52,10 +54,11 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final s = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: AppTheme.lightBackground,
       appBar: AppBar(
-        title: const Text('Achievements'),
+        title: Text(s.achievementTabTitle),
         backgroundColor: AppTheme.lightSurface,
         surfaceTintColor: Colors.transparent,
         actions: [
@@ -107,6 +110,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
   }
 
   Widget _buildSidebar() {
+    final s = AppLocalizations.of(context)!;
     return Container(
       width: 80,
       decoration: BoxDecoration(
@@ -119,6 +123,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
         itemCount: _categories.length,
         itemBuilder: (context, index) {
           final cat = _categories[index];
+          final localizedLabel = AchievementLocalization.getLocalizedCategoryLabel(s, cat['id']);
           final isSelected = _selectedCategory == cat['id'];
           return GestureDetector(
             onTap: () => setState(() => _selectedCategory = cat['id']),
@@ -139,7 +144,10 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    cat['label'],
+                    localizedLabel,
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
@@ -156,6 +164,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
   }
 
   Widget _buildAchievementList() {
+    final s = AppLocalizations.of(context)!;
     final filtered = _selectedCategory == 'ALL'
         ? _achievements
         : _achievements.where((a) => a.achievement.category.toUpperCase() == _selectedCategory).toList();
@@ -200,10 +209,14 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
   }
 
   Widget _buildAchievementCard(UserAchievementStatus status) {
+    final s = AppLocalizations.of(context)!;
     final ach = status.achievement;
     final isUnlocked = status.isUnlocked;
     final progress = status.progress;
     final icon = _getIconForCategory(ach.category);
+    
+    // Localize!
+    final localized = AchievementLocalization.getLocalizedAchievement(s, ach.id);
 
     return Container(
       padding: const EdgeInsets.all(AppTheme.spacingMd),
@@ -246,7 +259,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      ach.name,
+                      localized.name, // Use localized name
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
@@ -254,7 +267,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                       ),
                     ),
                     Text(
-                      ach.description,
+                      localized.description, // Use localized description
                       style: TextStyle(
                         fontSize: 12,
                         color: AppTheme.textSecondaryLight,

@@ -34,6 +34,9 @@ mobile-web:
 gen-db:
 	@cd apps/backend && go run cmd/gen/main.go
 
+gen-intl:
+	@cd apps/mobile && flutter gen-l10n
+
 migrate-up:
 	@cd apps/backend && go run cmd/migrate/main.go up
 

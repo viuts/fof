@@ -199,4 +199,60 @@ class AppLocalizationsEn extends AppLocalizations {
   String remainingTime(int minutes, int seconds) {
     return '${minutes}m ${seconds}s remaining';
   }
+
+  @override
+  String get achNameFirstSteps => 'First Steps';
+
+  @override
+  String get achDescFirstSteps => 'Visit your first shop.';
+
+  @override
+  String get achNameRamenFan => 'Ramen Fan';
+
+  @override
+  String get achDescRamenFan => 'Visit 3 Ramen shops.';
+
+  @override
+  String get achNameChainBreaker => 'Chain-Breaker';
+
+  @override
+  String get achDescChainBreaker => 'Visit 10 Independent (non-chain) shops.';
+
+  @override
+  String get achNameLightBringer => 'Light-Bringer';
+
+  @override
+  String get achDescLightBringer =>
+      'Trigger 50 \'Dining Blasts\' (Shop visits).';
+
+  @override
+  String get achNameCuisineAlchemist => 'Cuisine Alchemist';
+
+  @override
+  String get achDescCuisineAlchemist =>
+      'Visit one shop from 5 different categories.';
+
+  @override
+  String get achNameNightOwl => 'Midnight Snack';
+
+  @override
+  String get achDescNightOwl => 'Visit a shop between 12:00 AM and 4:00 AM.';
+
+  @override
+  String get achCategoryAll => 'ALL';
+
+  @override
+  String get achCategoryExploration => 'EXPLORE';
+
+  @override
+  String get achCategoryFoodie => 'FOODIE';
+
+  @override
+  String get achCategoryQuest => 'QUEST';
+
+  @override
+  String get achCategorySocial => 'SOCIAL';
+
+  @override
+  String get achievementTabTitle => 'Achievements';
 }

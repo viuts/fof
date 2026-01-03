@@ -86,5 +86,23 @@
             "minutes": { "type": "int" },
             "seconds": { "type": "int" }
         }
-    }
+    },
+    "achNameFirstSteps": "First Steps",
+    "achDescFirstSteps": "Visit your first shop.",
+    "achNameRamenFan": "Ramen Fan",
+    "achDescRamenFan": "Visit 3 Ramen shops.",
+    "achNameChainBreaker": "Chain-Breaker",
+    "achDescChainBreaker": "Visit 10 Independent (non-chain) shops.",
+    "achNameLightBringer": "Light-Bringer",
+    "achDescLightBringer": "Trigger 50 'Dining Blasts' (Shop visits).",
+    "achNameCuisineAlchemist": "Cuisine Alchemist",
+    "achDescCuisineAlchemist": "Visit one shop from 5 different categories.",
+    "achNameNightOwl": "Midnight Snack",
+    "achDescNightOwl": "Visit a shop between 12:00 AM and 4:00 AM.",
+    "achCategoryAll": "ALL",
+    "achCategoryExploration": "EXPLORE",
+    "achCategoryFoodie": "FOODIE",
+    "achCategoryQuest": "QUEST",
+    "achCategorySocial": "SOCIAL",
+    "achievementTabTitle": "Achievements"
 }

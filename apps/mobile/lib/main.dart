@@ -8,14 +8,18 @@ import 'theme/app_theme.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'l10n/app_localizations.dart';
+import 'services/map_style_service.dart';
 import 'services/language_service.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   ApiService().init(host: 'localhost', port: 8080); // Use 10.0.2.2 for Android emulator
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => LanguageService(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => LanguageService()),
+        ChangeNotifierProvider(create: (_) => MapStyleService()),
+      ],
       child: const FogOfFlavorApp(),
     ),
   );

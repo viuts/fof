@@ -47,6 +47,8 @@ dependencies:
   shared_preferences: ^2.5.2
   flutter_localizations:
     sdk: flutter
+  flutter_map_location_marker: ^10.2.0
+  flutter_compass: ^0.8.1
 
 
 dev_dependencies:

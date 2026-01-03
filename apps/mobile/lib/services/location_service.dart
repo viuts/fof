@@ -4,6 +4,7 @@ import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart' show debugPrint, kIsWeb;
 import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_compass/flutter_compass.dart';
 
 /// Service for location tracking with battery optimization and persistent local caching
 class LocationService {
@@ -12,6 +13,11 @@ class LocationService {
   LocationService._internal();
 
   StreamSubscription<Position>? _positionSubscription;
+  final _positionController = StreamController<Position>.broadcast();
+  Stream<Position> get positionStream => _positionController.stream;
+  
+  // Compass Support
+  Stream<double?> get headingStream => FlutterCompass.events!.map((event) => event.heading);
   bool _isFrozen = false;
   Position? _currentPosition;
   final List<Position> _currentPath = [];
@@ -41,6 +47,7 @@ class LocationService {
     for (final listener in _updateListeners) {
       listener(lat, lng);
     }
+    _positionController.add(newPosition);
   }
 
   /// Load cached path from storage
@@ -199,6 +206,7 @@ class LocationService {
           for (final listener in _updateListeners) {
             listener(position.latitude, position.longitude);
           }
+          _positionController.add(position);
         },
         onError: (e) {
           debugPrint('Position stream error: $e');
@@ -221,6 +229,7 @@ class LocationService {
       for (final listener in _updateListeners) {
         listener(position.latitude, position.longitude);
       }
+      _positionController.add(position);
     } catch (e) {
       debugPrint('LocationService: Initial position fetch timed out or failed ($e). Waiting for stream...');
     }

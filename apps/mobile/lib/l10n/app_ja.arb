@@ -65,5 +65,23 @@
             "minutes": { "type": "int" },
             "seconds": { "type": "int" }
         }
-    }
+    },
+    "achNameFirstSteps": "はじめの一歩",
+    "achDescFirstSteps": "初めてショップを訪問する。",
+    "achNameRamenFan": "ラーメンファン",
+    "achDescRamenFan": "ラーメン店を3軒訪問する。",
+    "achNameChainBreaker": "チェーン・ブレイカー",
+    "achDescChainBreaker": "個人経営（非チェーン）の店を10軒訪問する。",
+    "achNameLightBringer": "ライト・ブリンガー",
+    "achDescLightBringer": "「ダイニング・ブラスト」（店舗訪問）を50回発生させる。",
+    "achNameCuisineAlchemist": "料理の錬金術師",
+    "achDescCuisineAlchemist": "5つの異なるカテゴリーの店を訪問する。",
+    "achNameNightOwl": "ミッドナイト・スナック",
+    "achDescNightOwl": "午前0時から午前4時の間にショップを訪問する。",
+    "achCategoryAll": "すべて",
+    "achCategoryExploration": "探索",
+    "achCategoryFoodie": "食通",
+    "achCategoryQuest": "クエスト",
+    "achCategorySocial": "社交",
+    "achievementTabTitle": "実績"
 }

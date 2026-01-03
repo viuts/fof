@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../theme/app_theme.dart';
 import '../services/location_service.dart';
 import '../services/language_service.dart';
+import '../services/map_style_service.dart';
 
 class AccountScreen extends StatefulWidget {
   final VoidCallback? onDeleteHistory;
@@ -20,6 +21,7 @@ class _AccountScreenState extends State<AccountScreen> {
   Widget build(BuildContext context) {
     final s = S.of(context);
     final languageService = Provider.of<LanguageService>(context);
+    final mapStyleService = Provider.of<MapStyleService>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -113,9 +115,13 @@ class _AccountScreenState extends State<AccountScreen> {
                 const Divider(height: 1),
                 ListTile(
                   leading: const Icon(Icons.map_outlined),
-                  title: const Text('Map Style'), // Optional: could be translated too
+                  title: const Text('Map Style'),
+                  subtitle: Text(
+                    mapStyleService.currentStyle.name,
+                    style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary),
+                  ),
                   trailing: const Icon(Icons.chevron_right),
-                  onTap: () {},
+                  onTap: () => _showMapStyleDialog(context, mapStyleService),
                 ),
               ],
             ),
@@ -146,6 +152,40 @@ class _AccountScreenState extends State<AccountScreen> {
           color: AppTheme.textSecondary,
           letterSpacing: 1.2,
         ),
+      ),
+    );
+  }
+
+  void _showMapStyleDialog(BuildContext context, MapStyleService service) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Select Map Style'),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: ListView.builder(
+            shrinkWrap: true,
+            itemCount: MapStyleService.styles.length,
+            itemBuilder: (context, index) {
+              final style = MapStyleService.styles[index];
+              return RadioListTile<String>(
+                title: Text(style.name),
+                value: style.name,
+                groupValue: service.currentStyle.name,
+                onChanged: (_) {
+                  service.setStyle(style);
+                  Navigator.pop(context);
+                },
+              );
+            },
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+        ],
       ),
     );
   }

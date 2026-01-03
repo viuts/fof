@@ -198,4 +198,58 @@ class AppLocalizationsJa extends AppLocalizations {
   String remainingTime(int minutes, int seconds) {
     return '残り $minutes分 $seconds秒';
   }
+
+  @override
+  String get achNameFirstSteps => 'はじめの一歩';
+
+  @override
+  String get achDescFirstSteps => '初めてショップを訪問する。';
+
+  @override
+  String get achNameRamenFan => 'ラーメンファン';
+
+  @override
+  String get achDescRamenFan => 'ラーメン店を3軒訪問する。';
+
+  @override
+  String get achNameChainBreaker => 'チェーン・ブレイカー';
+
+  @override
+  String get achDescChainBreaker => '個人経営（非チェーン）の店を10軒訪問する。';
+
+  @override
+  String get achNameLightBringer => 'ライト・ブリンガー';
+
+  @override
+  String get achDescLightBringer => '「ダイニング・ブラスト」（店舗訪問）を50回発生させる。';
+
+  @override
+  String get achNameCuisineAlchemist => '料理の錬金術師';
+
+  @override
+  String get achDescCuisineAlchemist => '5つの異なるカテゴリーの店を訪問する。';
+
+  @override
+  String get achNameNightOwl => 'ミッドナイト・スナック';
+
+  @override
+  String get achDescNightOwl => '午前0時から午前4時の間にショップを訪問する。';
+
+  @override
+  String get achCategoryAll => 'すべて';
+
+  @override
+  String get achCategoryExploration => '探索';
+
+  @override
+  String get achCategoryFoodie => '食通';
+
+  @override
+  String get achCategoryQuest => 'クエスト';
+
+  @override
+  String get achCategorySocial => '社交';
+
+  @override
+  String get achievementTabTitle => '実績';
 }
