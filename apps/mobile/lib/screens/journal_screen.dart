@@ -182,7 +182,12 @@ class _JournalScreenState extends State<JournalScreen> {
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.all(AppTheme.spacingMd),
+      padding: const EdgeInsets.only(
+        left: AppTheme.spacingMd,
+        right: AppTheme.spacingMd,
+        top: AppTheme.spacingMd,
+        bottom: 100, // Extra space for FAB and bottom bar
+      ),
       itemCount: filtered.length,
       itemBuilder: (context, index) {
         final visit = filtered[index];

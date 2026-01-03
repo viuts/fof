@@ -210,17 +210,19 @@ class LocationService {
 
     // Get initial position
     try {
+      // Try current position with a more generous timeout
       final position = await Geolocator.getCurrentPosition(
         locationSettings: locationSettings,
-      ).timeout(const Duration(seconds: 5));
+      ).timeout(const Duration(seconds: 15));
       
       _currentPosition = position;
+      _currentPath.add(position);
+      _savePath();
       for (final listener in _updateListeners) {
         listener(position.latitude, position.longitude);
       }
     } catch (e) {
-      debugPrint('CRITICAL: Failed to get initial position (might be Web interop error): $e');
-      // If we are on web and everything failed, we already have the Tokyo fallback
+      debugPrint('LocationService: Initial position fetch timed out or failed ($e). Waiting for stream...');
     }
   }
 

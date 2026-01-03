@@ -26,7 +26,12 @@ class _AccountScreenState extends State<AccountScreen> {
         title: Text(s.accountTitle),
       ),
       body: ListView(
-        padding: const EdgeInsets.all(AppTheme.spacingLg),
+        padding: const EdgeInsets.fromLTRB(
+          AppTheme.spacingLg,
+          AppTheme.spacingLg,
+          AppTheme.spacingLg,
+          100, // Extra space for bottom bar and FAB
+        ),
         children: [
           // Profile Section
           const Center(

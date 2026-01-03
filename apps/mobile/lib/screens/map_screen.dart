@@ -112,8 +112,12 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
         },
       );
       _loadInitialData();
-    } catch (e) {
-      debugPrint('Error starting location service: $e');
+    }
+  }
+
+  void recenter() {
+    if (_currentLocation != null) {
+      _mapController.move(_currentLocation!, 15.0);
     }
   }
 
@@ -494,7 +498,7 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
   Widget _buildVirtualDPad() {
     return Positioned(
       left: 16,
-      bottom: 100,
+      bottom: 150,
       child: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
@@ -929,26 +933,6 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
             _buildQuestOverlay(),
           // Blast animation layer
           _buildBlastLayer(radiusInMeters: 250.0),
-          // Location button
-          Positioned(
-            right: 16,
-            bottom: 100, // Positioned above the bottom nav bar
-            child: FloatingActionButton(
-              mini: true,
-              backgroundColor: Colors.white,
-              elevation: 4,
-              onPressed: () {
-                if (_currentLocation != null) {
-                  _mapController.move(_currentLocation!, 15.0);
-                }
-              },
-              child: const Icon(
-                Icons.my_location,
-                color: AppTheme.primaryColor,
-                size: 24,
-              ),
-            ),
-          ),
           // Virtual D-pad for development
           if (kDebugMode)
             _buildVirtualDPad(),

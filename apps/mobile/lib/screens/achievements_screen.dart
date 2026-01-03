@@ -170,7 +170,12 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
     }
 
     return ListView.separated(
-      padding: const EdgeInsets.all(AppTheme.spacingMd),
+      padding: const EdgeInsets.only(
+        left: AppTheme.spacingMd,
+        right: AppTheme.spacingMd,
+        top: AppTheme.spacingMd,
+        bottom: 100, // Extra space for FAB and bottom bar
+      ),
       itemCount: filtered.length,
       separatorBuilder: (context, index) => const SizedBox(height: AppTheme.spacingMd),
       itemBuilder: (context, index) {

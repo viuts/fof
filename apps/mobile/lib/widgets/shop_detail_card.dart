@@ -72,7 +72,7 @@ class ShopDetailCard extends StatelessWidget {
     final isDiscovered = isInClearedArea || distanceToShop <= 50;
 
     return Positioned(
-      bottom: 110,
+      bottom: 150,
       left: 16,
       right: 16,
       child: Container(

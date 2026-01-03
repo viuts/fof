@@ -38,7 +38,7 @@ class _MainContainerState extends State<MainContainer> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBody: true, // Allows the map to show behind the tab bar
+      extendBody: _currentIndex == 2, // Only extend for Map screen
       body: IndexedStack(
         index: _currentIndex,
         children: [
@@ -94,7 +94,13 @@ class _MainContainerState extends State<MainContainer> {
           ],
         ),
         child: FloatingActionButton(
-          onPressed: () => setState(() => _currentIndex = 2),
+          onPressed: () {
+            if (_currentIndex == 2) {
+              _mapKey.currentState?.recenter();
+            } else {
+              setState(() => _currentIndex = 2);
+            }
+          },
           backgroundColor: _currentIndex == 2 ? AppTheme.primaryColor : Colors.white,
           elevation: 0,
           shape: const CircleBorder(),

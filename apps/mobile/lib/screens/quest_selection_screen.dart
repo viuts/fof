@@ -188,6 +188,7 @@ class _QuestSelectionScreenState extends State<QuestSelectionScreen> {
               padding: const EdgeInsets.all(24.0),
               child: _buildSurpriseButton(context),
             ),
+            const SizedBox(height: 80),
           ],
         ),
       ),

@@ -11,7 +11,8 @@ class ApiService {
   late String _baseUrl;
 
   void init({String host = 'localhost', int port = 8080}) {
-    _baseUrl = 'http://$host:$port';
+    // _baseUrl = 'http://$host:$port';
+    _baseUrl = 'https://333a3bb6e497.ngrok-free.app';
   }
 
   Future<UpdateLocationResponse> updateLocation(List<LatLng> path) async {
