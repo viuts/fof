@@ -241,6 +241,18 @@ class _QuestSelectionScreenState extends State<QuestSelectionScreen> {
     );
   }
 
+  void _showToast(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.only(bottom: 200, left: 16, right: 16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        backgroundColor: const Color(0xFF333333),
+      ),
+    );
+  }
+
   Widget _buildSurpriseButton(BuildContext context) {
     return Container(
       height: 56,
@@ -263,9 +275,7 @@ class _QuestSelectionScreenState extends State<QuestSelectionScreen> {
             final position = locationService.currentPosition;
             
             if (position == null) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(S.of(context).errorLocationUnavailable)),
-              );
+              _showToast(S.of(context).errorLocationUnavailable);
               return;
             }
 
@@ -292,9 +302,7 @@ class _QuestSelectionScreenState extends State<QuestSelectionScreen> {
               
               if (finalShops.isEmpty) {
                 if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(S.of(context).errorNoShopsFound)),
-                  );
+                  _showToast(S.of(context).errorNoShopsFound);
                 }
                 return;
               }
@@ -308,9 +316,7 @@ class _QuestSelectionScreenState extends State<QuestSelectionScreen> {
               
             } catch (e) {
               if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Error: $e')),
-                );
+                _showToast('Error: $e');
               }
             }
           },

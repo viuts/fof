@@ -165,9 +165,34 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
 
   Widget _buildAchievementList() {
     final s = AppLocalizations.of(context)!;
-    final filtered = _selectedCategory == 'ALL'
+    final filtered = (_selectedCategory == 'ALL'
         ? _achievements
-        : _achievements.where((a) => a.achievement.category.toUpperCase() == _selectedCategory).toList();
+        : _achievements.where((a) => a.achievement.category.toUpperCase() == _selectedCategory).toList())
+      ..sort((a, b) {
+        // Prioritize In Progress (Not unlocked, partial progress)
+        final aInProgress = !a.isUnlocked && a.currentValue > 0;
+        final bInProgress = !b.isUnlocked && b.currentValue > 0;
+        if (aInProgress && !bInProgress) return -1;
+        if (!aInProgress && bInProgress) return 1;
+
+        // Then No Progress (Not unlocked, no progress)
+        final aNoProgress = !a.isUnlocked && a.currentValue == 0;
+        final bNoProgress = !b.isUnlocked && b.currentValue == 0;
+        if (aNoProgress && !bNoProgress) return -1;
+        if (!aNoProgress && bNoProgress) return 1;
+
+        // Finally Achieved (Unlocked), sorted by most recently unlocked
+        if (a.isUnlocked && b.isUnlocked) {
+           // Parse dates if available, otherwise strict sort isn't critical but good to have
+           // unlockedAt is string ISO? Proto says string. Assuming ISO8601 or empty.
+           if (a.unlockedAt.isNotEmpty && b.unlockedAt.isNotEmpty) {
+             return b.unlockedAt.compareTo(a.unlockedAt); // Descending
+           }
+        }
+        
+        // Fallback to name or ID if needed, or keep stable
+        return 0;
+      });
 
     if (filtered.isEmpty) {
       return Center(
@@ -282,34 +307,62 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
             ],
           ),
           const SizedBox(height: AppTheme.spacingMd),
-          Row(
-            children: [
-              Expanded(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(4),
-                  child: LinearProgressIndicator(
-                    value: progress,
-                    minHeight: 6,
-                    backgroundColor: AppTheme.lightSurfaceVariant,
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      isUnlocked ? AppTheme.primaryColor : AppTheme.primaryColor.withValues(alpha: 0.4),
+          const SizedBox(height: AppTheme.spacingMd),
+          if (isUnlocked) ...[
+             Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Text(
+                  _formatDate(status.unlockedAt),
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: AppTheme.primaryColor.withValues(alpha: 0.8),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ] else ...[
+             Row(
+              children: [
+                Expanded(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: LinearProgressIndicator(
+                      value: progress,
+                      minHeight: 6,
+                      backgroundColor: AppTheme.lightSurfaceVariant,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        AppTheme.primaryColor.withValues(alpha: 0.4),
+                      ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 12),
-              Text(
-                '${status.currentValue}/${status.targetValue}',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: isUnlocked ? AppTheme.primaryColor : AppTheme.textSecondaryLight,
+                const SizedBox(width: 12),
+                Text(
+                  '${status.currentValue}/${status.targetValue}',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: AppTheme.textSecondaryLight,
+                  ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
+          ],
         ],
       ),
     );
+  }
+
+  String _formatDate(String isoString) {
+    if (isoString.isEmpty) return '';
+    try {
+      final date = DateTime.parse(isoString).toLocal();
+      // Simple formatting YYYY/MM/DD, can use intl package if desired but keeping simple for now
+      return '${date.year}/${date.month.toString().padLeft(2, '0')}/${date.day.toString().padLeft(2, '0')}';
+    } catch (_) {
+      return '';
+    }
   }
 }
