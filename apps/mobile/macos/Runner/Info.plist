@@ -30,5 +30,7 @@
 	<string>NSApplication</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Fog of Flavor needs access to your location to clear the fog on the map as you discover new places.</string>
+	<key>NSLocationUsageDescription</key>
+	<string>Fog of Flavor needs access to your location to clear the fog on the map as you discover new places.</string>
 </dict>
 </plist>

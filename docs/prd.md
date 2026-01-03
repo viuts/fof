@@ -42,7 +42,7 @@
     *   *Impact:* Chains provide 90% less "Fog Clearing" radius and fewer XP points.
 
 ### 4.3. Stay Detection (Passive Check-in)
-*   **FR-8: Dwell Time Logic:** To clear a "Dining Blast," the user must stay within the shop's geofence for at least 20 minutes.
+*   **FR-8: Dwell Time Logic:** To clear a "Dining Blast," the user must stay within the shop's geofence for at least 10 minutes.
 *   **FR-9: Battery Optimization:** The app should use low-power location monitoring (Cell tower/Wi-Fi) and only spin up high-accuracy GPS when movement is detected or a potential "Stay" is occurring.
 
 ### 4.4. Quest Mode (RNG Discovery)

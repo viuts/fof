@@ -6,7 +6,7 @@ import 'quest_selection_screen.dart';
 import 'map_screen.dart';
 import '../theme/app_theme.dart';
 import '../services/language_service.dart';
-import '../models/shop.dart';
+import '../api/fof/v1/fof.pb.dart';
 
 class MainContainer extends StatefulWidget {
   const MainContainer({super.key});
@@ -63,16 +63,22 @@ class _MainContainerState extends State<MainContainer> {
         notchMargin: 10.0,
         color: AppTheme.lightSurface,
         elevation: 10,
+        height: 72, // Explicit height for better control
+        padding: EdgeInsets.zero, // We use SafeArea inside
         shadowColor: Colors.black.withValues(alpha: 0.2),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _buildTabItem(0, Icons.explore_outlined, Icons.explore, S.of(context).tabQuest),
-            _buildTabItem(1, Icons.auto_stories_outlined, Icons.auto_stories, S.of(context).tabJournal),
-            const SizedBox(width: 52), // Space for FAB
-            _buildTabItem(3, Icons.emoji_events_outlined, Icons.emoji_events, S.of(context).tabAwards),
-            _buildTabItem(4, Icons.person_outline, Icons.person, S.of(context).tabAccount),
-          ],
+        child: SafeArea(
+          top: false,
+          bottom: true,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildTabItem(0, Icons.explore_outlined, Icons.explore, S.of(context).tabQuest),
+              _buildTabItem(1, Icons.auto_stories_outlined, Icons.auto_stories, S.of(context).tabJournal),
+              const SizedBox(width: 52), // Space for FAB
+              _buildTabItem(3, Icons.emoji_events_outlined, Icons.emoji_events, S.of(context).tabAwards),
+              _buildTabItem(4, Icons.person_outline, Icons.person, S.of(context).tabAccount),
+            ],
+          ),
         ),
       ),
       floatingActionButton: Container(

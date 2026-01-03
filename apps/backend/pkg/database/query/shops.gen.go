@@ -42,6 +42,7 @@ func newShop(db *gorm.DB, opts ...gen.DOOption) shop {
 	_shop.ImageURLs = field.NewField(tableName, "image_urls")
 	_shop.Rating = field.NewFloat64(tableName, "rating")
 	_shop.SourceURL = field.NewString(tableName, "source_url")
+	_shop.ClearanceRadius = field.NewFloat64(tableName, "clearance_radius")
 	_shop.CreatedAt = field.NewTime(tableName, "created_at")
 	_shop.UpdatedAt = field.NewTime(tableName, "updated_at")
 
@@ -53,23 +54,24 @@ func newShop(db *gorm.DB, opts ...gen.DOOption) shop {
 type shop struct {
 	shopDo
 
-	ALL          field.Asterisk
-	ID           field.Field
-	Name         field.String
-	Category     field.String
-	Lat          field.Float64
-	Lng          field.Float64
-	IsChain      field.Bool
-	SourceID     field.String
-	Geom         field.String
-	Address      field.String
-	Phone        field.String
-	OpeningHours field.String
-	ImageURLs    field.Field
-	Rating       field.Float64
-	SourceURL    field.String
-	CreatedAt    field.Time
-	UpdatedAt    field.Time
+	ALL             field.Asterisk
+	ID              field.Field
+	Name            field.String
+	Category        field.String
+	Lat             field.Float64
+	Lng             field.Float64
+	IsChain         field.Bool
+	SourceID        field.String
+	Geom            field.String
+	Address         field.String
+	Phone           field.String
+	OpeningHours    field.String
+	ImageURLs       field.Field
+	Rating          field.Float64
+	SourceURL       field.String
+	ClearanceRadius field.Float64
+	CreatedAt       field.Time
+	UpdatedAt       field.Time
 
 	fieldMap map[string]field.Expr
 }
@@ -100,6 +102,7 @@ func (s *shop) updateTableName(table string) *shop {
 	s.ImageURLs = field.NewField(table, "image_urls")
 	s.Rating = field.NewFloat64(table, "rating")
 	s.SourceURL = field.NewString(table, "source_url")
+	s.ClearanceRadius = field.NewFloat64(table, "clearance_radius")
 	s.CreatedAt = field.NewTime(table, "created_at")
 	s.UpdatedAt = field.NewTime(table, "updated_at")
 
@@ -118,7 +121,7 @@ func (s *shop) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (s *shop) fillFieldMap() {
-	s.fieldMap = make(map[string]field.Expr, 16)
+	s.fieldMap = make(map[string]field.Expr, 17)
 	s.fieldMap["id"] = s.ID
 	s.fieldMap["name"] = s.Name
 	s.fieldMap["category"] = s.Category
@@ -133,6 +136,7 @@ func (s *shop) fillFieldMap() {
 	s.fieldMap["image_urls"] = s.ImageURLs
 	s.fieldMap["rating"] = s.Rating
 	s.fieldMap["source_url"] = s.SourceURL
+	s.fieldMap["clearance_radius"] = s.ClearanceRadius
 	s.fieldMap["created_at"] = s.CreatedAt
 	s.fieldMap["updated_at"] = s.UpdatedAt
 }

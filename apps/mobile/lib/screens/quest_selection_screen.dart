@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/language_service.dart';
 import '../services/api_service.dart';
 import '../services/location_service.dart';
-import '../models/shop.dart';
+import '../api/fof/v1/fof.pb.dart';
 import 'dart:math';
 
 class QuestSelectionScreen extends StatefulWidget {

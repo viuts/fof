@@ -37,6 +37,27 @@ class ShopCategory {
     other: const Color(0xFF78909C), // Blue Grey
   };
 
+  /// Category to Icon mapping
+  static final Map<String, IconData> _categoryIcons = {
+    ramen: Icons.ramen_dining,
+    cafe: Icons.local_cafe,
+    pub: Icons.local_bar,
+    sushi: Icons.set_meal,
+    izakaya: Icons.kebab_dining, // Best fit for Izakaya/Skewers
+    italian: Icons.local_pizza,
+    french: Icons.wine_bar,
+    chinese: Icons.rice_bowl,
+    korean: Icons.soup_kitchen,
+    bakery: Icons.bakery_dining,
+    fastfood: Icons.fastfood,
+    other: Icons.storefront,
+  };
+
+  /// Get icon for a given category
+  static IconData getIcon(String category) {
+    return _categoryIcons[category.toLowerCase()] ?? Icons.storefront;
+  }
+
   /// All available categories
   static List<String> get allCategories => _categoryColors.keys.toList();
 }

@@ -72,6 +72,7 @@ const CreateVisitResponse$json = {
     {'1': 'exp_gained', '3': 3, '4': 1, '5': 5, '10': 'expGained'},
     {'1': 'current_exp', '3': 4, '4': 1, '5': 5, '10': 'currentExp'},
     {'1': 'current_level', '3': 5, '4': 1, '5': 5, '10': 'currentLevel'},
+    {'1': 'unlocked_achievements', '3': 6, '4': 3, '5': 11, '6': '.fof.v1.Achievement', '10': 'unlockedAchievements'},
   ],
 };
 
@@ -80,7 +81,28 @@ final $typed_data.Uint8List createVisitResponseDescriptor = $convert.base64Decod
     'ChNDcmVhdGVWaXNpdFJlc3BvbnNlEhgKB3N1Y2Nlc3MYASABKAhSB3N1Y2Nlc3MSMAoUY2xlYX'
     'JlZF9hcmVhX2dlb2pzb24YAiABKAlSEmNsZWFyZWRBcmVhR2VvanNvbhIdCgpleHBfZ2FpbmVk'
     'GAMgASgFUglleHBHYWluZWQSHwoLY3VycmVudF9leHAYBCABKAVSCmN1cnJlbnRFeHASIwoNY3'
-    'VycmVudF9sZXZlbBgFIAEoBVIMY3VycmVudExldmVs');
+    'VycmVudF9sZXZlbBgFIAEoBVIMY3VycmVudExldmVsEkgKFXVubG9ja2VkX2FjaGlldmVtZW50'
+    'cxgGIAMoCzITLmZvZi52MS5BY2hpZXZlbWVudFIUdW5sb2NrZWRBY2hpZXZlbWVudHM=');
+
+@$core.Deprecated('Use achievementDescriptor instead')
+const Achievement$json = {
+  '1': 'Achievement',
+  '2': [
+    {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
+    {'1': 'name', '3': 2, '4': 1, '5': 9, '10': 'name'},
+    {'1': 'description', '3': 3, '4': 1, '5': 9, '10': 'description'},
+    {'1': 'exp_reward', '3': 4, '4': 1, '5': 5, '10': 'expReward'},
+    {'1': 'title_reward', '3': 5, '4': 1, '5': 9, '10': 'titleReward'},
+    {'1': 'category', '3': 6, '4': 1, '5': 9, '10': 'category'},
+  ],
+};
+
+/// Descriptor for `Achievement`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List achievementDescriptor = $convert.base64Decode(
+    'CgtBY2hpZXZlbWVudBIOCgJpZBgBIAEoCVICaWQSEgoEbmFtZRgCIAEoCVIEbmFtZRIgCgtkZX'
+    'NjcmlwdGlvbhgDIAEoCVILZGVzY3JpcHRpb24SHQoKZXhwX3Jld2FyZBgEIAEoBVIJZXhwUmV3'
+    'YXJkEiEKDHRpdGxlX3Jld2FyZBgFIAEoCVILdGl0bGVSZXdhcmQSGgoIY2F0ZWdvcnkYBiABKA'
+    'lSCGNhdGVnb3J5');
 
 @$core.Deprecated('Use updateLocationRequestDescriptor instead')
 const UpdateLocationRequest$json = {
@@ -153,14 +175,31 @@ final $typed_data.Uint8List getVisitedShopsRequestDescriptor = $convert.base64De
 const GetVisitedShopsResponse$json = {
   '1': 'GetVisitedShopsResponse',
   '2': [
-    {'1': 'shops', '3': 1, '4': 3, '5': 11, '6': '.fof.v1.Shop', '10': 'shops'},
+    {'1': 'visited_shops', '3': 1, '4': 3, '5': 11, '6': '.fof.v1.VisitedShop', '10': 'visitedShops'},
   ],
 };
 
 /// Descriptor for `GetVisitedShopsResponse`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List getVisitedShopsResponseDescriptor = $convert.base64Decode(
-    'ChdHZXRWaXNpdGVkU2hvcHNSZXNwb25zZRIiCgVzaG9wcxgBIAMoCzIMLmZvZi52MS5TaG9wUg'
-    'VzaG9wcw==');
+    'ChdHZXRWaXNpdGVkU2hvcHNSZXNwb25zZRI4Cg12aXNpdGVkX3Nob3BzGAEgAygLMhMuZm9mLn'
+    'YxLlZpc2l0ZWRTaG9wUgx2aXNpdGVkU2hvcHM=');
+
+@$core.Deprecated('Use visitedShopDescriptor instead')
+const VisitedShop$json = {
+  '1': 'VisitedShop',
+  '2': [
+    {'1': 'shop', '3': 1, '4': 1, '5': 11, '6': '.fof.v1.Shop', '10': 'shop'},
+    {'1': 'visited_at', '3': 2, '4': 1, '5': 9, '10': 'visitedAt'},
+    {'1': 'rating', '3': 3, '4': 1, '5': 5, '10': 'rating'},
+    {'1': 'comment', '3': 4, '4': 1, '5': 9, '10': 'comment'},
+  ],
+};
+
+/// Descriptor for `VisitedShop`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List visitedShopDescriptor = $convert.base64Decode(
+    'CgtWaXNpdGVkU2hvcBIgCgRzaG9wGAEgASgLMgwuZm9mLnYxLlNob3BSBHNob3ASHQoKdmlzaX'
+    'RlZF9hdBgCIAEoCVIJdmlzaXRlZEF0EhYKBnJhdGluZxgDIAEoBVIGcmF0aW5nEhgKB2NvbW1l'
+    'bnQYBCABKAlSB2NvbW1lbnQ=');
 
 @$core.Deprecated('Use shopDescriptor instead')
 const Shop$json = {
@@ -179,6 +218,7 @@ const Shop$json = {
     {'1': 'image_urls', '3': 11, '4': 3, '5': 9, '10': 'imageUrls'},
     {'1': 'rating', '3': 12, '4': 1, '5': 1, '10': 'rating'},
     {'1': 'source_url', '3': 13, '4': 1, '5': 9, '10': 'sourceUrl'},
+    {'1': 'clearance_radius', '3': 14, '4': 1, '5': 1, '10': 'clearanceRadius'},
   ],
 };
 
@@ -190,5 +230,46 @@ final $typed_data.Uint8List shopDescriptor = $convert.base64Decode(
     'oHYWRkcmVzcxgIIAEoCVIHYWRkcmVzcxIUCgVwaG9uZRgJIAEoCVIFcGhvbmUSIwoNb3Blbmlu'
     'Z19ob3VycxgKIAEoCVIMb3BlbmluZ0hvdXJzEh0KCmltYWdlX3VybHMYCyADKAlSCWltYWdlVX'
     'JscxIWCgZyYXRpbmcYDCABKAFSBnJhdGluZxIdCgpzb3VyY2VfdXJsGA0gASgJUglzb3VyY2VV'
-    'cmw=');
+    'cmwSKQoQY2xlYXJhbmNlX3JhZGl1cxgOIAEoAVIPY2xlYXJhbmNlUmFkaXVz');
+
+@$core.Deprecated('Use getAchievementsRequestDescriptor instead')
+const GetAchievementsRequest$json = {
+  '1': 'GetAchievementsRequest',
+};
+
+/// Descriptor for `GetAchievementsRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List getAchievementsRequestDescriptor = $convert.base64Decode(
+    'ChZHZXRBY2hpZXZlbWVudHNSZXF1ZXN0');
+
+@$core.Deprecated('Use getAchievementsResponseDescriptor instead')
+const GetAchievementsResponse$json = {
+  '1': 'GetAchievementsResponse',
+  '2': [
+    {'1': 'achievements', '3': 1, '4': 3, '5': 11, '6': '.fof.v1.UserAchievementStatus', '10': 'achievements'},
+  ],
+};
+
+/// Descriptor for `GetAchievementsResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List getAchievementsResponseDescriptor = $convert.base64Decode(
+    'ChdHZXRBY2hpZXZlbWVudHNSZXNwb25zZRJBCgxhY2hpZXZlbWVudHMYASADKAsyHS5mb2Yudj'
+    'EuVXNlckFjaGlldmVtZW50U3RhdHVzUgxhY2hpZXZlbWVudHM=');
+
+@$core.Deprecated('Use userAchievementStatusDescriptor instead')
+const UserAchievementStatus$json = {
+  '1': 'UserAchievementStatus',
+  '2': [
+    {'1': 'achievement', '3': 1, '4': 1, '5': 11, '6': '.fof.v1.Achievement', '10': 'achievement'},
+    {'1': 'is_unlocked', '3': 2, '4': 1, '5': 8, '10': 'isUnlocked'},
+    {'1': 'current_value', '3': 3, '4': 1, '5': 5, '10': 'currentValue'},
+    {'1': 'target_value', '3': 4, '4': 1, '5': 5, '10': 'targetValue'},
+    {'1': 'unlocked_at', '3': 5, '4': 1, '5': 9, '10': 'unlockedAt'},
+  ],
+};
+
+/// Descriptor for `UserAchievementStatus`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List userAchievementStatusDescriptor = $convert.base64Decode(
+    'ChVVc2VyQWNoaWV2ZW1lbnRTdGF0dXMSNQoLYWNoaWV2ZW1lbnQYASABKAsyEy5mb2YudjEuQW'
+    'NoaWV2ZW1lbnRSC2FjaGlldmVtZW50Eh8KC2lzX3VubG9ja2VkGAIgASgIUgppc1VubG9ja2Vk'
+    'EiMKDWN1cnJlbnRfdmFsdWUYAyABKAVSDGN1cnJlbnRWYWx1ZRIhCgx0YXJnZXRfdmFsdWUYBC'
+    'ABKAVSC3RhcmdldFZhbHVlEh8KC3VubG9ja2VkX2F0GAUgASgJUgp1bmxvY2tlZEF0');
 

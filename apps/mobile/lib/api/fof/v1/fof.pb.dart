@@ -244,6 +244,7 @@ class CreateVisitResponse extends $pb.GeneratedMessage {
     $core.int? expGained,
     $core.int? currentExp,
     $core.int? currentLevel,
+    $core.Iterable<Achievement>? unlockedAchievements,
   }) {
     final $result = create();
     if (success != null) {
@@ -261,6 +262,9 @@ class CreateVisitResponse extends $pb.GeneratedMessage {
     if (currentLevel != null) {
       $result.currentLevel = currentLevel;
     }
+    if (unlockedAchievements != null) {
+      $result.unlockedAchievements.addAll(unlockedAchievements);
+    }
     return $result;
   }
   CreateVisitResponse._() : super();
@@ -273,6 +277,7 @@ class CreateVisitResponse extends $pb.GeneratedMessage {
     ..a<$core.int>(3, _omitFieldNames ? '' : 'expGained', $pb.PbFieldType.O3)
     ..a<$core.int>(4, _omitFieldNames ? '' : 'currentExp', $pb.PbFieldType.O3)
     ..a<$core.int>(5, _omitFieldNames ? '' : 'currentLevel', $pb.PbFieldType.O3)
+    ..pc<Achievement>(6, _omitFieldNames ? '' : 'unlockedAchievements', $pb.PbFieldType.PM, subBuilder: Achievement.create)
     ..hasRequiredFields = false
   ;
 
@@ -341,6 +346,129 @@ class CreateVisitResponse extends $pb.GeneratedMessage {
   $core.bool hasCurrentLevel() => $_has(4);
   @$pb.TagNumber(5)
   void clearCurrentLevel() => clearField(5);
+
+  @$pb.TagNumber(6)
+  $core.List<Achievement> get unlockedAchievements => $_getList(5);
+}
+
+class Achievement extends $pb.GeneratedMessage {
+  factory Achievement({
+    $core.String? id,
+    $core.String? name,
+    $core.String? description,
+    $core.int? expReward,
+    $core.String? titleReward,
+    $core.String? category,
+  }) {
+    final $result = create();
+    if (id != null) {
+      $result.id = id;
+    }
+    if (name != null) {
+      $result.name = name;
+    }
+    if (description != null) {
+      $result.description = description;
+    }
+    if (expReward != null) {
+      $result.expReward = expReward;
+    }
+    if (titleReward != null) {
+      $result.titleReward = titleReward;
+    }
+    if (category != null) {
+      $result.category = category;
+    }
+    return $result;
+  }
+  Achievement._() : super();
+  factory Achievement.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory Achievement.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'Achievement', package: const $pb.PackageName(_omitMessageNames ? '' : 'fof.v1'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'id')
+    ..aOS(2, _omitFieldNames ? '' : 'name')
+    ..aOS(3, _omitFieldNames ? '' : 'description')
+    ..a<$core.int>(4, _omitFieldNames ? '' : 'expReward', $pb.PbFieldType.O3)
+    ..aOS(5, _omitFieldNames ? '' : 'titleReward')
+    ..aOS(6, _omitFieldNames ? '' : 'category')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  Achievement clone() => Achievement()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  Achievement copyWith(void Function(Achievement) updates) => super.copyWith((message) => updates(message as Achievement)) as Achievement;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static Achievement create() => Achievement._();
+  Achievement createEmptyInstance() => create();
+  static $pb.PbList<Achievement> createRepeated() => $pb.PbList<Achievement>();
+  @$core.pragma('dart2js:noInline')
+  static Achievement getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Achievement>(create);
+  static Achievement? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get id => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set id($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get name => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set name($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasName() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearName() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get description => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set description($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasDescription() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearDescription() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.int get expReward => $_getIZ(3);
+  @$pb.TagNumber(4)
+  set expReward($core.int v) { $_setSignedInt32(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasExpReward() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearExpReward() => clearField(4);
+
+  @$pb.TagNumber(5)
+  $core.String get titleReward => $_getSZ(4);
+  @$pb.TagNumber(5)
+  set titleReward($core.String v) { $_setString(4, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasTitleReward() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearTitleReward() => clearField(5);
+
+  @$pb.TagNumber(6)
+  $core.String get category => $_getSZ(5);
+  @$pb.TagNumber(6)
+  set category($core.String v) { $_setString(5, v); }
+  @$pb.TagNumber(6)
+  $core.bool hasCategory() => $_has(5);
+  @$pb.TagNumber(6)
+  void clearCategory() => clearField(6);
 }
 
 class UpdateLocationRequest extends $pb.GeneratedMessage {
@@ -635,11 +763,11 @@ class GetVisitedShopsRequest extends $pb.GeneratedMessage {
 
 class GetVisitedShopsResponse extends $pb.GeneratedMessage {
   factory GetVisitedShopsResponse({
-    $core.Iterable<Shop>? shops,
+    $core.Iterable<VisitedShop>? visitedShops,
   }) {
     final $result = create();
-    if (shops != null) {
-      $result.shops.addAll(shops);
+    if (visitedShops != null) {
+      $result.visitedShops.addAll(visitedShops);
     }
     return $result;
   }
@@ -648,7 +776,7 @@ class GetVisitedShopsResponse extends $pb.GeneratedMessage {
   factory GetVisitedShopsResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'GetVisitedShopsResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'fof.v1'), createEmptyInstance: create)
-    ..pc<Shop>(1, _omitFieldNames ? '' : 'shops', $pb.PbFieldType.PM, subBuilder: Shop.create)
+    ..pc<VisitedShop>(1, _omitFieldNames ? '' : 'visitedShops', $pb.PbFieldType.PM, subBuilder: VisitedShop.create)
     ..hasRequiredFields = false
   ;
 
@@ -674,7 +802,101 @@ class GetVisitedShopsResponse extends $pb.GeneratedMessage {
   static GetVisitedShopsResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.List<Shop> get shops => $_getList(0);
+  $core.List<VisitedShop> get visitedShops => $_getList(0);
+}
+
+class VisitedShop extends $pb.GeneratedMessage {
+  factory VisitedShop({
+    Shop? shop,
+    $core.String? visitedAt,
+    $core.int? rating,
+    $core.String? comment,
+  }) {
+    final $result = create();
+    if (shop != null) {
+      $result.shop = shop;
+    }
+    if (visitedAt != null) {
+      $result.visitedAt = visitedAt;
+    }
+    if (rating != null) {
+      $result.rating = rating;
+    }
+    if (comment != null) {
+      $result.comment = comment;
+    }
+    return $result;
+  }
+  VisitedShop._() : super();
+  factory VisitedShop.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory VisitedShop.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'VisitedShop', package: const $pb.PackageName(_omitMessageNames ? '' : 'fof.v1'), createEmptyInstance: create)
+    ..aOM<Shop>(1, _omitFieldNames ? '' : 'shop', subBuilder: Shop.create)
+    ..aOS(2, _omitFieldNames ? '' : 'visitedAt')
+    ..a<$core.int>(3, _omitFieldNames ? '' : 'rating', $pb.PbFieldType.O3)
+    ..aOS(4, _omitFieldNames ? '' : 'comment')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  VisitedShop clone() => VisitedShop()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  VisitedShop copyWith(void Function(VisitedShop) updates) => super.copyWith((message) => updates(message as VisitedShop)) as VisitedShop;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static VisitedShop create() => VisitedShop._();
+  VisitedShop createEmptyInstance() => create();
+  static $pb.PbList<VisitedShop> createRepeated() => $pb.PbList<VisitedShop>();
+  @$core.pragma('dart2js:noInline')
+  static VisitedShop getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<VisitedShop>(create);
+  static VisitedShop? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  Shop get shop => $_getN(0);
+  @$pb.TagNumber(1)
+  set shop(Shop v) { setField(1, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasShop() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearShop() => clearField(1);
+  @$pb.TagNumber(1)
+  Shop ensureShop() => $_ensure(0);
+
+  @$pb.TagNumber(2)
+  $core.String get visitedAt => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set visitedAt($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasVisitedAt() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearVisitedAt() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.int get rating => $_getIZ(2);
+  @$pb.TagNumber(3)
+  set rating($core.int v) { $_setSignedInt32(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasRating() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearRating() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.String get comment => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set comment($core.String v) { $_setString(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasComment() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearComment() => clearField(4);
 }
 
 class Shop extends $pb.GeneratedMessage {
@@ -692,6 +914,7 @@ class Shop extends $pb.GeneratedMessage {
     $core.Iterable<$core.String>? imageUrls,
     $core.double? rating,
     $core.String? sourceUrl,
+    $core.double? clearanceRadius,
   }) {
     final $result = create();
     if (id != null) {
@@ -733,6 +956,9 @@ class Shop extends $pb.GeneratedMessage {
     if (sourceUrl != null) {
       $result.sourceUrl = sourceUrl;
     }
+    if (clearanceRadius != null) {
+      $result.clearanceRadius = clearanceRadius;
+    }
     return $result;
   }
   Shop._() : super();
@@ -753,6 +979,7 @@ class Shop extends $pb.GeneratedMessage {
     ..pPS(11, _omitFieldNames ? '' : 'imageUrls')
     ..a<$core.double>(12, _omitFieldNames ? '' : 'rating', $pb.PbFieldType.OD)
     ..aOS(13, _omitFieldNames ? '' : 'sourceUrl')
+    ..a<$core.double>(14, _omitFieldNames ? '' : 'clearanceRadius', $pb.PbFieldType.OD)
     ..hasRequiredFields = false
   ;
 
@@ -887,6 +1114,199 @@ class Shop extends $pb.GeneratedMessage {
   $core.bool hasSourceUrl() => $_has(12);
   @$pb.TagNumber(13)
   void clearSourceUrl() => clearField(13);
+
+  @$pb.TagNumber(14)
+  $core.double get clearanceRadius => $_getN(13);
+  @$pb.TagNumber(14)
+  set clearanceRadius($core.double v) { $_setDouble(13, v); }
+  @$pb.TagNumber(14)
+  $core.bool hasClearanceRadius() => $_has(13);
+  @$pb.TagNumber(14)
+  void clearClearanceRadius() => clearField(14);
+}
+
+class GetAchievementsRequest extends $pb.GeneratedMessage {
+  factory GetAchievementsRequest() => create();
+  GetAchievementsRequest._() : super();
+  factory GetAchievementsRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory GetAchievementsRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'GetAchievementsRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'fof.v1'), createEmptyInstance: create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  GetAchievementsRequest clone() => GetAchievementsRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  GetAchievementsRequest copyWith(void Function(GetAchievementsRequest) updates) => super.copyWith((message) => updates(message as GetAchievementsRequest)) as GetAchievementsRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static GetAchievementsRequest create() => GetAchievementsRequest._();
+  GetAchievementsRequest createEmptyInstance() => create();
+  static $pb.PbList<GetAchievementsRequest> createRepeated() => $pb.PbList<GetAchievementsRequest>();
+  @$core.pragma('dart2js:noInline')
+  static GetAchievementsRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<GetAchievementsRequest>(create);
+  static GetAchievementsRequest? _defaultInstance;
+}
+
+class GetAchievementsResponse extends $pb.GeneratedMessage {
+  factory GetAchievementsResponse({
+    $core.Iterable<UserAchievementStatus>? achievements,
+  }) {
+    final $result = create();
+    if (achievements != null) {
+      $result.achievements.addAll(achievements);
+    }
+    return $result;
+  }
+  GetAchievementsResponse._() : super();
+  factory GetAchievementsResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory GetAchievementsResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'GetAchievementsResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'fof.v1'), createEmptyInstance: create)
+    ..pc<UserAchievementStatus>(1, _omitFieldNames ? '' : 'achievements', $pb.PbFieldType.PM, subBuilder: UserAchievementStatus.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  GetAchievementsResponse clone() => GetAchievementsResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  GetAchievementsResponse copyWith(void Function(GetAchievementsResponse) updates) => super.copyWith((message) => updates(message as GetAchievementsResponse)) as GetAchievementsResponse;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static GetAchievementsResponse create() => GetAchievementsResponse._();
+  GetAchievementsResponse createEmptyInstance() => create();
+  static $pb.PbList<GetAchievementsResponse> createRepeated() => $pb.PbList<GetAchievementsResponse>();
+  @$core.pragma('dart2js:noInline')
+  static GetAchievementsResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<GetAchievementsResponse>(create);
+  static GetAchievementsResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.List<UserAchievementStatus> get achievements => $_getList(0);
+}
+
+class UserAchievementStatus extends $pb.GeneratedMessage {
+  factory UserAchievementStatus({
+    Achievement? achievement,
+    $core.bool? isUnlocked,
+    $core.int? currentValue,
+    $core.int? targetValue,
+    $core.String? unlockedAt,
+  }) {
+    final $result = create();
+    if (achievement != null) {
+      $result.achievement = achievement;
+    }
+    if (isUnlocked != null) {
+      $result.isUnlocked = isUnlocked;
+    }
+    if (currentValue != null) {
+      $result.currentValue = currentValue;
+    }
+    if (targetValue != null) {
+      $result.targetValue = targetValue;
+    }
+    if (unlockedAt != null) {
+      $result.unlockedAt = unlockedAt;
+    }
+    return $result;
+  }
+  UserAchievementStatus._() : super();
+  factory UserAchievementStatus.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory UserAchievementStatus.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'UserAchievementStatus', package: const $pb.PackageName(_omitMessageNames ? '' : 'fof.v1'), createEmptyInstance: create)
+    ..aOM<Achievement>(1, _omitFieldNames ? '' : 'achievement', subBuilder: Achievement.create)
+    ..aOB(2, _omitFieldNames ? '' : 'isUnlocked')
+    ..a<$core.int>(3, _omitFieldNames ? '' : 'currentValue', $pb.PbFieldType.O3)
+    ..a<$core.int>(4, _omitFieldNames ? '' : 'targetValue', $pb.PbFieldType.O3)
+    ..aOS(5, _omitFieldNames ? '' : 'unlockedAt')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  UserAchievementStatus clone() => UserAchievementStatus()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  UserAchievementStatus copyWith(void Function(UserAchievementStatus) updates) => super.copyWith((message) => updates(message as UserAchievementStatus)) as UserAchievementStatus;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static UserAchievementStatus create() => UserAchievementStatus._();
+  UserAchievementStatus createEmptyInstance() => create();
+  static $pb.PbList<UserAchievementStatus> createRepeated() => $pb.PbList<UserAchievementStatus>();
+  @$core.pragma('dart2js:noInline')
+  static UserAchievementStatus getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<UserAchievementStatus>(create);
+  static UserAchievementStatus? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  Achievement get achievement => $_getN(0);
+  @$pb.TagNumber(1)
+  set achievement(Achievement v) { setField(1, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasAchievement() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearAchievement() => clearField(1);
+  @$pb.TagNumber(1)
+  Achievement ensureAchievement() => $_ensure(0);
+
+  @$pb.TagNumber(2)
+  $core.bool get isUnlocked => $_getBF(1);
+  @$pb.TagNumber(2)
+  set isUnlocked($core.bool v) { $_setBool(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasIsUnlocked() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearIsUnlocked() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.int get currentValue => $_getIZ(2);
+  @$pb.TagNumber(3)
+  set currentValue($core.int v) { $_setSignedInt32(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasCurrentValue() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearCurrentValue() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.int get targetValue => $_getIZ(3);
+  @$pb.TagNumber(4)
+  set targetValue($core.int v) { $_setSignedInt32(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasTargetValue() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearTargetValue() => clearField(4);
+
+  @$pb.TagNumber(5)
+  $core.String get unlockedAt => $_getSZ(4);
+  @$pb.TagNumber(5)
+  set unlockedAt($core.String v) { $_setString(4, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasUnlockedAt() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearUnlockedAt() => clearField(5);
 }
 
 

@@ -24,6 +24,7 @@ const (
 	FlavorService_GetVisitedShops_FullMethodName = "/fof.v1.FlavorService/GetVisitedShops"
 	FlavorService_CreateVisit_FullMethodName     = "/fof.v1.FlavorService/CreateVisit"
 	FlavorService_GetClearedArea_FullMethodName  = "/fof.v1.FlavorService/GetClearedArea"
+	FlavorService_GetAchievements_FullMethodName = "/fof.v1.FlavorService/GetAchievements"
 )
 
 // FlavorServiceClient is the client API for FlavorService service.
@@ -40,6 +41,8 @@ type FlavorServiceClient interface {
 	CreateVisit(ctx context.Context, in *CreateVisitRequest, opts ...grpc.CallOption) (*CreateVisitResponse, error)
 	// Get the cleared area as GeoJSON for the current user
 	GetClearedArea(ctx context.Context, in *GetClearedAreaRequest, opts ...grpc.CallOption) (*GetClearedAreaResponse, error)
+	// Get all achievements and user progress
+	GetAchievements(ctx context.Context, in *GetAchievementsRequest, opts ...grpc.CallOption) (*GetAchievementsResponse, error)
 }
 
 type flavorServiceClient struct {
@@ -95,6 +98,15 @@ func (c *flavorServiceClient) GetClearedArea(ctx context.Context, in *GetCleared
 	return out, nil
 }
 
+func (c *flavorServiceClient) GetAchievements(ctx context.Context, in *GetAchievementsRequest, opts ...grpc.CallOption) (*GetAchievementsResponse, error) {
+	out := new(GetAchievementsResponse)
+	err := c.cc.Invoke(ctx, FlavorService_GetAchievements_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // FlavorServiceServer is the server API for FlavorService service.
 // All implementations must embed UnimplementedFlavorServiceServer
 // for forward compatibility
@@ -109,6 +121,8 @@ type FlavorServiceServer interface {
 	CreateVisit(context.Context, *CreateVisitRequest) (*CreateVisitResponse, error)
 	// Get the cleared area as GeoJSON for the current user
 	GetClearedArea(context.Context, *GetClearedAreaRequest) (*GetClearedAreaResponse, error)
+	// Get all achievements and user progress
+	GetAchievements(context.Context, *GetAchievementsRequest) (*GetAchievementsResponse, error)
 	mustEmbedUnimplementedFlavorServiceServer()
 }
 
@@ -130,6 +144,9 @@ func (UnimplementedFlavorServiceServer) CreateVisit(context.Context, *CreateVisi
 }
 func (UnimplementedFlavorServiceServer) GetClearedArea(context.Context, *GetClearedAreaRequest) (*GetClearedAreaResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetClearedArea not implemented")
+}
+func (UnimplementedFlavorServiceServer) GetAchievements(context.Context, *GetAchievementsRequest) (*GetAchievementsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAchievements not implemented")
 }
 func (UnimplementedFlavorServiceServer) mustEmbedUnimplementedFlavorServiceServer() {}
 
@@ -234,6 +251,24 @@ func _FlavorService_GetClearedArea_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _FlavorService_GetAchievements_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAchievementsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FlavorServiceServer).GetAchievements(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: FlavorService_GetAchievements_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FlavorServiceServer).GetAchievements(ctx, req.(*GetAchievementsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // FlavorService_ServiceDesc is the grpc.ServiceDesc for FlavorService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -260,6 +295,10 @@ var FlavorService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetClearedArea",
 			Handler:    _FlavorService_GetClearedArea_Handler,
+		},
+		{
+			MethodName: "GetAchievements",
+			Handler:    _FlavorService_GetAchievements_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -1,107 +1,294 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
+import '../services/api_service.dart';
+import '../api/fof/v1/fof.pb.dart';
 
-class AchievementsScreen extends StatelessWidget {
+extension UserAchievementStatusExtension on UserAchievementStatus {
+  double get progress => targetValue > 0 ? currentValue / targetValue : 0.0;
+}
+
+class AchievementsScreen extends StatefulWidget {
   const AchievementsScreen({super.key});
+
+  @override
+  State<AchievementsScreen> createState() => _AchievementsScreenState();
+}
+
+class _AchievementsScreenState extends State<AchievementsScreen> {
+  final ApiService _apiService = ApiService();
+  List<UserAchievementStatus> _achievements = [];
+  bool _isLoading = true;
+  String? _error;
+  String _selectedCategory = 'ALL';
+
+  final List<Map<String, dynamic>> _categories = [
+    {'id': 'ALL', 'label': 'ALL', 'icon': Icons.grid_view_rounded},
+    {'id': 'EXPLORATION', 'label': 'EXPLORE', 'icon': Icons.explore_rounded},
+    {'id': 'FOODIE', 'label': 'FOODIE', 'icon': Icons.restaurant_rounded},
+    {'id': 'QUEST', 'label': 'QUEST', 'icon': Icons.map_rounded},
+    {'id': 'SOCIAL', 'label': 'SOCIAL', 'icon': Icons.people_rounded},
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAchievements();
+  }
+
+  Future<void> _loadAchievements() async {
+    try {
+      final response = await _apiService.getAchievements();
+      setState(() {
+        _achievements = response.achievements;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _error = e.toString();
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppTheme.lightBackground,
       appBar: AppBar(
         title: const Text('Achievements'),
+        backgroundColor: AppTheme.lightSurface,
+        surfaceTintColor: Colors.transparent,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh_rounded),
+            onPressed: () {
+              setState(() => _isLoading = true);
+              _loadAchievements();
+            },
+          ),
+        ],
       ),
-      body: Container(
-        padding: const EdgeInsets.all(AppTheme.spacingLg),
-        child: ListView(
+      body: _buildBody(),
+    );
+  }
+
+  Widget _buildBody() {
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (_error != null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _buildAchievementCard(
-              title: 'First Discoverer',
-              description: 'Clear your first fog tile',
-              progress: 1.0,
-              icon: Icons.explore,
-              isUnlocked: true,
-            ),
+            const Icon(Icons.error_outline_rounded, size: 48, color: Colors.red),
             const SizedBox(height: AppTheme.spacingMd),
-            _buildAchievementCard(
-              title: 'Cuisine Explorer',
-              description: 'Visit 5 different restaurant categories',
-              progress: 0.4,
-              icon: Icons.restaurant,
-              isUnlocked: false,
-            ),
-            const SizedBox(height: AppTheme.spacingMd),
-            _buildAchievementCard(
-              title: 'The Regular',
-              description: 'Visit the same shop 3 times',
-              progress: 0.0,
-              icon: Icons.repeat,
-              isUnlocked: false,
+            Text('Error: $_error'),
+            TextButton(
+              onPressed: _loadAchievements,
+              child: const Text('Retry'),
             ),
           ],
         ),
+      );
+    }
+
+    return Row(
+      children: [
+        // Left Sidebar: Categories
+        _buildSidebar(),
+        // Right Content: Filtered Achievements
+        Expanded(
+          child: _buildAchievementList(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSidebar() {
+    return Container(
+      width: 80,
+      decoration: BoxDecoration(
+        color: AppTheme.lightSurface,
+        border: Border(
+          right: BorderSide(color: Colors.grey.withValues(alpha: 0.1)),
+        ),
+      ),
+      child: ListView.builder(
+        itemCount: _categories.length,
+        itemBuilder: (context, index) {
+          final cat = _categories[index];
+          final isSelected = _selectedCategory == cat['id'];
+          return GestureDetector(
+            onTap: () => setState(() => _selectedCategory = cat['id']),
+            child: Container(
+              height: 80,
+              decoration: BoxDecoration(
+                border: isSelected ? const Border(
+                  right: BorderSide(color: AppTheme.primaryColor, width: 3),
+                ) : null,
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    cat['icon'],
+                    color: isSelected ? AppTheme.primaryColor : AppTheme.textSecondaryLight,
+                    size: 28,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    cat['label'],
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                      color: isSelected ? AppTheme.primaryColor : AppTheme.textSecondaryLight,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }
 
-  Widget _buildAchievementCard({
-    required String title,
-    required String description,
-    required double progress,
-    required IconData icon,
-    required bool isUnlocked,
-  }) {
+  Widget _buildAchievementList() {
+    final filtered = _selectedCategory == 'ALL'
+        ? _achievements
+        : _achievements.where((a) => a.achievement.category.toUpperCase() == _selectedCategory).toList();
+
+    if (filtered.isEmpty) {
+      return Center(
+        child: Text(
+          'No achievements yet.',
+          style: TextStyle(color: AppTheme.textSecondaryLight),
+        ),
+      );
+    }
+
+    return ListView.separated(
+      padding: const EdgeInsets.all(AppTheme.spacingMd),
+      itemCount: filtered.length,
+      separatorBuilder: (context, index) => const SizedBox(height: AppTheme.spacingMd),
+      itemBuilder: (context, index) {
+        return _buildAchievementCard(filtered[index]);
+      },
+    );
+  }
+
+  IconData _getIconForCategory(String category) {
+    switch (category.toUpperCase()) {
+      case 'EXPLORATION':
+        return Icons.explore_rounded;
+      case 'FOODIE':
+        return Icons.restaurant_rounded;
+      case 'QUEST':
+        return Icons.map_rounded;
+      case 'SOCIAL':
+        return Icons.people_rounded;
+      default:
+        return Icons.emoji_events_rounded;
+    }
+  }
+
+  Widget _buildAchievementCard(UserAchievementStatus status) {
+    final ach = status.achievement;
+    final isUnlocked = status.isUnlocked;
+    final progress = status.progress;
+    final icon = _getIconForCategory(ach.category);
+
     return Container(
       padding: const EdgeInsets.all(AppTheme.spacingMd),
       decoration: BoxDecoration(
-        color: AppTheme.darkSurfaceVariant,
-        borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+        color: AppTheme.lightSurface,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
         border: Border.all(
-          color: isUnlocked ? AppTheme.primaryColor.withValues(alpha: 0.5) : Colors.transparent,
+          color: isUnlocked ? AppTheme.primaryColor.withValues(alpha: 0.1) : Colors.transparent,
+          width: 1.5,
         ),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: (isUnlocked ? AppTheme.primaryColor : Colors.grey).withValues(alpha: 0.2),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              icon,
-              color: isUnlocked ? AppTheme.primaryColor : Colors.grey,
-            ),
+          Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: (isUnlocked ? AppTheme.primaryColor : Colors.grey[200]!).withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  icon,
+                  color: isUnlocked ? AppTheme.primaryColor : Colors.grey[400],
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: AppTheme.spacingMd),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      ach.name,
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                        color: isUnlocked ? AppTheme.textPrimaryLight : AppTheme.textSecondaryLight,
+                      ),
+                    ),
+                    Text(
+                      ach.description,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: AppTheme.textSecondaryLight,
+                        height: 1.2,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (isUnlocked)
+                const Icon(Icons.stars_rounded, color: AppTheme.primaryColor, size: 20),
+            ],
           ),
-          const SizedBox(width: AppTheme.spacingMd),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+          const SizedBox(height: AppTheme.spacingMd),
+          Row(
+            children: [
+              Expanded(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: LinearProgressIndicator(
+                    value: progress,
+                    minHeight: 6,
+                    backgroundColor: AppTheme.lightSurfaceVariant,
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      isUnlocked ? AppTheme.primaryColor : AppTheme.primaryColor.withValues(alpha: 0.4),
+                    ),
                   ),
                 ),
-                Text(
-                  description,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: AppTheme.textSecondary,
-                  ),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                '${status.currentValue}/${status.targetValue}',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: isUnlocked ? AppTheme.primaryColor : AppTheme.textSecondaryLight,
                 ),
-                const SizedBox(height: AppTheme.spacingSm),
-                LinearProgressIndicator(
-                  value: progress,
-                  backgroundColor: Colors.black,
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    isUnlocked ? AppTheme.primaryColor : Colors.grey,
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ],
       ),

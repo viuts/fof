@@ -41,6 +41,10 @@ class FlavorServiceClient extends $grpc.Client {
       '/fof.v1.FlavorService/GetClearedArea',
       ($0.GetClearedAreaRequest value) => value.writeToBuffer(),
       ($core.List<$core.int> value) => $0.GetClearedAreaResponse.fromBuffer(value));
+  static final _$getAchievements = $grpc.ClientMethod<$0.GetAchievementsRequest, $0.GetAchievementsResponse>(
+      '/fof.v1.FlavorService/GetAchievements',
+      ($0.GetAchievementsRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.GetAchievementsResponse.fromBuffer(value));
 
   FlavorServiceClient($grpc.ClientChannel channel,
       {$grpc.CallOptions? options,
@@ -66,6 +70,10 @@ class FlavorServiceClient extends $grpc.Client {
 
   $grpc.ResponseFuture<$0.GetClearedAreaResponse> getClearedArea($0.GetClearedAreaRequest request, {$grpc.CallOptions? options}) {
     return $createUnaryCall(_$getClearedArea, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.GetAchievementsResponse> getAchievements($0.GetAchievementsRequest request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$getAchievements, request, options: options);
   }
 }
 
@@ -109,6 +117,13 @@ abstract class FlavorServiceBase extends $grpc.Service {
         false,
         ($core.List<$core.int> value) => $0.GetClearedAreaRequest.fromBuffer(value),
         ($0.GetClearedAreaResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.GetAchievementsRequest, $0.GetAchievementsResponse>(
+        'GetAchievements',
+        getAchievements_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.GetAchievementsRequest.fromBuffer(value),
+        ($0.GetAchievementsResponse value) => value.writeToBuffer()));
   }
 
   $async.Future<$0.UpdateLocationResponse> updateLocation_Pre($grpc.ServiceCall call, $async.Future<$0.UpdateLocationRequest> request) async {
@@ -131,9 +146,14 @@ abstract class FlavorServiceBase extends $grpc.Service {
     return getClearedArea(call, await request);
   }
 
+  $async.Future<$0.GetAchievementsResponse> getAchievements_Pre($grpc.ServiceCall call, $async.Future<$0.GetAchievementsRequest> request) async {
+    return getAchievements(call, await request);
+  }
+
   $async.Future<$0.UpdateLocationResponse> updateLocation($grpc.ServiceCall call, $0.UpdateLocationRequest request);
   $async.Future<$0.GetNearbyShopsResponse> getNearbyShops($grpc.ServiceCall call, $0.GetNearbyShopsRequest request);
   $async.Future<$0.GetVisitedShopsResponse> getVisitedShops($grpc.ServiceCall call, $0.GetVisitedShopsRequest request);
   $async.Future<$0.CreateVisitResponse> createVisit($grpc.ServiceCall call, $0.CreateVisitRequest request);
   $async.Future<$0.GetClearedAreaResponse> getClearedArea($grpc.ServiceCall call, $0.GetClearedAreaRequest request);
+  $async.Future<$0.GetAchievementsResponse> getAchievements($grpc.ServiceCall call, $0.GetAchievementsRequest request);
 }

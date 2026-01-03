@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../models/shop.dart' as model;
 import '../api/fof/v1/fof.pb.dart';
+import '../api/fof/v1/shop_extensions.dart';
 
 class ApiService {
   static final ApiService _instance = ApiService._internal();
@@ -14,7 +14,7 @@ class ApiService {
     _baseUrl = 'http://$host:$port';
   }
 
-  Future<model.UpdateLocationResponse> updateLocation(List<LatLng> path) async {
+  Future<UpdateLocationResponse> updateLocation(List<LatLng> path) async {
     final response = await http.post(
       Uri.parse('$_baseUrl/v1/location'),
       headers: {'Content-Type': 'application/json'},
@@ -24,13 +24,13 @@ class ApiService {
     );
 
     if (response.statusCode == 200) {
-      return model.UpdateLocationResponse.fromJson(jsonDecode(response.body));
+      return UpdateLocationResponse()..mergeFromProto3Json(jsonDecode(response.body));
     } else {
       throw Exception('Failed to update location: ${response.statusCode}');
     }
   }
 
-  Future<model.GetNearbyShopsResponse> getNearbyShops(
+  Future<GetNearbyShopsResponse> getNearbyShops(
       double lat, double lng, double radius) async {
     final uri = Uri.parse('$_baseUrl/v1/shops/nearby').replace(
       queryParameters: {
@@ -42,50 +42,50 @@ class ApiService {
     final response = await http.get(uri);
 
     if (response.statusCode == 200) {
-      return model.GetNearbyShopsResponse.fromJson(jsonDecode(response.body));
+      return GetNearbyShopsResponse()..mergeFromProto3Json(jsonDecode(response.body));
     } else {
       throw Exception('Failed to get nearby shops: ${response.statusCode}');
     }
   }
 
-  Future<model.GetVisitedShopsResponse> getVisitedShops() async {
+  Future<GetVisitedShopsResponse> getVisitedShops() async {
     final response = await http.get(
       Uri.parse('$_baseUrl/v1/shops/visited'),
     );
 
     if (response.statusCode == 200) {
-      return model.GetVisitedShopsResponse.fromJson(jsonDecode(response.body));
+      return GetVisitedShopsResponse()..mergeFromProto3Json(jsonDecode(response.body));
     } else {
       throw Exception('Failed to get visited shops: ${response.statusCode}');
     }
   }
 
-  Future<model.GetClearedAreaResponse> getClearedArea() async {
+  Future<GetClearedAreaResponse> getClearedArea() async {
     final response = await http.get(
       Uri.parse('$_baseUrl/v1/location/cleared'),
     );
 
     if (response.statusCode == 200) {
-      return model.GetClearedAreaResponse.fromJson(jsonDecode(response.body));
+      return GetClearedAreaResponse()..mergeFromProto3Json(jsonDecode(response.body));
     } else {
       throw Exception('Failed to get cleared area: ${response.statusCode}');
     }
   }
 
-  Future<model.GetNearbyShopsResponse> getQuestShop(String category) async {
+  Future<GetNearbyShopsResponse> getQuestShop(String category) async {
     final uri = Uri.parse('$_baseUrl/v1/shops/quest').replace(
       queryParameters: {'category': category},
     );
     final response = await http.get(uri);
 
     if (response.statusCode == 200) {
-      return model.GetNearbyShopsResponse.fromJson(jsonDecode(response.body));
+      return GetNearbyShopsResponse()..mergeFromProto3Json(jsonDecode(response.body));
     } else {
       throw Exception('Failed to get quest shop: ${response.statusCode}');
     }
   }
 
-  Future<model.CreateVisitResponse> createVisit(String shopId, int rating, String comment) async {
+  Future<CreateVisitResponse> createVisit(String shopId, int rating, String comment) async {
     final response = await http.post(
       Uri.parse('$_baseUrl/v1/visits'),
       headers: {'Content-Type': 'application/json'},
@@ -97,9 +97,21 @@ class ApiService {
     );
 
     if (response.statusCode == 200) {
-      return model.CreateVisitResponse.fromJson(jsonDecode(response.body));
+      return CreateVisitResponse()..mergeFromProto3Json(jsonDecode(response.body));
     } else {
       throw Exception('Failed to create visit: ${response.statusCode}');
+    }
+  }
+
+  Future<GetAchievementsResponse> getAchievements() async {
+    final response = await http.get(
+      Uri.parse('$_baseUrl/v1/achievements'),
+    );
+
+    if (response.statusCode == 200) {
+      return GetAchievementsResponse()..mergeFromProto3Json(jsonDecode(response.body));
+    } else {
+      throw Exception('Failed to get achievements: ${response.statusCode}');
     }
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../models/shop.dart';
+import '../api/fof/v1/fof.pb.dart';
+import '../api/fof/v1/shop_extensions.dart';
 
 /// Custom marker widget for shop beacons with category-based coloring
 /// Implements FR-5 and FR-6 from PRD

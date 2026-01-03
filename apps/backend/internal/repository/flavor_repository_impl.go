@@ -77,16 +77,16 @@ func (r *flavorRepository) GetNearbyShops(ctx context.Context, lat, lng, radius 
 	return shops, nil
 }
 
-func (r *flavorRepository) GetVisitedShops(ctx context.Context, userID string) ([]domain.Shop, error) {
-	var shops []domain.Shop
+func (r *flavorRepository) GetVisitedShops(ctx context.Context, userID string) ([]domain.Visit, error) {
+	var visits []domain.Visit
 	userUUID, _ := uuid.Parse(userID)
 
-	err := r.db.Table("shops").
-		Joins("JOIN visits ON visits.shop_id = shops.id").
-		Where("visits.user_id = ?", userUUID).
-		Find(&shops).Error
+	err := r.db.Preload("Shop").
+		Where("user_id = ?", userUUID).
+		Order("visited_at DESC").
+		Find(&visits).Error
 
-	return shops, err
+	return visits, err
 }
 
 func (r *flavorRepository) CreateVisit(ctx context.Context, userID string, shopID string, rating int, comment string) (string, int, int, int, error) {
@@ -172,4 +172,16 @@ func (r *flavorRepository) GetClearedArea(ctx context.Context, userID string) (s
 		return `{"type":"MultiPolygon","coordinates":[]}`, nil
 	}
 	return geoJSON, err
+}
+
+func (r *flavorRepository) GetShop(ctx context.Context, shopID string) (*domain.Shop, error) {
+	var shop domain.Shop
+	shopUUID, err := uuid.Parse(shopID)
+	if err != nil {
+		return nil, err
+	}
+	if err := r.db.WithContext(ctx).First(&shop, "id = ?", shopUUID).Error; err != nil {
+		return nil, err
+	}
+	return &shop, nil
 }

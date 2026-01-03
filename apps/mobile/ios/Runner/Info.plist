@@ -45,5 +45,11 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Fog of Flavor needs access to your location to clear the fog on the map as you move.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Fog of Flavor needs access to your location to clear the fog even when the app is in the background.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Fog of Flavor needs access to your location to clear the fog on the map as you explore.</string>
 </dict>
 </plist>

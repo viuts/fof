@@ -9,12 +9,16 @@ import 'package:geolocator/geolocator.dart';
 import '../services/api_service.dart';
 import '../services/location_service.dart';
 import '../services/language_service.dart';
-import '../models/shop.dart';
+import '../api/fof/v1/fof.pb.dart';
+import '../api/fof/v1/shop_extensions.dart';
+import '../api/fof/v1/fof.pb.dart' as fof_pb;
 import '../widgets/fog_layer.dart';
 import '../widgets/shop_beacon.dart';
+import '../widgets/shop_detail_card.dart';
+import '../constants/category_colors.dart';
 import '../theme/app_theme.dart';
 import '../utils/geo_utils.dart';
-import '../api/fof/v1/fof.pb.dart' as fof_pb;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MapScreen extends StatefulWidget {
   final Shop? questShop;
@@ -37,7 +41,9 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
   final List<Shop> _nearbyShops = [];
   final List<Shop> _visitedShops = [];
   latlong2.LatLng? _currentLocation;
+  Shop? _selectedShop; // Selected shop for non-blocking detail view
   double? _currentHeading; // Compass heading in degrees
+
   Timer? _shopUpdateTimer;
   Timer? _locationBatchTimer;
   bool _hasCentered = false;
@@ -55,9 +61,16 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
   late AnimationController _blastController;
   latlong2.LatLng? _blastCenterLocation;
 
+  // Filter State
+  // Filter State
+  Set<String>? _hiddenCategoriesBacking;
+  Set<String> get _hiddenCategories => _hiddenCategoriesBacking ??= {};
+  bool _isFilterExpanded = false;
+
   @override
   void initState() {
     super.initState();
+    _loadFilters();
     _startLocationService();
     _shopUpdateTimer = Timer.periodic(const Duration(seconds: 30), (_) => _loadShops());
     _locationBatchTimer = Timer.periodic(const Duration(seconds: 10), (_) => _sendBatchedLocationUpdate());
@@ -101,6 +114,32 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
       _loadInitialData();
     } catch (e) {
       debugPrint('Error starting location service: $e');
+    }
+  }
+
+  Future<void> _loadFilters() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final hidden = prefs.getStringList('hidden_categories');
+      debugPrint('MapScreen: Loaded filters: $hidden');
+      if (hidden != null && mounted) {
+        setState(() {
+          _hiddenCategoriesBacking = hidden.toSet();
+        });
+      }
+    } catch (e) {
+      debugPrint('Error loading filters: $e');
+    }
+  }
+
+  Future<void> _saveFilters() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final list = _hiddenCategories.toList();
+      await prefs.setStringList('hidden_categories', list);
+      debugPrint('MapScreen: Saved filters: $list');
+    } catch (e) {
+      debugPrint('Error saving filters: $e');
     }
   }
 
@@ -153,7 +192,7 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
         _nearbyShops.clear();
         _nearbyShops.addAll(nearby.shops);
         _visitedShops.clear();
-        _visitedShops.addAll(visited.shops);
+        _visitedShops.addAll(visited.visitedShops.map((v) => v.shop));
       });
     } catch (e) {
       debugPrint('Failed to load shops: $e');
@@ -161,282 +200,9 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
   }
 
   void _showShopDetails(Shop shop) {
-    final shopLocation = latlong2.LatLng(shop.lat, shop.lng);
-    final isInClearedArea = GeoUtils.isPointInClearedArea(shopLocation, _clearedAreaGeojson);
-    
-    final distanceToShop = _currentLocation == null 
-        ? double.infinity 
-        : Geolocator.distanceBetween(
-            _currentLocation!.latitude,
-            _currentLocation!.longitude,
-            shop.lat,
-            shop.lng,
-          );
-    
-    // Shop is discovered if it's in a cleared area OR user is very close (fallback for lag)
-    final isDiscovered = isInClearedArea || distanceToShop <= 50;
-    
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: AppTheme.lightSurface,
-      elevation: 0,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
-      ),
-      builder: (context) => Padding(
-        padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Handle
-            Center(
-              child: Container(
-                width: 36,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: AppTheme.textSecondaryLight.withValues(alpha: 0.3),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
-            
-            // Shop is in fog - show limited info
-            if (!isDiscovered) ...[
-              Row(
-                children: [
-                  Container(
-                    width: 56,
-                    height: 56,
-                    decoration: BoxDecoration(
-                      color: shop.color.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Icon(
-                      Icons.restaurant,
-                      color: shop.color,
-                      size: 30,
-                    ),
-                  ),
-                  const SizedBox(width: AppTheme.spacingMd),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          S.of(context).translateCategory(shop.category),
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w800,
-                            color: shop.color,
-                            letterSpacing: 1.0,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        const Text(
-                          '???',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: AppTheme.textSecondaryLight,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 32),
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppTheme.textSecondaryLight.withValues(alpha: 0.05),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.explore_off,
-                      color: AppTheme.textSecondaryLight,
-                      size: 24,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        S.of(context).exploreAreaMsg,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: AppTheme.textSecondaryLight,
-                          height: 1.4,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () => Navigator.pop(context),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.textSecondaryLight.withValues(alpha: 0.1),
-                    foregroundColor: AppTheme.textPrimaryLight,
-                    elevation: 0,
-                    padding: const EdgeInsets.symmetric(vertical: 18),
-                  ),
-                  child: Text(S.of(context).close),
-                ),
-              ),
-            ],
-            
-            // Shop is in cleared area - show full details
-            if (isDiscovered) ...[
-              Row(
-                children: [
-                  Container(
-                    width: 56,
-                    height: 56,
-                    decoration: BoxDecoration(
-                      color: shop.isVisited 
-                          ? shop.color.withValues(alpha: 0.1)
-                          : Colors.grey.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Icon(
-                      Icons.restaurant,
-                      color: shop.isVisited ? shop.color : Colors.grey,
-                      size: 30,
-                    ),
-                  ),
-                  const SizedBox(width: AppTheme.spacingMd),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          shop.name,
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.w800,
-                            color: shop.isVisited 
-                                ? AppTheme.textPrimaryLight 
-                                : Colors.grey.shade600,
-                            letterSpacing: -0.5,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Row(
-                          children: [
-                            if (shop.isChain)
-                              Container(
-                                margin: const EdgeInsets.only(right: 8),
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                decoration: BoxDecoration(
-                                  color: AppTheme.textSecondaryLight.withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
-                                child: const Text(
-                                  'チェーン店',
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w700,
-                                    color: AppTheme.textSecondaryLight,
-                                  ),
-                                ),
-                              ),
-                            Text(
-                              S.of(context).translateCategory(shop.category),
-                              style: TextStyle(
-                                fontSize: 11,
-                                color: shop.isVisited ? shop.color : Colors.grey,
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: 1.0,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 32),
-              _buildDetailRow(Icons.location_on_outlined, S.of(context).locationLabel, '${shop.lat.toStringAsFixed(4)}, ${shop.lng.toStringAsFixed(4)}'),
-              const SizedBox(height: 16),
-              _buildDetailRow(Icons.radar_outlined, S.of(context).explorationRadius, '${shop.clearanceRadius.toInt()}m'),
-              if (shop.isVisited) ...[ 
-                const SizedBox(height: 16),
-                _buildDetailRow(Icons.check_circle_outline, S.of(context).statusLabel, S.of(context).visitedLabel, color: Colors.green.shade600),
-              ],
-              const SizedBox(height: 40),
-              if (!shop.isVisited) ...[
-                Builder(
-                  builder: (context) {
-                    final distance = _currentLocation == null 
-                        ? double.infinity 
-                        : Geolocator.distanceBetween(
-                            _currentLocation!.latitude,
-                            _currentLocation!.longitude,
-                            shop.lat,
-                            shop.lng,
-                          );
-                    final canEnter = distance <= 25;
-
-                    return Column(
-                      children: [
-                        if (!canEnter)
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 12),
-                            child: Text(
-                              S.of(context).tooFarToEnter,
-                              style: const TextStyle(
-                                color: Colors.orange,
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: canEnter ? () => _startEnteringShop(shop) : null,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: canEnter ? Colors.green.shade600 : Colors.grey.shade300,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 18),
-                              elevation: canEnter ? 2 : 0,
-                            ),
-                            child: Text(
-                              S.of(context).enterShop,
-                              style: const TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                ),
-              ] else 
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () => Navigator.pop(context),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.textSecondaryLight.withValues(alpha: 0.1),
-                      foregroundColor: AppTheme.textPrimaryLight,
-                      elevation: 0,
-                      padding: const EdgeInsets.symmetric(vertical: 18),
-                    ),
-                    child: Text(S.of(context).close),
-                  ),
-                ),
-            ],
-          ],
-        ),
-      ),
-    );
+    setState(() {
+      _selectedShop = shop;
+    });
   }
 
   Widget _buildEnteringOverlay() {
@@ -534,30 +300,7 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
     );
   }
 
-  Widget _buildDetailRow(IconData icon, String label, String value, {Color? color}) {
-    return Row(
-      children: [
-        Icon(icon, size: 18, color: color ?? AppTheme.textSecondaryLight),
-        const SizedBox(width: 12),
-        Text(
-          '$label: ',
-          style: const TextStyle(
-            fontSize: 13,
-            color: AppTheme.textSecondaryLight,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w800,
-            color: color ?? AppTheme.textPrimaryLight,
-          ),
-        ),
-      ],
-    );
-  }
+
 
   Widget _buildQuestOverlay() {
     if (widget.questShop == null || _currentLocation == null) {
@@ -963,7 +706,11 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
                    if (_currentLevel > oldLevel)
                      Text('LEVEL UP! Now at Level $_currentLevel', 
                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.yellow)),
-                ],
+                 ...response.unlockedAchievements.map((ach) => Text(
+                   '🏆 UNLOCKED: ${ach.name}!',
+                   style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+                 )),
+              ],
               ),
               backgroundColor: AppTheme.primaryColor,
               duration: const Duration(seconds: 4),
@@ -1124,7 +871,7 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
                         allShops[s.id] = s;
                       }
                       
-                      return allShops.values;
+                      return allShops.values.where((s) => !_hiddenCategories.contains(s.category.toLowerCase()));
                     }()).map((shop) {
                       final shopLocation = latlong2.LatLng(shop.lat, shop.lng);
                       final isInClearedArea = GeoUtils.isPointInClearedArea(shopLocation, _clearedAreaGeojson);
@@ -1208,6 +955,19 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
           
           // Level Badge
           _buildLevelBadge(),
+
+          // Filter Bar
+          _buildFilterBar(),
+
+          // Persistent Shop Detail Card
+          if (_selectedShop != null)
+            ShopDetailCard(
+              shop: _selectedShop!,
+              currentLocation: _currentLocation,
+              clearedAreaGeojson: _clearedAreaGeojson,
+              onClose: () => setState(() => _selectedShop = null),
+              onEnterShop: _startEnteringShop,
+            ),
         ],
       ),
       ),
@@ -1292,6 +1052,105 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
           radiusInMeters: radiusInMeters,
         ),
         size: Size.infinite,
+      ),
+    );
+  }
+
+  Widget _buildFilterBar() {
+    return Positioned(
+      top: MediaQuery.of(context).padding.top + 16,
+      right: 16,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Toggle Button
+          FloatingActionButton.small(
+            heroTag: 'filter_toggle',
+            backgroundColor: Colors.white,
+            elevation: 4,
+            onPressed: () => setState(() => _isFilterExpanded = !_isFilterExpanded),
+            child: Icon(
+              _isFilterExpanded ? Icons.close : Icons.filter_list,
+              color: _hiddenCategories.isNotEmpty ? AppTheme.primaryColor : Colors.grey[700],
+            ),
+          ),
+          const SizedBox(height: 12),
+          // Expanded List
+          if (_isFilterExpanded)
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.95),
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.1),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // We use a fixed list of common categories for simplicity, or ideally map from ShopCategory
+                  ...['ramen', 'cafe', 'pub', 'sushi', 'izakaya', 'italian'].map((cat) {
+                    final isHidden = _hiddenCategories.contains(cat);
+                    final color = ShopCategory.getColor(cat);
+                    final icon = ShopCategory.getIcon(cat);
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            if (_hiddenCategories.contains(cat)) {
+                              _hiddenCategories.remove(cat);
+                            } else {
+                              _hiddenCategories.add(cat);
+                            }
+                            _saveFilters();
+                          });
+                        },
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          width: 36,
+                          height: 36,
+                          decoration: BoxDecoration(
+                            color: isHidden ? Colors.grey[200] : color.withValues(alpha: 0.2),
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: isHidden ? Colors.grey[400]! : color,
+                              width: 2,
+                            ),
+                          ),
+                          child: isHidden
+                              ? Icon(icon, size: 20, color: Colors.grey)
+                              : Icon(icon, size: 20, color: color),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                  // Clear All option
+                  if (_hiddenCategories.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: GestureDetector(
+                        onTap: () => setState(() {
+                          _hiddenCategories.clear();
+                          _saveFilters();
+                        }),
+                        child: CircleAvatar(
+                          radius: 14,
+                          backgroundColor: Colors.grey[200],
+                          child: const Icon(Icons.refresh, size: 16, color: Colors.black54),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+        ],
       ),
     );
   }

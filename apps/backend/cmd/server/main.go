@@ -14,6 +14,7 @@ import (
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
 	"google.golang.org/grpc"
+	"google.golang.org/protobuf/encoding/protojson"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
@@ -21,6 +22,7 @@ import (
 	"github.com/viuts/fof/apps/backend/internal/domain"
 	"github.com/viuts/fof/apps/backend/internal/handler"
 	"github.com/viuts/fof/apps/backend/internal/repository"
+	"github.com/viuts/fof/apps/backend/internal/seeds"
 	"github.com/viuts/fof/apps/backend/internal/usecase"
 	fofv1 "github.com/viuts/fof/apps/backend/pkg/api/fof/v1"
 )
@@ -42,7 +44,7 @@ func main() {
 	}
 
 	// Auto Migration
-	err = db.AutoMigrate(&domain.User{}, &domain.Shop{}, &domain.Visit{}, &domain.UserFog{})
+	err = db.AutoMigrate(&domain.User{}, &domain.Shop{}, &domain.Visit{}, &domain.UserFog{}, &domain.Achievement{}, &domain.UserAchievement{})
 
 	// Seed some sample data if no shops exist
 	var count int64
@@ -90,9 +92,15 @@ func main() {
 	// Initialize PostGIS extension if not exists
 	db.Exec("CREATE EXTENSION IF NOT EXISTS postgis;")
 
+	// Seed Achievements
+	seeds.SeedAchievements(db)
+
 	// Wiring
 	flavorRepo := repository.NewFlavorRepository(db)
-	flavorUC := usecase.NewFlavorUsecase(flavorRepo)
+	achievementRepo := repository.NewAchievementRepository(db)
+
+	achievementUC := usecase.NewAchievementUseCase(achievementRepo, flavorRepo)
+	flavorUC := usecase.NewFlavorUsecase(flavorRepo, achievementUC)
 	flavorHandler := handler.NewFlavorHandler(flavorUC)
 
 	// Unified Server setup
@@ -106,7 +114,17 @@ func main() {
 	grpcServer := grpc.NewServer()
 	fofv1.RegisterFlavorServiceServer(grpcServer, flavorHandler)
 
-	mux := runtime.NewServeMux()
+	mux := runtime.NewServeMux(
+		runtime.WithMarshalerOption(runtime.MIMEWildcard, &runtime.JSONPb{
+			MarshalOptions: protojson.MarshalOptions{
+				UseProtoNames:   false,
+				EmitUnpopulated: true,
+			},
+			UnmarshalOptions: protojson.UnmarshalOptions{
+				DiscardUnknown: true,
+			},
+		}),
+	)
 	if err := fofv1.RegisterFlavorServiceHandlerServer(ctx, mux, flavorHandler); err != nil {
 		log.Fatalf("failed to register gateway: %v", err)
 	}
