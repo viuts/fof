@@ -85,12 +85,14 @@ class ApiService {
     }
   }
 
-  Future<model.CreateVisitResponse> createVisit(String shopId) async {
+  Future<model.CreateVisitResponse> createVisit(String shopId, int rating, String comment) async {
     final response = await http.post(
       Uri.parse('$_baseUrl/v1/visits'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'shopId': shopId,
+        'rating': rating,
+        'comment': comment,
       }),
     );
 

@@ -6,6 +6,8 @@ import '../constants/category_colors.dart';
 import '../theme/app_theme.dart';
 import '../services/api_service.dart';
 import '../services/location_service.dart';
+import '../widgets/shop_category.dart'; // Added import
+import '../services/language_service.dart'; // Added import
 
 /// Quest Mode screen with category selection and compass navigation
 /// Implements FR-10, FR-11, FR-12 from PRD
@@ -197,7 +199,7 @@ class _QuestScreenState extends State<QuestScreen> with TickerProviderStateMixin
             ),
             const SizedBox(height: AppTheme.spacingSm),
             Text(
-              category.toUpperCase(),
+              S.of(context).translateCategory(category),
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
@@ -251,7 +253,7 @@ class _QuestScreenState extends State<QuestScreen> with TickerProviderStateMixin
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        _selectedCategory!.toUpperCase(),
+                        S.of(context).translateCategory(_selectedCategory!),
                         style: TextStyle(
                           fontSize: 12,
                           color: ShopCategory.getColor(_selectedCategory!),

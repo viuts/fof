@@ -67,7 +67,7 @@ func main() {
 	}
 
 	// Seed MVP User
-	userID := "00000000-0000-0000-0000-000000000000"
+	userID := "24e7e8ae-c205-4dba-b42d-f6294db20e9e"
 	userUUID, _ := uuid.Parse(userID)
 	var userCount int64
 	db.Model(&domain.User{}).Where("id = ?", userUUID).Count(&userCount)

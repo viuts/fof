@@ -53,12 +53,15 @@ const CreateVisitRequest$json = {
   '1': 'CreateVisitRequest',
   '2': [
     {'1': 'shop_id', '3': 1, '4': 1, '5': 9, '10': 'shopId'},
+    {'1': 'rating', '3': 2, '4': 1, '5': 5, '10': 'rating'},
+    {'1': 'comment', '3': 3, '4': 1, '5': 9, '10': 'comment'},
   ],
 };
 
 /// Descriptor for `CreateVisitRequest`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List createVisitRequestDescriptor = $convert.base64Decode(
-    'ChJDcmVhdGVWaXNpdFJlcXVlc3QSFwoHc2hvcF9pZBgBIAEoCVIGc2hvcElk');
+    'ChJDcmVhdGVWaXNpdFJlcXVlc3QSFwoHc2hvcF9pZBgBIAEoCVIGc2hvcElkEhYKBnJhdGluZx'
+    'gCIAEoBVIGcmF0aW5nEhgKB2NvbW1lbnQYAyABKAlSB2NvbW1lbnQ=');
 
 @$core.Deprecated('Use createVisitResponseDescriptor instead')
 const CreateVisitResponse$json = {
@@ -66,13 +69,18 @@ const CreateVisitResponse$json = {
   '2': [
     {'1': 'success', '3': 1, '4': 1, '5': 8, '10': 'success'},
     {'1': 'cleared_area_geojson', '3': 2, '4': 1, '5': 9, '10': 'clearedAreaGeojson'},
+    {'1': 'exp_gained', '3': 3, '4': 1, '5': 5, '10': 'expGained'},
+    {'1': 'current_exp', '3': 4, '4': 1, '5': 5, '10': 'currentExp'},
+    {'1': 'current_level', '3': 5, '4': 1, '5': 5, '10': 'currentLevel'},
   ],
 };
 
 /// Descriptor for `CreateVisitResponse`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List createVisitResponseDescriptor = $convert.base64Decode(
     'ChNDcmVhdGVWaXNpdFJlc3BvbnNlEhgKB3N1Y2Nlc3MYASABKAhSB3N1Y2Nlc3MSMAoUY2xlYX'
-    'JlZF9hcmVhX2dlb2pzb24YAiABKAlSEmNsZWFyZWRBcmVhR2VvanNvbg==');
+    'JlZF9hcmVhX2dlb2pzb24YAiABKAlSEmNsZWFyZWRBcmVhR2VvanNvbhIdCgpleHBfZ2FpbmVk'
+    'GAMgASgFUglleHBHYWluZWQSHwoLY3VycmVudF9leHAYBCABKAVSCmN1cnJlbnRFeHASIwoNY3'
+    'VycmVudF9sZXZlbBgFIAEoBVIMY3VycmVudExldmVs');
 
 @$core.Deprecated('Use updateLocationRequestDescriptor instead')
 const UpdateLocationRequest$json = {

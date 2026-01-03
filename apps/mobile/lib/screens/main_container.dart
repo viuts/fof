@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'achievements_screen.dart';
 import 'account_screen.dart';
 import 'journal_screen.dart';
-import 'quest_screen.dart';
-import '../main.dart'; // Still need this for MapScreen if it's in main.dart
+import 'quest_selection_screen.dart';
+import 'map_screen.dart';
 import '../theme/app_theme.dart';
 import '../services/language_service.dart';
+import '../models/shop.dart';
 
 class MainContainer extends StatefulWidget {
   const MainContainer({super.key});
@@ -16,9 +17,23 @@ class MainContainer extends StatefulWidget {
 
 class _MainContainerState extends State<MainContainer> {
   int _currentIndex = 2; // Default to Map (Middle)
+  Shop? _questShop; // Quest destination shop
 
   // These will be used to pass data or trigger resets
   final GlobalKey<MapScreenState> _mapKey = GlobalKey<MapScreenState>();
+
+  void startQuest(Shop shop) {
+    setState(() {
+      _questShop = shop;
+      _currentIndex = 2; // Switch to map tab
+    });
+  }
+
+  void cancelQuest() {
+    setState(() {
+      _questShop = null;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,9 +42,13 @@ class _MainContainerState extends State<MainContainer> {
       body: IndexedStack(
         index: _currentIndex,
         children: [
-          const QuestScreen(),
+          QuestSelectionScreen(onStartQuest: startQuest),
           const JournalScreen(),
-          MapScreen(key: _mapKey),
+          MapScreen(
+            key: _mapKey,
+            questShop: _questShop,
+            onCancelQuest: cancelQuest,
+          ),
           const AchievementsScreen(),
           AccountScreen(
             onDeleteHistory: () {

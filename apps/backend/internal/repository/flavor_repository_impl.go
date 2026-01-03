@@ -89,50 +89,79 @@ func (r *flavorRepository) GetVisitedShops(ctx context.Context, userID string) (
 	return shops, err
 }
 
-func (r *flavorRepository) CreateVisit(ctx context.Context, userID string, shopID string) (string, error) {
+func (r *flavorRepository) CreateVisit(ctx context.Context, userID string, shopID string, rating int, comment string) (string, int, int, int, error) {
 	userUUID, _ := uuid.Parse(userID)
 	shopUUID, _ := uuid.Parse(shopID)
 
 	var shop domain.Shop
 	if err := r.db.First(&shop, "id = ?", shopUUID).Error; err != nil {
-		return "", err
+		return "", 0, 0, 0, err
 	}
 
-	// Register visit
-	visit := domain.Visit{
-		UserID:    userUUID,
-		ShopID:    shop.ID,
-		VisitedAt: time.Now(),
-	}
-	if err := r.db.Create(&visit).Error; err != nil {
-		return "", err
-	}
-
-	// Clear area around the shop (200m instead of 100m)
-	geomWKT := fmt.Sprintf("POINT(%f %f)", shop.Lng, shop.Lat)
-	radius := 200.0
-	if shop.IsChain {
-		radius = 100.0
-	}
-
-	query := `
-		INSERT INTO user_fogs (user_id, cleared_area, updated_at)
-		VALUES (?, ST_Multi(ST_Buffer(ST_GeomFromText(?, 4326)::geography, ?)::geometry), ?)
-		ON CONFLICT (user_id) DO UPDATE SET
-			cleared_area = ST_Multi(ST_Buffer(
-				ST_Union(
-					user_fogs.cleared_area::geometry,
-					ST_Buffer(ST_GeomFromText(?, 4326)::geography, ?)::geometry
-				)::geography,
-				0
-			)::geometry),
-			updated_at = EXCLUDED.updated_at
-		RETURNING ST_AsGeoJSON(cleared_area)
-	`
-
+	expGained := 100
+	var currentExp, currentLevel int
 	var geoJSON string
-	err := r.db.Raw(query, userUUID, geomWKT, radius, time.Now(), geomWKT, radius).Scan(&geoJSON).Error
-	return geoJSON, err
+
+	err := r.db.Transaction(func(tx *gorm.DB) error {
+		// 1. Register visit with EXP
+		visit := domain.Visit{
+			UserID:    userUUID,
+			ShopID:    shop.ID,
+			VisitedAt: time.Now(),
+			Rating:    rating,
+			Comment:   comment,
+			Exp:       expGained,
+		}
+		if err := tx.Create(&visit).Error; err != nil {
+			return err
+		}
+
+		// 2. Update user EXP and Level
+		var user domain.User
+		if err := tx.First(&user, "id = ?", userUUID).Error; err != nil {
+			return err
+		}
+
+		user.Exp += expGained
+		// Level formula: Level = floor(sqrt(Exp / 100)) + 1
+		// Example: 100 exp -> Lev 2, 400 exp -> Lev 3, 900 exp -> Lev 4
+		
+		// For simplicity in Go without bringing in math package everywhere:
+		level := 1
+		for (level * level * 100) <= user.Exp {
+			level++
+		}
+		user.Level = level
+		currentExp = user.Exp
+		currentLevel = user.Level
+
+		if err := tx.Save(&user).Error; err != nil {
+			return err
+		}
+
+		// 3. Clear area around the shop (250m "blast")
+		geomWKT := fmt.Sprintf("POINT(%f %f)", shop.Lng, shop.Lat)
+		radius := 250.0
+
+		query := `
+			INSERT INTO user_fogs (user_id, cleared_area, updated_at)
+			VALUES (?, ST_Multi(ST_Buffer(ST_GeomFromText(?, 4326)::geography, ?)::geometry), ?)
+			ON CONFLICT (user_id) DO UPDATE SET
+				cleared_area = ST_Multi(ST_Buffer(
+					ST_Union(
+						user_fogs.cleared_area::geometry,
+						ST_Buffer(ST_GeomFromText(?, 4326)::geography, ?)::geometry
+					)::geography,
+					0
+				)::geometry),
+				updated_at = EXCLUDED.updated_at
+			RETURNING ST_AsGeoJSON(cleared_area)
+		`
+
+		return tx.Raw(query, userUUID, geomWKT, radius, time.Now(), geomWKT, radius).Scan(&geoJSON).Error
+	})
+
+	return geoJSON, expGained, currentExp, currentLevel, err
 }
 
 func (r *flavorRepository) GetClearedArea(ctx context.Context, userID string) (string, error) {

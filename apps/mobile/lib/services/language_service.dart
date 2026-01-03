@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 
 class LanguageService extends ChangeNotifier {
   Locale _currentLocale = const Locale('ja');
@@ -23,59 +24,105 @@ class LanguageService extends ChangeNotifier {
 }
 
 class S {
-  final Locale locale;
-  S(this.locale);
+  final AppLocalizations _l10n;
+
+  S(this._l10n);
 
   static S of(BuildContext context) {
-    return _translations[Localizations.localeOf(context).languageCode] ?? _translations['ja']!;
+    return S(AppLocalizations.of(context)!);
   }
 
-  static final Map<String, S> _translations = {
-    'ja': S(const Locale('ja')),
-    'en': S(const Locale('en')),
-  };
-
-  String get appTitle => isJa ? 'フォグ・オブ・フレーバー' : 'Fog of Flavor';
+  String get appTitle => _l10n.appTitle;
   
   // Tabs
-  String get tabQuest => isJa ? 'クエスト' : 'Quest';
-  String get tabJournal => isJa ? 'ジャーナル' : 'Journal';
-  String get tabMap => isJa ? 'マップ' : 'Map';
-  String get tabAwards => isJa ? 'アワード' : 'Awards';
-  String get tabAccount => isJa ? 'アカウント' : 'Account';
+  String get tabQuest => _l10n.tabQuest;
+  String get tabJournal => _l10n.tabJournal;
+  String get tabMap => _l10n.tabMap;
+  String get tabAwards => _l10n.tabAwards;
+  String get tabAccount => _l10n.tabAccount;
 
   // Map Screen
-  String get statsTiles => isJa ? 'タイルをクリア' : 'Tiles Cleared';
-  String get statsShops => isJa ? '訪問した店舗' : 'Shops Visited';
-  String get statsIndie => isJa ? 'インディーズ店舗' : 'Indie Shops';
-  String get statsArea => isJa ? '探索済みエリア' : 'Area Explored';
+  String get statsTiles => _l10n.statsTiles;
+  String get statsShops => _l10n.statsShops;
+  String get statsIndie => _l10n.statsIndie;
+  String get statsArea => _l10n.statsArea;
+  
+  String get exploreAreaMsg => _l10n.exploreAreaMsg;
+  String get locationLabel => _l10n.locationLabel;
+  String get explorationRadius => _l10n.explorationRadius;
+  String get statusLabel => _l10n.statusLabel;
+  String get visitedLabel => _l10n.visitedLabel;
+  String get visitRecordedMsg => _l10n.visitRecordedMsg;
+  String errorVisitFailed(String error) => _l10n.errorVisitFailed(error);
+  String get visitThisShop => _l10n.visitThisShop;
+  String get close => _l10n.close;
+  String get away => _l10n.away;
+  String get arrived => _l10n.arrived;
+  String get enterShop => _l10n.enterShop;
+  String get entering => _l10n.entering;
+  String get verificationInProgress => _l10n.verificationInProgress;
+  String get tooFarToEnter => _l10n.tooFarToEnter;
+  String remainingTime(int minutes, int seconds) => _l10n.remainingTime(minutes, seconds);
   
   // Account Screen
-  String get accountTitle => isJa ? 'アカウントとプライバシー' : 'Account & Privacy';
-  String get privacySettings => isJa ? 'プライバシー設定' : 'Privacy Settings';
-  String get freezeTracking => isJa ? 'ログを一時停止' : 'Freeze Tracking';
-  String get freezeSubtitle => isJa ? 'GPS追跡を一時的に停止します' : 'Temporarily pause all GPS tracking';
-  String get deleteHistory => isJa ? '移動履歴を消去' : 'Delete Path History';
-  String get deleteSubtitle => isJa ? 'マップの霧をリセットします' : 'Permanently clear all cleared fog tiles';
-  String get preferences => isJa ? '設定' : 'Preferences';
-  String get language => isJa ? '言語' : 'Language';
-  String get languageName => isJa ? '日本語' : 'English';
-  String get soundEffects => isJa ? '効果音' : 'Sound Effects';
-  String get logout => isJa ? 'ログアウト' : 'Log Out';
+  String get accountTitle => _l10n.accountTitle;
+  String get privacySettings => _l10n.privacySettings;
+  String get freezeTracking => _l10n.freezeTracking;
+  String get freezeSubtitle => _l10n.freezeSubtitle;
+  String get deleteHistory => _l10n.deleteHistory;
+  String get deleteSubtitle => _l10n.deleteSubtitle;
+  String get preferences => _l10n.preferences;
+  String get language => _l10n.language;
+  String get languageName => _l10n.languageName;
+  String get soundEffects => _l10n.soundEffects;
+  String get logout => _l10n.logout;
 
   // Quest Screen
-  String get questTitle => isJa ? 'クエストモード' : 'Quest Mode';
-  String get selectCuisine => isJa ? '料理カテゴリーを選択' : 'Select a Cuisine';
-  String arriveWithin(double distance) => isJa 
-      ? 'あと${distance.toInt()}mで到着です！' 
-      : 'You are within ${distance.toInt()}m of your destination!';
+  String get questTitle => _l10n.questTitle;
+  String get questCraving => _l10n.questCraving;
+  String get questDistance => _l10n.questDistance;
+  String get questSpecific => _l10n.questSpecific;
+  String get questHint => _l10n.questHint;
+  String get questButton => _l10n.questButton;
+  String get selectCuisine => _l10n.selectCuisine;
+
+  String get errorLocationUnavailable => _l10n.errorLocationUnavailable;
+  String get errorNoShopsFound => _l10n.errorNoShopsFound;
+
+  // Methods with arguments
+  String arriveWithin(double distance) => _l10n.arriveWithin(distance.toInt());
   
   // Journal Screen
-  String get journalTitle => isJa ? '探索ジャーナル' : 'Discovery Journal';
-  String get neighborExplorer => isJa ? '近隣の探索者' : 'Neighborhood Explorer';
-  String tilesClearedMsg(int count) => isJa 
-      ? '$count 個の新しいタイルをクリアしました。' 
-      : 'You cleared $count new fog tiles.';
+  String get journalTitle => _l10n.journalTitle;
+  String get neighborExplorer => _l10n.neighborExplorer;
+  String tilesClearedMsg(int count) => _l10n.tilesClearedMsg(count);
 
-  bool get isJa => locale.languageCode == 'ja';
+  bool get isJa => _l10n.localeName == 'ja';
+
+  String translateCategory(String category) {
+    switch (category.toUpperCase()) {
+      case 'RAMEN':
+        return _l10n.categoryRamen;
+      case 'CAFE':
+        return _l10n.categoryCafe;
+      case 'SUSHI':
+        return _l10n.categorySushi;
+      case 'YAKINIKU':
+        return _l10n.categoryYakiniku;
+      case 'IZAKAYA':
+        return _l10n.categoryIzakaya;
+      case 'BAR':
+        return _l10n.categoryBar;
+      case 'DESSERT':
+        return _l10n.categoryDessert;
+      case 'BURGER':
+        return _l10n.categoryBurger;
+      case 'PUB':
+        return _l10n.categoryPub;
+      case 'TACOS':
+        return _l10n.categoryTacos;
+      default:
+        return _l10n.categoryOther;
+    }
+  }
 }

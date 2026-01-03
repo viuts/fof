@@ -1,0 +1,90 @@
+{
+    "questTitle": "DESIGN YOUR\nADVENTURE",
+    "questCraving": "WHAT ARE YOU CRAVING?",
+    "questDistance": "HOW FAR?",
+    "questSpecific": "ANYTHING SPECIFIC?",
+    "questHint": "e.g. \"Iekei\", \"Quiet\", \"Spicy\"",
+    "questButton": "ROLL THE DICE",
+    "tabQuest": "Quest",
+    "tabJournal": "Journal",
+    "tabMap": "Map",
+    "tabAwards": "Awards",
+    "tabAccount": "Account",
+    "statsTiles": "Tiles Cleared",
+    "statsShops": "Shops Visited",
+    "statsIndie": "Indie Shops",
+    "statsArea": "Area Explored",
+    "accountTitle": "Account & Privacy",
+    "privacySettings": "Privacy Settings",
+    "freezeTracking": "Freeze Tracking",
+    "freezeSubtitle": "Temporarily pause all GPS tracking",
+    "deleteHistory": "Delete Path History",
+    "deleteSubtitle": "Permanently clear all cleared fog tiles",
+    "preferences": "Preferences",
+    "language": "Language",
+    "languageName": "English",
+    "soundEffects": "Sound Effects",
+    "logout": "Log Out",
+    "selectCuisine": "Select a Cuisine",
+    "journalTitle": "Discovery Journal",
+    "neighborExplorer": "Neighborhood Explorer",
+    "arriveWithin": "You are within {distance}m of your destination!",
+    "@arriveWithin": {
+        "placeholders": {
+            "distance": {
+                "type": "Object"
+            }
+        }
+    },
+    "tilesClearedMsg": "You cleared {count} new fog tiles.",
+    "@tilesClearedMsg": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "appTitle": "Fog of Flavor",
+    "categoryRamen": "RAMEN",
+    "categoryCafe": "CAFE",
+    "categorySushi": "SUSHI",
+    "categoryYakiniku": "YAKINIKU",
+    "categoryIzakaya": "IZAKAYA",
+    "categoryBar": "BAR",
+    "categoryDessert": "DESSERT",
+    "categoryBurger": "BURGER",
+    "categoryPub": "PUB",
+    "categoryTacos": "TACOS",
+    "categoryOther": "OTHER",
+    "errorLocationUnavailable": "Location not available",
+    "errorNoShopsFound": "No shops found matching your criteria",
+    "close": "Close",
+    "exploreAreaMsg": "Please explore this area. You need to clear the fog to see shop details.",
+    "locationLabel": "Location",
+    "explorationRadius": "Exploration Radius",
+    "statusLabel": "Status",
+    "visitedLabel": "Visited",
+    "visitRecordedMsg": "Visit recorded! Fog cleared.",
+    "errorVisitFailed": "Failed to record visit: {error}",
+    "@errorVisitFailed": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "visitThisShop": "Visit this shop",
+    "away": "away",
+    "arrived": "ARRIVED!",
+    "enterShop": "Enter Shop",
+    "entering": "Entering...",
+    "verificationInProgress": "Verification in progress",
+    "tooFarToEnter": "Too far to enter (Move within 25m)",
+    "remainingTime": "{minutes}m {seconds}s remaining",
+    "@remainingTime": {
+        "placeholders": {
+            "minutes": { "type": "int" },
+            "seconds": { "type": "int" }
+        }
+    }
+}

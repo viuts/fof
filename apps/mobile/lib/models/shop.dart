@@ -141,16 +141,25 @@ class GetClearedAreaResponse {
 class CreateVisitResponse {
   final bool success;
   final String clearedAreaGeojson;
+  final int expGained;
+  final int currentExp;
+  final int currentLevel;
 
   CreateVisitResponse({
     required this.success,
     required this.clearedAreaGeojson,
+    this.expGained = 0,
+    this.currentExp = 0,
+    this.currentLevel = 1,
   });
 
   factory CreateVisitResponse.fromJson(Map<String, dynamic> json) {
     return CreateVisitResponse(
       success: json['success'] ?? false,
       clearedAreaGeojson: json['clearedAreaGeojson'] ?? '',
+      expGained: json['expGained'] ?? json['exp_gained'] ?? 0,
+      currentExp: json['currentExp'] ?? json['current_exp'] ?? 0,
+      currentLevel: json['currentLevel'] ?? json['current_level'] ?? 1,
     );
   }
 }

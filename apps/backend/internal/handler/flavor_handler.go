@@ -20,7 +20,7 @@ func NewFlavorHandler(u usecase.FlavorUsecase) *FlavorHandler {
 
 func (h *FlavorHandler) UpdateLocation(ctx context.Context, req *fofv1.UpdateLocationRequest) (*fofv1.UpdateLocationResponse, error) {
 	// For now, hardcode a user ID for MVP
-	userID := "00000000-0000-0000-0000-000000000000"
+	userID := "24e7e8ae-c205-4dba-b42d-f6294db20e9e"
 	newlyCleared, geoJSON, err := h.flavorUsecase.UpdateLocation(ctx, userID, req.Path)
 	if err != nil {
 		return nil, err
@@ -39,7 +39,7 @@ func (h *FlavorHandler) GetNearbyShops(ctx context.Context, req *fofv1.GetNearby
 	}
 
 	// For MVP, hardcode user ID
-	userID := "00000000-0000-0000-0000-000000000000"
+	userID := "24e7e8ae-c205-4dba-b42d-f6294db20e9e"
 	visitedShops, _ := h.flavorUsecase.GetVisitedShops(ctx, userID)
 	visitedMap := make(map[string]bool)
 	for _, vs := range visitedShops {
@@ -71,7 +71,7 @@ func (h *FlavorHandler) GetNearbyShops(ctx context.Context, req *fofv1.GetNearby
 }
 
 func (h *FlavorHandler) GetVisitedShops(ctx context.Context, req *fofv1.GetVisitedShopsRequest) (*fofv1.GetVisitedShopsResponse, error) {
-	userID := "00000000-0000-0000-0000-000000000000"
+	userID := "24e7e8ae-c205-4dba-b42d-f6294db20e9e"
 	shops, err := h.flavorUsecase.GetVisitedShops(ctx, userID)
 	if err != nil {
 		return nil, err
@@ -102,8 +102,8 @@ func (h *FlavorHandler) GetVisitedShops(ctx context.Context, req *fofv1.GetVisit
 }
 
 func (h *FlavorHandler) CreateVisit(ctx context.Context, req *fofv1.CreateVisitRequest) (*fofv1.CreateVisitResponse, error) {
-	userID := "00000000-0000-0000-0000-000000000000"
-	geoJSON, err := h.flavorUsecase.CreateVisit(ctx, userID, req.ShopId)
+	userID := "24e7e8ae-c205-4dba-b42d-f6294db20e9e"
+	geoJSON, expGained, currentExp, currentLevel, err := h.flavorUsecase.CreateVisit(ctx, userID, req.ShopId, int(req.Rating), req.Comment)
 	if err != nil {
 		return nil, err
 	}
@@ -111,11 +111,14 @@ func (h *FlavorHandler) CreateVisit(ctx context.Context, req *fofv1.CreateVisitR
 	return &fofv1.CreateVisitResponse{
 		Success:            true,
 		ClearedAreaGeojson: geoJSON,
+		ExpGained:          int32(expGained),
+		CurrentExp:         int32(currentExp),
+		CurrentLevel:       int32(currentLevel),
 	}, nil
 }
 
 func (h *FlavorHandler) GetClearedArea(ctx context.Context, req *fofv1.GetClearedAreaRequest) (*fofv1.GetClearedAreaResponse, error) {
-	userID := "00000000-0000-0000-0000-000000000000"
+	userID := "24e7e8ae-c205-4dba-b42d-f6294db20e9e"
 	geoJSON, err := h.flavorUsecase.GetClearedArea(ctx, userID)
 	if err != nil {
 		return nil, err

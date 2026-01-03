@@ -52,7 +52,7 @@ class ShopStyle {
 
   // Fog clearing radii (in meters)
   static const double pathClearingRadius = 10.0; // 5-10m per PRD
-  static const double indieShopDiningBlastRadius = 200.0; // 200m per PRD
+  static const double indieShopDiningBlastRadius = 250.0; // 250 per PRD
   static const double chainShopDiningBlastRadius = 20.0; // 90% less per PRD
 
   // Marker badge for chains

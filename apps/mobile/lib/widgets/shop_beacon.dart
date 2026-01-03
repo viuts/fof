@@ -92,7 +92,7 @@ class _ShopBeaconState extends State<ShopBeacon>
                 width: shop.markerSize,
                 height: shop.markerSize,
                 decoration: BoxDecoration(
-                  color: shop.color,
+                  color: shop.isVisited ? shop.color : Colors.grey[600],
                   shape: BoxShape.circle,
                   border: Border.all(
                     color: Colors.white,
@@ -144,29 +144,45 @@ class _ShopBeaconState extends State<ShopBeacon>
   }
 
   IconData _getIconForCategory(String category) {
-    switch (category.toLowerCase()) {
-      case 'ramen':
-        return Icons.ramen_dining;
-      case 'cafe':
-        return Icons.local_cafe;
-      case 'pub':
-        return Icons.local_bar;
-      case 'sushi':
-        return Icons.set_meal;
-      case 'izakaya':
-        return Icons.tapas;
-      case 'italian':
-      case 'french':
-        return Icons.restaurant;
-      case 'chinese':
-      case 'korean':
-        return Icons.rice_bowl;
-      case 'bakery':
-        return Icons.bakery_dining;
-      case 'fastfood':
-        return Icons.fastfood;
-      default:
-        return Icons.restaurant;
+    final lower = category.toLowerCase();
+    
+    if (lower.contains('ramen') || lower.contains('noodle') || lower.contains('ラーメン') || lower.contains('そば') || lower.contains('うどん') || lower.contains('麺')) {
+      return Icons.ramen_dining;
     }
+    if (lower.contains('cafe') || lower.contains('coffee') || lower.contains('tea') || lower.contains('カフェ') || lower.contains('喫茶') || lower.contains('コーヒー')) {
+      return Icons.local_cafe;
+    }
+    if (lower.contains('izakaya') || lower.contains('pub') || lower.contains('bar') || lower.contains('alcohol') || lower.contains('居酒屋') || lower.contains('バー') || lower.contains('酒')) {
+      return Icons.local_bar;
+    }
+    if (lower.contains('sushi') || lower.contains('seafood') || lower.contains('fish') || lower.contains('寿司') || lower.contains('海鮮') || lower.contains('魚')) {
+      return Icons.set_meal;
+    }
+    if (lower.contains('italian') || lower.contains('pizza') || lower.contains('pasta') || lower.contains('イタリアン') || lower.contains('ピザ') || lower.contains('パスタ')) {
+      return Icons.local_pizza;
+    }
+    if (lower.contains('french') || lower.contains('bistro') || lower.contains('フレンチ') || lower.contains('ビストロ')) {
+      return Icons.wine_bar;
+    }
+    if (lower.contains('chinese') || lower.contains('dumpling') || lower.contains('中華') || lower.contains('餃子')) {
+      return Icons.rice_bowl;
+    }
+    if (lower.contains('korean') || lower.contains('bibimbap') || lower.contains('韓国') || lower.contains('焼肉')) {
+      return Icons.outdoor_grill;
+    }
+    if (lower.contains('steak') || lower.contains('meat') || lower.contains('hamburger') || lower.contains('burg') || lower.contains('ステーキ') || lower.contains('肉') || lower.contains('ハンバーグ')) {
+      return Icons.dinner_dining;
+    }
+    if (lower.contains('bakery') || lower.contains('bread') || lower.contains('cake') || lower.contains('sweet') || lower.contains('パン') || lower.contains('ケーキ') || lower.contains('スイーツ')) {
+      return Icons.bakery_dining;
+    }
+    if (lower.contains('fast food') || lower.contains('burger') || lower.contains('ファストフード') || lower.contains('ハンバーガー')) {
+      return Icons.fastfood;
+    }
+    if (lower.contains('convenience') || lower.contains('store') || lower.contains('コンビニ')) {
+      return Icons.storefront;
+    }
+    
+    return Icons.restaurant;
   }
 }

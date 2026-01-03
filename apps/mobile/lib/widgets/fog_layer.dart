@@ -16,7 +16,7 @@ class FogLayer extends StatelessWidget {
     super.key,
     required this.clearedRings,
     this.currentLocation,
-    this.visionRadius = 200,
+    this.visionRadius = 100,
     required this.fogColor,
   });
 
@@ -79,7 +79,7 @@ class FogPainter extends CustomPainter {
     required this.camera,
     required this.clearedRings,
     this.currentLocation,
-    this.visionRadius = 200,
+    this.visionRadius = 100,
     required this.fogColor,
   });
 
@@ -87,14 +87,19 @@ class FogPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     if (size.width.isInfinite || size.height.isInfinite) return;
 
-    // Use saveLayer to enable blending for holes
-    // This solves the "donut" issue where overlapping holes become dark
-    canvas.saveLayer(ui.Rect.fromLTWH(0, 0, size.width, size.height), Paint());
+    // Use saveLayer with Saturation blend mode
+    // This makes the background (map) grayscale in the fogged area
+    // Cleared areas (holes) will remain transparent in this layer, effectively showing the original colored map
+    canvas.saveLayer(
+      ui.Rect.fromLTWH(0, 0, size.width, size.height), 
+      Paint()..blendMode = ui.BlendMode.saturation
+    );
 
-    // 1. Draw the base fog (full screen)
+    // 1. Draw the base fog (full screen) as pure black/white (Saturation = 0)
+    // This "color" removes all saturation from the underlying map
     canvas.drawRect(
         ui.Rect.fromLTWH(0, 0, size.width, size.height),
-        Paint()..color = fogColor..style = PaintingStyle.fill
+        Paint()..color = const ui.Color(0xFF000000)..style = PaintingStyle.fill
     );
 
     // 2. Prepare paint for holes (eraser)

@@ -162,10 +162,18 @@ class GetClearedAreaResponse extends $pb.GeneratedMessage {
 class CreateVisitRequest extends $pb.GeneratedMessage {
   factory CreateVisitRequest({
     $core.String? shopId,
+    $core.int? rating,
+    $core.String? comment,
   }) {
     final $result = create();
     if (shopId != null) {
       $result.shopId = shopId;
+    }
+    if (rating != null) {
+      $result.rating = rating;
+    }
+    if (comment != null) {
+      $result.comment = comment;
     }
     return $result;
   }
@@ -175,6 +183,8 @@ class CreateVisitRequest extends $pb.GeneratedMessage {
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'CreateVisitRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'fof.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'shopId')
+    ..a<$core.int>(2, _omitFieldNames ? '' : 'rating', $pb.PbFieldType.O3)
+    ..aOS(3, _omitFieldNames ? '' : 'comment')
     ..hasRequiredFields = false
   ;
 
@@ -207,12 +217,33 @@ class CreateVisitRequest extends $pb.GeneratedMessage {
   $core.bool hasShopId() => $_has(0);
   @$pb.TagNumber(1)
   void clearShopId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.int get rating => $_getIZ(1);
+  @$pb.TagNumber(2)
+  set rating($core.int v) { $_setSignedInt32(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasRating() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearRating() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get comment => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set comment($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasComment() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearComment() => clearField(3);
 }
 
 class CreateVisitResponse extends $pb.GeneratedMessage {
   factory CreateVisitResponse({
     $core.bool? success,
     $core.String? clearedAreaGeojson,
+    $core.int? expGained,
+    $core.int? currentExp,
+    $core.int? currentLevel,
   }) {
     final $result = create();
     if (success != null) {
@@ -220,6 +251,15 @@ class CreateVisitResponse extends $pb.GeneratedMessage {
     }
     if (clearedAreaGeojson != null) {
       $result.clearedAreaGeojson = clearedAreaGeojson;
+    }
+    if (expGained != null) {
+      $result.expGained = expGained;
+    }
+    if (currentExp != null) {
+      $result.currentExp = currentExp;
+    }
+    if (currentLevel != null) {
+      $result.currentLevel = currentLevel;
     }
     return $result;
   }
@@ -230,6 +270,9 @@ class CreateVisitResponse extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'CreateVisitResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'fof.v1'), createEmptyInstance: create)
     ..aOB(1, _omitFieldNames ? '' : 'success')
     ..aOS(2, _omitFieldNames ? '' : 'clearedAreaGeojson')
+    ..a<$core.int>(3, _omitFieldNames ? '' : 'expGained', $pb.PbFieldType.O3)
+    ..a<$core.int>(4, _omitFieldNames ? '' : 'currentExp', $pb.PbFieldType.O3)
+    ..a<$core.int>(5, _omitFieldNames ? '' : 'currentLevel', $pb.PbFieldType.O3)
     ..hasRequiredFields = false
   ;
 
@@ -271,6 +314,33 @@ class CreateVisitResponse extends $pb.GeneratedMessage {
   $core.bool hasClearedAreaGeojson() => $_has(1);
   @$pb.TagNumber(2)
   void clearClearedAreaGeojson() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.int get expGained => $_getIZ(2);
+  @$pb.TagNumber(3)
+  set expGained($core.int v) { $_setSignedInt32(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasExpGained() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearExpGained() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.int get currentExp => $_getIZ(3);
+  @$pb.TagNumber(4)
+  set currentExp($core.int v) { $_setSignedInt32(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasCurrentExp() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearCurrentExp() => clearField(4);
+
+  @$pb.TagNumber(5)
+  $core.int get currentLevel => $_getIZ(4);
+  @$pb.TagNumber(5)
+  set currentLevel($core.int v) { $_setSignedInt32(4, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasCurrentLevel() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearCurrentLevel() => clearField(5);
 }
 
 class UpdateLocationRequest extends $pb.GeneratedMessage {

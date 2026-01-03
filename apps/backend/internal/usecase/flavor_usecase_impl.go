@@ -28,8 +28,8 @@ func (u *flavorUsecase) GetVisitedShops(ctx context.Context, userID string) ([]d
 	return u.flavorRepo.GetVisitedShops(ctx, userID)
 }
 
-func (u *flavorUsecase) CreateVisit(ctx context.Context, userID string, shopID string) (string, error) {
-	return u.flavorRepo.CreateVisit(ctx, userID, shopID)
+func (u *flavorUsecase) CreateVisit(ctx context.Context, userID string, shopID string, rating int, comment string) (string, int, int, int, error) {
+	return u.flavorRepo.CreateVisit(ctx, userID, shopID, rating, comment)
 }
 
 func (u *flavorUsecase) GetClearedArea(ctx context.Context, userID string) (string, error) {

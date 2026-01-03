@@ -15,7 +15,33 @@ class LocationService {
   bool _isFrozen = false;
   Position? _currentPosition;
   final List<Position> _currentPath = [];
+  final List<Function(double lat, double lng)> _updateListeners = [];
   static const String _pathCacheKey = 'location_path_cache';
+
+  /// Update location virtually (for debugging/D-pad)
+  void updateVirtualLocation(double lat, double lng) {
+    final now = DateTime.now();
+    final newPosition = Position(
+      latitude: lat,
+      longitude: lng,
+      timestamp: now,
+      accuracy: 0.0,
+      altitude: 0.0,
+      heading: 0.0,
+      speed: 0.0,
+      speedAccuracy: 0.0,
+      altitudeAccuracy: 0.0,
+      headingAccuracy: 0.0,
+    );
+    
+    _currentPosition = newPosition;
+    _currentPath.add(newPosition);
+    _savePath();
+    
+    for (final listener in _updateListeners) {
+      listener(lat, lng);
+    }
+  }
 
   /// Load cached path from storage
   Future<void> loadCachedPath() async {
@@ -96,6 +122,7 @@ class LocationService {
   Future<void> startTracking({
     required Function(double lat, double lng) onLocationUpdate,
   }) async {
+    _updateListeners.add(onLocationUpdate);
     if (_isFrozen) return;
     
     await loadCachedPath(); // Ensure existing cache is loaded
@@ -169,7 +196,9 @@ class LocationService {
           _currentPosition = position;
           _currentPath.add(position);
           _savePath(); // Persist immediately
-          onLocationUpdate(position.latitude, position.longitude);
+          for (final listener in _updateListeners) {
+            listener(position.latitude, position.longitude);
+          }
         },
         onError: (e) {
           debugPrint('Position stream error: $e');
@@ -183,11 +212,15 @@ class LocationService {
     try {
       final position = await Geolocator.getCurrentPosition(
         locationSettings: locationSettings,
-      );
+      ).timeout(const Duration(seconds: 5));
+      
       _currentPosition = position;
-      onLocationUpdate(position.latitude, position.longitude);
+      for (final listener in _updateListeners) {
+        listener(position.latitude, position.longitude);
+      }
     } catch (e) {
-      debugPrint('Failed to get initial position (ignoring): $e');
+      debugPrint('CRITICAL: Failed to get initial position (might be Web interop error): $e');
+      // If we are on web and everything failed, we already have the Tokyo fallback
     }
   }
 
@@ -198,6 +231,7 @@ class LocationService {
   void stopTracking() {
     _positionSubscription?.cancel();
     _positionSubscription = null;
+    _updateListeners.clear();
   }
 
   /// Dispose resources

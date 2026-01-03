@@ -58,11 +58,16 @@ message GetClearedAreaResponse {
 
 message CreateVisitRequest {
   string shop_id = 1;
+  int32 rating = 2;
+  string comment = 3;
 }
 
 message CreateVisitResponse {
   bool success = 1;
   string cleared_area_geojson = 2;
+  int32 exp_gained = 3;
+  int32 current_exp = 4;
+  int32 current_level = 5;
 }
 
 message UpdateLocationRequest {
