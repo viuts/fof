@@ -1,0 +1,14 @@
+version: v2
+plugins:
+  - remote: buf.build/protocolbuffers/dart:v21.1.2
+    out: apps/mobile/lib/api
+    opt: grpc
+  - remote: buf.build/protocolbuffers/go:v1.31.0
+    out: apps/backend/pkg/api
+    opt: paths=source_relative
+  - remote: buf.build/grpc/go:v1.3.0
+    out: apps/backend/pkg/api
+    opt: paths=source_relative
+  - remote: buf.build/grpc-ecosystem/gateway:v2.16.2
+    out: apps/backend/pkg/api
+    opt: paths=source_relative

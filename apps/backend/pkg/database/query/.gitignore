@@ -1,0 +1,2 @@
+# Ignore GORM Gen generated code
+pkg/database/query/*.gen.go

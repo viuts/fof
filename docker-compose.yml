@@ -1,0 +1,19 @@
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    platform: linux/amd64  # This ensures compatibility on M1/M2 Macs if native pull fails
+    container_name: fof-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: fof
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./.db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d fof"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+

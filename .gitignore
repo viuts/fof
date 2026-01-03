@@ -1,0 +1,49 @@
+.db-data/
+*.db-data
+.DS_Store
+
+# Ignore build outputs
+bin/
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Ignore test binaries
+*.test
+*.out
+coverage.html
+coverage.out
+
+# Ignore local environment files
+.env
+.env.local
+
+# Ignore local storage data
+data/
+/storage/
+
+# Ignore IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
+
+# Ignore temporary files
+tmp/
+temp/
+
+# Ignore vendor directory
+vendor/
+
+# Ignore logs
+*.log
+logs/
+
+# venv
+.venv*
