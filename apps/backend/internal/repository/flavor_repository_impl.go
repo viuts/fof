@@ -185,3 +185,30 @@ func (r *flavorRepository) GetShop(ctx context.Context, shopID string) (*domain.
 	}
 	return &shop, nil
 }
+
+func (r *flavorRepository) GetOrCreateUser(ctx context.Context, firebaseUID, email string) (*domain.User, error) {
+	var user domain.User
+	// Basic unique username generation if new
+	username := ""
+	if parts := strings.Split(email, "@"); len(parts) > 0 {
+		username = parts[0]
+	}
+	if username == "" {
+		username = "user"
+	}
+	username = fmt.Sprintf("%s_%s", username, uuid.New().String()[:8])
+
+	err := r.db.WithContext(ctx).Where(domain.User{FirebaseUID: firebaseUID}).Attrs(domain.User{
+		Email:     email,
+		Username:  username,
+		Level:     1,
+		Exp:       0,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}).FirstOrCreate(&user).Error
+
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
+}

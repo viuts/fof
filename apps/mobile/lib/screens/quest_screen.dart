@@ -6,24 +6,21 @@ import '../constants/category_colors.dart';
 import '../theme/app_theme.dart';
 import '../services/api_service.dart';
 import '../services/location_service.dart';
-import '../widgets/shop_category.dart'; // Added import
-import '../services/language_service.dart'; // Added import
+import '../services/language_service.dart';
 
 /// Quest Mode screen with category selection and compass navigation
 /// Implements FR-10, FR-11, FR-12 from PRD
 class QuestScreen extends StatefulWidget {
   final Position? currentPosition;
-  
-  const QuestScreen({
-    super.key,
-    this.currentPosition,
-  });
+
+  const QuestScreen({super.key, this.currentPosition});
 
   @override
   State<QuestScreen> createState() => _QuestScreenState();
 }
 
-class _QuestScreenState extends State<QuestScreen> with TickerProviderStateMixin {
+class _QuestScreenState extends State<QuestScreen>
+    with TickerProviderStateMixin {
   String? _selectedCategory;
   Shop? _targetShop;
   bool _isQuestActive = false;
@@ -55,7 +52,9 @@ class _QuestScreenState extends State<QuestScreen> with TickerProviderStateMixin
         });
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No hidden gems found in this category nearby.')),
+          const SnackBar(
+            content: Text('No hidden gems found in this category nearby.'),
+          ),
         );
       }
     } catch (e) {
@@ -132,18 +131,12 @@ class _QuestScreenState extends State<QuestScreen> with TickerProviderStateMixin
         children: [
           const Text(
             'Choose Your Cuisine Quest',
-            style: TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: AppTheme.spacingSm),
           Text(
             'Select a category to discover a hidden restaurant',
-            style: TextStyle(
-              fontSize: 16,
-              color: AppTheme.textSecondary,
-            ),
+            style: TextStyle(fontSize: 16, color: AppTheme.textSecondary),
           ),
           const SizedBox(height: AppTheme.spacingXl),
           Expanded(
@@ -158,7 +151,7 @@ class _QuestScreenState extends State<QuestScreen> with TickerProviderStateMixin
               itemBuilder: (context, index) {
                 final category = ShopCategory.allCategories[index];
                 final color = ShopCategory.getColor(category);
-                
+
                 return _buildCategoryCard(category, color);
               },
             ),
@@ -184,19 +177,12 @@ class _QuestScreenState extends State<QuestScreen> with TickerProviderStateMixin
             ],
           ),
           borderRadius: BorderRadius.circular(AppTheme.radiusLg),
-          border: Border.all(
-            color: color.withValues(alpha: 0.5),
-            width: 2,
-          ),
+          border: Border.all(color: color.withValues(alpha: 0.5), width: 2),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.restaurant,
-              size: 48,
-              color: color,
-            ),
+            Icon(Icons.restaurant, size: 48, color: color),
             const SizedBox(height: AppTheme.spacingSm),
             Text(
               S.of(context).translateCategory(category),
@@ -238,7 +224,9 @@ class _QuestScreenState extends State<QuestScreen> with TickerProviderStateMixin
                   width: 56,
                   height: 56,
                   decoration: BoxDecoration(
-                    color: ShopCategory.getColor(_selectedCategory!).withValues(alpha: 0.2),
+                    color: ShopCategory.getColor(
+                      _selectedCategory!,
+                    ).withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                   ),
                   child: Icon(
@@ -275,7 +263,7 @@ class _QuestScreenState extends State<QuestScreen> with TickerProviderStateMixin
             ),
           ),
           const SizedBox(height: AppTheme.spacingXl),
-          
+
           // Compass (FR-12)
           Expanded(
             child: Center(
@@ -294,7 +282,7 @@ class _QuestScreenState extends State<QuestScreen> with TickerProviderStateMixin
                     ),
                   ),
                   const SizedBox(height: AppTheme.spacingXl),
-                  
+
                   // Distance indicator
                   Column(
                     children: [
@@ -344,16 +332,14 @@ class _QuestScreenState extends State<QuestScreen> with TickerProviderStateMixin
               ),
             ),
           ),
-          
+
           // Info text
           Container(
             padding: const EdgeInsets.all(AppTheme.spacingMd),
             decoration: BoxDecoration(
               color: Colors.amber.withOpacity(0.1),
               borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-              border: Border.all(
-                color: Colors.amber.withOpacity(0.3),
-              ),
+              border: Border.all(color: Colors.amber.withOpacity(0.3)),
             ),
             child: const Row(
               children: [
@@ -362,10 +348,7 @@ class _QuestScreenState extends State<QuestScreen> with TickerProviderStateMixin
                 Expanded(
                   child: Text(
                     'Restaurant details will be revealed when you arrive',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.amber,
-                    ),
+                    style: TextStyle(fontSize: 12, color: Colors.amber),
                   ),
                 ),
               ],
@@ -382,10 +365,7 @@ class CompassPainter extends CustomPainter {
   final double bearing;
   final Color color;
 
-  CompassPainter({
-    required this.bearing,
-    required this.color,
-  });
+  CompassPainter({required this.bearing, required this.color});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -406,9 +386,7 @@ class CompassPainter extends CustomPainter {
     canvas.drawCircle(center, radius, borderPaint);
 
     // Draw cardinal directions
-    final textPainter = TextPainter(
-      textDirection: TextDirection.ltr,
-    );
+    final textPainter = TextPainter(textDirection: TextDirection.ltr);
 
     final directions = ['N', 'E', 'S', 'W'];
     for (int i = 0; i < 4; i++) {

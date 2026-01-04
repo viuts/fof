@@ -14,4 +14,5 @@ type FlavorRepository interface {
 	CreateVisit(ctx context.Context, userID string, shopID string, rating int, comment string) (geoJSON string, expGained int, currentExp int, currentLevel int, err error)
 	GetClearedArea(ctx context.Context, userID string) (string, error)
 	GetShop(ctx context.Context, shopID string) (*domain.Shop, error)
+	GetOrCreateUser(ctx context.Context, firebaseUID, email string) (*domain.User, error)
 }

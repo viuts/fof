@@ -47,3 +47,6 @@ logs/
 
 # venv
 .venv*
+
+# google service account
+google-dev.json

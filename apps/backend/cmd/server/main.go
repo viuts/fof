@@ -9,10 +9,11 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/google/uuid"
+	firebase "firebase.google.com/go/v4"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
+	"google.golang.org/api/option"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/encoding/protojson"
 	"gorm.io/driver/postgres"
@@ -21,6 +22,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/viuts/fof/apps/backend/internal/domain"
 	"github.com/viuts/fof/apps/backend/internal/handler"
+	"github.com/viuts/fof/apps/backend/internal/middleware"
 	"github.com/viuts/fof/apps/backend/internal/repository"
 	"github.com/viuts/fof/apps/backend/internal/seeds"
 	"github.com/viuts/fof/apps/backend/internal/usecase"
@@ -45,49 +47,6 @@ func main() {
 
 	// Auto Migration
 	err = db.AutoMigrate(&domain.User{}, &domain.Shop{}, &domain.Visit{}, &domain.UserFog{}, &domain.Achievement{}, &domain.UserAchievement{})
-
-	// Seed some sample data if no shops exist
-	var count int64
-	db.Model(&domain.Shop{}).Count(&count)
-	if count == 0 {
-		shops := []domain.Shop{
-			{
-				Name:    "Independent Cafe",
-				IsChain: false,
-				Geom:    ptr("SRID=4326;POINT(139.7671 35.6812)"), // Tokyo Station
-			},
-			{
-				Name:    "Chain Burger",
-				IsChain: true,
-				Geom:    ptr("SRID=4326;POINT(139.7690 35.6820)"),
-			},
-		}
-		for _, s := range shops {
-			db.Create(&s)
-		}
-		log.Println("Seeded sample shops")
-	}
-
-	// Seed MVP User
-	userID := "24e7e8ae-c205-4dba-b42d-f6294db20e9e"
-	userUUID, _ := uuid.Parse(userID)
-	var userCount int64
-	db.Model(&domain.User{}).Where("id = ?", userUUID).Count(&userCount)
-	if userCount == 0 {
-		user := domain.User{
-			ID:       userUUID,
-			Username: "mvp_user",
-			Email:    "mvp@example.com",
-		}
-		if err := db.Create(&user).Error; err != nil {
-			log.Printf("failed to seed user: %v", err)
-		} else {
-			log.Println("Seeded MVP user")
-		}
-	}
-	if err != nil {
-		log.Fatalf("failed to migrate database: %v", err)
-	}
 
 	// Initialize PostGIS extension if not exists
 	db.Exec("CREATE EXTENSION IF NOT EXISTS postgis;")
@@ -137,6 +96,21 @@ func main() {
 		mux.ServeHTTP(w, r)
 	})
 
+	// Firebase Init
+	var opts []option.ClientOption
+	creds := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")
+	if strings.HasPrefix(strings.TrimSpace(creds), "{") {
+		opts = append(opts, option.WithCredentialsJSON([]byte(creds)))
+	}
+
+	firebaseApp, err := firebase.NewApp(context.Background(), nil, opts...)
+	if err != nil {
+		log.Fatalf("error initializing firebase app: %v", err)
+	}
+	log.Println("Firebase app initialized")
+	authMiddleware := middleware.NewAuthMiddleware(firebaseApp, flavorRepo)
+	authenticatedHandler := authMiddleware.Handle(mixedHandler)
+
 	// Add CORS middleware
 	withCORS := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -146,7 +120,7 @@ func main() {
 			w.WriteHeader(http.StatusOK)
 			return
 		}
-		mixedHandler.ServeHTTP(w, r)
+		authenticatedHandler.ServeHTTP(w, r)
 	})
 
 	server := &http.Server{

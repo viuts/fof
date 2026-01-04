@@ -4,8 +4,11 @@ import (
 	"context"
 	"time"
 
+	"github.com/viuts/fof/apps/backend/internal/middleware"
 	"github.com/viuts/fof/apps/backend/internal/usecase"
 	fofv1 "github.com/viuts/fof/apps/backend/pkg/api/fof/v1"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type FlavorHandler struct {
@@ -20,8 +23,11 @@ func NewFlavorHandler(u usecase.FlavorUsecase) *FlavorHandler {
 }
 
 func (h *FlavorHandler) UpdateLocation(ctx context.Context, req *fofv1.UpdateLocationRequest) (*fofv1.UpdateLocationResponse, error) {
-	// For now, hardcode a user ID for MVP
-	userID := "24e7e8ae-c205-4dba-b42d-f6294db20e9e"
+	userID, ok := ctx.Value(middleware.ContextKeyUserID).(string)
+	if !ok {
+		return nil, status.Error(codes.Unauthenticated, "user not authenticated")
+	}
+
 	newlyCleared, geoJSON, err := h.flavorUsecase.UpdateLocation(ctx, userID, req.Path)
 	if err != nil {
 		return nil, err
@@ -39,8 +45,12 @@ func (h *FlavorHandler) GetNearbyShops(ctx context.Context, req *fofv1.GetNearby
 		return nil, err
 	}
 
-	// For MVP, hardcode user ID
-	userID := "24e7e8ae-c205-4dba-b42d-f6294db20e9e"
+	// User ID from context used for visitation status
+	userID, ok := ctx.Value(middleware.ContextKeyUserID).(string)
+	if !ok {
+		return nil, status.Error(codes.Unauthenticated, "user not authenticated")
+	}
+
 	visitedShops, _ := h.flavorUsecase.GetVisitedShops(ctx, userID)
 	visitedMap := make(map[string]bool)
 	for _, vs := range visitedShops {
@@ -73,7 +83,11 @@ func (h *FlavorHandler) GetNearbyShops(ctx context.Context, req *fofv1.GetNearby
 }
 
 func (h *FlavorHandler) GetVisitedShops(ctx context.Context, req *fofv1.GetVisitedShopsRequest) (*fofv1.GetVisitedShopsResponse, error) {
-	userID := "24e7e8ae-c205-4dba-b42d-f6294db20e9e"
+	userID, ok := ctx.Value(middleware.ContextKeyUserID).(string)
+	if !ok {
+		return nil, status.Error(codes.Unauthenticated, "user not authenticated")
+	}
+
 	visits, err := h.flavorUsecase.GetVisitedShops(ctx, userID)
 	if err != nil {
 		return nil, err
@@ -111,7 +125,11 @@ func (h *FlavorHandler) GetVisitedShops(ctx context.Context, req *fofv1.GetVisit
 }
 
 func (h *FlavorHandler) CreateVisit(ctx context.Context, req *fofv1.CreateVisitRequest) (*fofv1.CreateVisitResponse, error) {
-	userID := "24e7e8ae-c205-4dba-b42d-f6294db20e9e"
+	userID, ok := ctx.Value(middleware.ContextKeyUserID).(string)
+	if !ok {
+		return nil, status.Error(codes.Unauthenticated, "user not authenticated")
+	}
+
 	geoJSON, expGained, currentExp, currentLevel, unlocked, err := h.flavorUsecase.CreateVisit(ctx, userID, req.ShopId, int(req.Rating), req.Comment)
 	if err != nil {
 		return nil, err
@@ -143,7 +161,11 @@ func (h *FlavorHandler) CreateVisit(ctx context.Context, req *fofv1.CreateVisitR
 
 
 func (h *FlavorHandler) GetClearedArea(ctx context.Context, req *fofv1.GetClearedAreaRequest) (*fofv1.GetClearedAreaResponse, error) {
-	userID := "24e7e8ae-c205-4dba-b42d-f6294db20e9e"
+	userID, ok := ctx.Value(middleware.ContextKeyUserID).(string)
+	if !ok {
+		return nil, status.Error(codes.Unauthenticated, "user not authenticated")
+	}
+
 	geoJSON, err := h.flavorUsecase.GetClearedArea(ctx, userID)
 	if err != nil {
 		return nil, err
@@ -155,8 +177,11 @@ func (h *FlavorHandler) GetClearedArea(ctx context.Context, req *fofv1.GetCleare
 }
 
 func (h *FlavorHandler) GetAchievements(ctx context.Context, req *fofv1.GetAchievementsRequest) (*fofv1.GetAchievementsResponse, error) {
-	// For now, hardcode user ID
-	userID := "24e7e8ae-c205-4dba-b42d-f6294db20e9e"
+	userID, ok := ctx.Value(middleware.ContextKeyUserID).(string)
+	if !ok {
+		return nil, status.Error(codes.Unauthenticated, "user not authenticated")
+	}
+
 	achievements, err := h.flavorUsecase.GetAchievements(ctx, userID)
 	if err != nil {
 		return nil, err

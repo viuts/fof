@@ -6,7 +6,6 @@ import '../api/fof/v1/shop_extensions.dart';
 import '../theme/app_theme.dart';
 import '../constants/category_colors.dart';
 import '../utils/geo_utils.dart';
-import '../l10n/app_localizations.dart';
 import '../services/language_service.dart';
 
 class ShopDetailCard extends StatelessWidget {
@@ -25,7 +24,12 @@ class ShopDetailCard extends StatelessWidget {
     required this.onEnterShop,
   });
 
-  Widget _buildDetailRow(IconData icon, String label, String value, {Color? color}) {
+  Widget _buildDetailRow(
+    IconData icon,
+    String label,
+    String value, {
+    Color? color,
+  }) {
     return Row(
       children: [
         Icon(icon, size: 16, color: color ?? AppTheme.textSecondaryLight),
@@ -57,17 +61,20 @@ class ShopDetailCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final shopLocation = latlong2.LatLng(shop.lat, shop.lng);
-    final isInClearedArea = GeoUtils.isPointInClearedArea(shopLocation, clearedAreaGeojson);
-    
-    final distanceToShop = currentLocation == null 
-        ? double.infinity 
+    final isInClearedArea = GeoUtils.isPointInClearedArea(
+      shopLocation,
+      clearedAreaGeojson,
+    );
+
+    final distanceToShop = currentLocation == null
+        ? double.infinity
         : Geolocator.distanceBetween(
             currentLocation!.latitude,
             currentLocation!.longitude,
             shop.lat,
             shop.lng,
           );
-    
+
     // Shop is discovered if it's in a cleared area OR user is very close (fallback for lag)
     final isDiscovered = isInClearedArea || distanceToShop <= 50;
 
@@ -172,7 +179,7 @@ class ShopDetailCard extends StatelessWidget {
                   ),
                 ),
               ],
-              
+
               // Shop is in cleared area - show full details
               if (isDiscovered) ...[
                 Row(
@@ -181,7 +188,7 @@ class ShopDetailCard extends StatelessWidget {
                       width: 56,
                       height: 56,
                       decoration: BoxDecoration(
-                        color: shop.isVisited 
+                        color: shop.isVisited
                             ? shop.color.withValues(alpha: 0.1)
                             : Colors.grey.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(16),
@@ -202,8 +209,8 @@ class ShopDetailCard extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.w800,
-                              color: shop.isVisited 
-                                  ? AppTheme.textPrimaryLight 
+                              color: shop.isVisited
+                                  ? AppTheme.textPrimaryLight
                                   : Colors.grey.shade600,
                               letterSpacing: -0.5,
                             ),
@@ -217,7 +224,9 @@ class ShopDetailCard extends StatelessWidget {
                                 S.of(context).translateCategory(shop.category),
                                 style: TextStyle(
                                   fontSize: 11,
-                                  color: shop.isVisited ? shop.color : Colors.grey,
+                                  color: shop.isVisited
+                                      ? shop.color
+                                      : Colors.grey,
                                   fontWeight: FontWeight.w800,
                                   letterSpacing: 1.0,
                                 ),
@@ -235,10 +244,21 @@ class ShopDetailCard extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 20),
-                _buildDetailRow(Icons.location_on_outlined, S.of(context).locationLabel, shop.address.isNotEmpty ? shop.address : '${shop.lat.toStringAsFixed(4)}, ${shop.lng.toStringAsFixed(4)}'),
-                if (shop.isVisited) ...[ 
+                _buildDetailRow(
+                  Icons.location_on_outlined,
+                  S.of(context).locationLabel,
+                  shop.address.isNotEmpty
+                      ? shop.address
+                      : '${shop.lat.toStringAsFixed(4)}, ${shop.lng.toStringAsFixed(4)}',
+                ),
+                if (shop.isVisited) ...[
                   const SizedBox(height: 12),
-                  _buildDetailRow(Icons.check_circle_outline, S.of(context).statusLabel, S.of(context).visitedLabel, color: Colors.green.shade600),
+                  _buildDetailRow(
+                    Icons.check_circle_outline,
+                    S.of(context).statusLabel,
+                    S.of(context).visitedLabel,
+                    color: Colors.green.shade600,
+                  ),
                 ],
                 const SizedBox(height: 20),
                 if (!shop.isVisited) ...[
@@ -263,17 +283,25 @@ class ShopDetailCard extends StatelessWidget {
                               ),
                             ),
                           ElevatedButton(
-                            onPressed: canEnter ? () => onEnterShop(shop) : null,
+                            onPressed: canEnter
+                                ? () => onEnterShop(shop)
+                                : null,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: canEnter ? Colors.green.shade600 : Colors.grey.shade300,
+                              backgroundColor: canEnter
+                                  ? Colors.green.shade600
+                                  : Colors.grey.shade300,
                               foregroundColor: Colors.white,
                               padding: const EdgeInsets.symmetric(vertical: 14),
                               elevation: canEnter ? 2 : 0,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                             ),
                             child: Text(
                               S.of(context).enterShop,
-                              style: const TextStyle(fontWeight: FontWeight.bold),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ],

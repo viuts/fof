@@ -26,18 +26,15 @@ import '../services/map_style_service.dart';
 class MapScreen extends StatefulWidget {
   final Shop? questShop;
   final VoidCallback? onCancelQuest;
-  
-  const MapScreen({
-    super.key,
-    this.questShop,
-    this.onCancelQuest,
-  });
+
+  const MapScreen({super.key, this.questShop, this.onCancelQuest});
 
   @override
   State<MapScreen> createState() => MapScreenState();
 }
 
-class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixin {
+class MapScreenState extends State<MapScreen>
+    with SingleTickerProviderStateMixin {
   final MapController _mapController = MapController();
   final FocusNode _focusNode = FocusNode();
   String? _clearedAreaGeojson;
@@ -51,7 +48,7 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
   Timer? _locationBatchTimer;
   bool _hasCentered = false;
   int _virtualStepCount = 0;
-  
+
   // Shop Entry Feature
   bool _isEntering = false;
   Shop? _enteringShop;
@@ -75,9 +72,15 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
     super.initState();
     _loadFilters();
     _startLocationService();
-    _shopUpdateTimer = Timer.periodic(const Duration(seconds: 30), (_) => _loadShops());
-    _locationBatchTimer = Timer.periodic(const Duration(seconds: 10), (_) => _sendBatchedLocationUpdate());
-    
+    _shopUpdateTimer = Timer.periodic(
+      const Duration(seconds: 30),
+      (_) => _loadShops(),
+    );
+    _locationBatchTimer = Timer.periodic(
+      const Duration(seconds: 10),
+      (_) => _sendBatchedLocationUpdate(),
+    );
+
     _blastController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 2000),
@@ -89,7 +92,7 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
       await LocationService().startTracking(
         onLocationUpdate: (lat, lng) {
           final newLoc = latlong2.LatLng(lat, lng);
-          
+
           // Calculate heading from movement direction
           if (_currentLocation != null) {
             final bearing = Geolocator.bearingBetween(
@@ -107,7 +110,7 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
               _currentLocation = newLoc;
             });
           }
-          
+
           if (!_hasCentered) {
             _hasCentered = true;
             _mapController.move(newLoc, 15.0);
@@ -174,10 +177,10 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
           .map((p) => fof_pb.LatLng(lat: p.latitude, lng: p.longitude))
           .toList();
       final response = await ApiService().updateLocation(path);
-      
+
       // ONLY flush the path from local storage if the backend call was successful
       await LocationService().clearPath();
-      
+
       if (response.newlyCleared) {
         setState(() {
           _clearedAreaGeojson = response.clearedAreaGeojson;
@@ -247,7 +250,11 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
                     color: Colors.orange.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.timer, color: Colors.orange, size: 24),
+                  child: const Icon(
+                    Icons.timer,
+                    color: Colors.orange,
+                    size: 24,
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -309,8 +316,6 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
     );
   }
 
-
-
   Widget _buildQuestOverlay() {
     if (widget.questShop == null || _currentLocation == null) {
       return const SizedBox.shrink();
@@ -365,7 +370,9 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          S.of(context).translateCategory(widget.questShop!.category),
+                          S
+                              .of(context)
+                              .translateCategory(widget.questShop!.category),
                           style: const TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
@@ -379,7 +386,9 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w800,
-                            color: isArrived ? AppTheme.textPrimaryLight : AppTheme.textSecondaryLight,
+                            color: isArrived
+                                ? AppTheme.textPrimaryLight
+                                : AppTheme.textSecondaryLight,
                           ),
                         ),
                       ],
@@ -405,7 +414,11 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.check_circle, color: Colors.green, size: 24),
+                      const Icon(
+                        Icons.check_circle,
+                        color: Colors.green,
+                        size: 24,
+                      ),
                       const SizedBox(width: 8),
                       Text(
                         S.of(context).arrived,
@@ -422,7 +435,11 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.navigation, color: Colors.orange, size: 20),
+                    const Icon(
+                      Icons.navigation,
+                      color: Colors.orange,
+                      size: 20,
+                    ),
                     const SizedBox(width: 8),
                     Text(
                       '${distance.toInt()}m',
@@ -451,15 +468,16 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
   // Virtual location movement for development/testing
   void _moveVirtualLocation(String direction) {
     if (_currentLocation == null) return;
-    
+
     // Move approximately 10 meters in the selected direction
     const double metersToMove = 10.0;
-    const double metersPerDegree = 111320.0; // Approximate meters per degree of latitude
-    
+    const double metersPerDegree =
+        111320.0; // Approximate meters per degree of latitude
+
     double latOffset = 0;
     double lngOffset = 0;
     double newHeading = 0;
-    
+
     switch (direction) {
       case 'up':
         latOffset = metersToMove / metersPerDegree;
@@ -470,7 +488,8 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
         newHeading = 180; // South
         break;
       case 'left':
-        lngOffset = -metersToMove / (metersPerDegree * 0.9); // Adjust for longitude
+        lngOffset =
+            -metersToMove / (metersPerDegree * 0.9); // Adjust for longitude
         newHeading = 270; // West
         break;
       case 'right':
@@ -478,7 +497,7 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
         newHeading = 90; // East
         break;
     }
-    
+
     final newLat = _currentLocation!.latitude + latOffset;
     final newLng = _currentLocation!.longitude + lngOffset;
 
@@ -488,7 +507,7 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
 
     // Update via service so all listeners (including map & proximity) are notified
     LocationService().updateVirtualLocation(newLat, newLng);
-    
+
     // Trigger aggressive location update for DEV mode
     _virtualStepCount++;
     if (_virtualStepCount >= 5) {
@@ -497,7 +516,10 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
     }
 
     // Recenter map
-    _mapController.move(latlong2.LatLng(newLat, newLng), _mapController.camera.zoom);
+    _mapController.move(
+      latlong2.LatLng(newLat, newLng),
+      _mapController.camera.zoom,
+    );
   }
 
   Widget _buildVirtualDPad() {
@@ -552,11 +574,7 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
           color: AppTheme.primaryColor.withValues(alpha: 0.8),
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Icon(
-          icon,
-          color: Colors.white,
-          size: 24,
-        ),
+        child: Icon(icon, color: Colors.white, size: 24),
       ),
     );
   }
@@ -603,7 +621,7 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
 
   Future<void> _showVisitCompletionDialog() async {
     if (_enteringShop == null) return;
-    
+
     int rating = 5;
     final commentController = TextEditingController();
 
@@ -613,7 +631,9 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
           backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
           title: Text(
             'Visit Complete: ${_enteringShop!.name}',
             style: const TextStyle(fontWeight: FontWeight.bold),
@@ -628,14 +648,17 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
               const SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(5, (index) => IconButton(
-                  icon: Icon(
-                    index < rating ? Icons.star : Icons.star_border,
-                    color: Colors.amber,
-                    size: 40,
+                children: List.generate(
+                  5,
+                  (index) => IconButton(
+                    icon: Icon(
+                      index < rating ? Icons.star : Icons.star_border,
+                      color: Colors.amber,
+                      size: 40,
+                    ),
+                    onPressed: () => setDialogState(() => rating = index + 1),
                   ),
-                  onPressed: () => setDialogState(() => rating = index + 1),
-                )),
+                ),
               ),
               const SizedBox(height: 24),
               TextField(
@@ -648,7 +671,10 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppTheme.primaryColor, width: 2),
+                    borderSide: const BorderSide(
+                      color: AppTheme.primaryColor,
+                      width: 2,
+                    ),
                   ),
                 ),
                 maxLines: 3,
@@ -663,25 +689,27 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
                 });
                 Navigator.pop(context);
               },
-              child: Text(
-                'Skip',
-                style: TextStyle(color: Colors.grey[600]),
-              ),
+              child: Text('Skip', style: TextStyle(color: Colors.grey[600])),
             ),
             ElevatedButton(
               onPressed: () async {
                 final shopId = _enteringShop!.id;
                 final r = rating;
                 final comment = commentController.text;
-                
+
                 Navigator.pop(context); // Close dialog
                 _submitVisit(shopId, r, comment);
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.primaryColor,
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
               ),
               child: const Text('Submit'),
             ),
@@ -711,15 +739,26 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                   Text('Visit recorded! Gained ${response.expGained} EXP'),
-                   if (_currentLevel > oldLevel)
-                     Text('LEVEL UP! Now at Level $_currentLevel', 
-                       style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.yellow)),
-                 ...response.unlockedAchievements.map((ach) => Text(
-                   '🏆 UNLOCKED: ${ach.name}!',
-                   style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
-                 )),
-              ],
+                  Text('Visit recorded! Gained ${response.expGained} EXP'),
+                  if (_currentLevel > oldLevel)
+                    Text(
+                      'LEVEL UP! Now at Level $_currentLevel',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        color: Colors.yellow,
+                      ),
+                    ),
+                  ...response.unlockedAchievements.map(
+                    (ach) => Text(
+                      '🏆 UNLOCKED: ${ach.name}!',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
               ),
               backgroundColor: AppTheme.primaryColor,
               duration: const Duration(seconds: 4),
@@ -740,7 +779,7 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
 
   void _showBlastAnimation(String shopId) {
     debugPrint('BOOM! Fog cleared around $shopId');
-    
+
     // Find shop location
     Shop? shop;
     try {
@@ -792,81 +831,94 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
         }
       },
       child: Scaffold(
-      body: Stack(
-        children: [
-          FlutterMap(
-            mapController: _mapController,
-            options: MapOptions(
-              initialCenter: _currentLocation ?? const latlong2.LatLng(35.6812, 139.7671),
-              initialZoom: 15,
-              interactionOptions: const InteractionOptions(
-                flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
-              ),
-            ),
-            children: [
-              TileLayer(
-                urlTemplate: mapStyleService.currentStyle.urlTemplate,
-                subdomains: mapStyleService.currentStyle.subdomains,
-                userAgentPackageName: 'com.viuts.fof',
-              ),
-              FogLayer(
-                fogColor: AppTheme.fogColorDark,
-                currentLocation: _currentLocation,
-                visionRadius: 100,
-                clearedRings: FogLayer.parseGeoJson(_clearedAreaGeojson),
-              ),
-              CurrentLocationLayer(
-                style: LocationMarkerStyle(
-                  marker: Container(
-                    decoration: BoxDecoration(
-                      color: AppTheme.accentColor,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 3),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.2),
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                  ),
-                  markerSize: const Size(24, 24),
-                  markerDirection: MarkerDirection.heading,
-                  showAccuracyCircle: true,
-                  accuracyCircleColor: AppTheme.accentColor.withValues(alpha: 0.3),
-                  headingSectorColor: AppTheme.accentColor.withValues(alpha: 0.4),
-                  headingSectorRadius: 60,
-                  showHeadingSector: true,
+        body: Stack(
+          children: [
+            FlutterMap(
+              mapController: _mapController,
+              options: MapOptions(
+                initialCenter:
+                    _currentLocation ??
+                    const latlong2.LatLng(35.6812, 139.7671),
+                initialZoom: 15,
+                interactionOptions: const InteractionOptions(
+                  flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
                 ),
               ),
-              MarkerLayer(
-                markers: [
-                  // Quest Direction Arrow (Standalone)
-                  if (_currentLocation != null && widget.questShop != null)
-                    Marker(
-                      point: _currentLocation!,
-                      width: 100,
-                      height: 100,
-                      child: Builder(
-                        builder: (context) {
-                          final bearing = Geolocator.bearingBetween(
-                            _currentLocation!.latitude,
-                            _currentLocation!.longitude,
-                            widget.questShop!.lat,
-                            widget.questShop!.lng,
-                          );
-                          return Transform.rotate(
-                            angle: bearing * (math.pi / 180),
-                            child: CustomPaint(
-                              painter: QuestDirectionPainter(),
-                              size: const Size(100, 100),
-                            ),
-                          );
-                        }
+              children: [
+                TileLayer(
+                  urlTemplate: mapStyleService.currentStyle.urlTemplate,
+                  subdomains: mapStyleService.currentStyle.subdomains,
+                  userAgentPackageName: 'com.viuts.fof',
+                ),
+                FogLayer(
+                  fogColor: AppTheme.fogColorDark,
+                  currentLocation: _currentLocation,
+                  visionRadius: 100,
+                  clearedRings: FogLayer.parseGeoJson(_clearedAreaGeojson),
+                ),
+                CurrentLocationLayer(
+                  positionStream: LocationService().positionStream.map(
+                    (p) => LocationMarkerPosition(
+                      latitude: p.latitude,
+                      longitude: p.longitude,
+                      accuracy: p.accuracy,
+                    ),
+                  ),
+                  style: LocationMarkerStyle(
+                    marker: Container(
+                      decoration: BoxDecoration(
+                        color: AppTheme.accentColor,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 3),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.2),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
                       ),
                     ),
-                  ...(() {
+                    markerSize: const Size(24, 24),
+                    markerDirection: MarkerDirection.heading,
+                    showAccuracyCircle: true,
+                    accuracyCircleColor: AppTheme.accentColor.withValues(
+                      alpha: 0.3,
+                    ),
+                    headingSectorColor: AppTheme.accentColor.withValues(
+                      alpha: 0.4,
+                    ),
+                    headingSectorRadius: 60,
+                    showHeadingSector: true,
+                  ),
+                ),
+                MarkerLayer(
+                  markers: [
+                    // Quest Direction Arrow (Standalone)
+                    if (_currentLocation != null && widget.questShop != null)
+                      Marker(
+                        point: _currentLocation!,
+                        width: 100,
+                        height: 100,
+                        child: Builder(
+                          builder: (context) {
+                            final bearing = Geolocator.bearingBetween(
+                              _currentLocation!.latitude,
+                              _currentLocation!.longitude,
+                              widget.questShop!.lat,
+                              widget.questShop!.lng,
+                            );
+                            return Transform.rotate(
+                              angle: bearing * (math.pi / 180),
+                              child: CustomPaint(
+                                painter: QuestDirectionPainter(),
+                                size: const Size(100, 100),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ...(() {
                       final allShops = <String, Shop>{};
                       for (var s in _nearbyShops) {
                         allShops[s.id] = s;
@@ -874,12 +926,19 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
                       for (var s in _visitedShops) {
                         allShops[s.id] = s;
                       }
-                      
-                      return allShops.values.where((s) => !_hiddenCategories.contains(s.category.toLowerCase()));
+
+                      return allShops.values.where(
+                        (s) => !_hiddenCategories.contains(
+                          s.category.toLowerCase(),
+                        ),
+                      );
                     }()).map((shop) {
                       final shopLocation = latlong2.LatLng(shop.lat, shop.lng);
-                      final isInClearedArea = GeoUtils.isPointInClearedArea(shopLocation, _clearedAreaGeojson);
-                      
+                      final isInClearedArea = GeoUtils.isPointInClearedArea(
+                        shopLocation,
+                        _clearedAreaGeojson,
+                      );
+
                       return Marker(
                         point: shopLocation,
                         width: shop.markerSize + 10,
@@ -891,21 +950,21 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
                           onTap: () => _showShopDetails(shop),
                         ),
                       );
-                     }),
+                    }),
                     // Quest marker (if active)
                     if (widget.questShop != null)
                       Marker(
-                        point: latlong2.LatLng(widget.questShop!.lat, widget.questShop!.lng),
-                        width: 60,
-                        height: 60,
+                        point: latlong2.LatLng(
+                          widget.questShop!.lat,
+                          widget.questShop!.lng,
+                        ),
+                        width: 24,
+                        height: 24,
                         child: Container(
                           decoration: BoxDecoration(
                             color: Colors.orange,
                             shape: BoxShape.circle,
-                            border: Border.all(
-                              color: Colors.white,
-                              width: 3,
-                            ),
+                            border: Border.all(color: Colors.white, width: 3),
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.orange.withValues(alpha: 0.5),
@@ -917,56 +976,54 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
                           child: const Icon(
                             Icons.flag,
                             color: Colors.white,
-                            size: 30,
+                            size: 16,
                           ),
                         ),
                       ),
                   ],
                 ),
-            ],
-
-          ),
-          // Entering Overlay
-          _buildEnteringOverlay(),
-          // Quest overlay
-          if (widget.questShop != null && _currentLocation != null)
-            _buildQuestOverlay(),
-          // Blast animation layer
-          _buildBlastLayer(radiusInMeters: 250.0),
-          // Virtual D-pad for development (Web only)
-          if (kDebugMode && kIsWeb)
-            _buildVirtualDPad(),
-          
-          // Level Badge
-          _buildLevelBadge(),
-
-          // Recenter FAB
-          Positioned(
-            bottom: 32,
-            right: 16,
-            child: FloatingActionButton(
-              heroTag: 'recenter_fab',
-              backgroundColor: AppTheme.accentColor,
-              shape: const CircleBorder(),
-              onPressed: recenter,
-              child: const Icon(Icons.gps_fixed, color: Colors.white),
+              ],
             ),
-          ),
+            // Entering Overlay
+            _buildEnteringOverlay(),
+            // Quest overlay
+            if (widget.questShop != null && _currentLocation != null)
+              _buildQuestOverlay(),
+            // Blast animation layer
+            _buildBlastLayer(radiusInMeters: 250.0),
+            // Virtual D-pad for development (Web only)
+            if (kDebugMode) _buildVirtualDPad(),
 
-          // Filter Bar
-          _buildFilterBar(),
+            // Level Badge
+            _buildLevelBadge(),
 
-          // Persistent Shop Detail Card
-          if (_selectedShop != null)
-            ShopDetailCard(
-              shop: _selectedShop!,
-              currentLocation: _currentLocation,
-              clearedAreaGeojson: _clearedAreaGeojson,
-              onClose: () => setState(() => _selectedShop = null),
-              onEnterShop: _startEnteringShop,
+            // Recenter FAB
+            Positioned(
+              bottom: 32,
+              right: 16,
+              child: FloatingActionButton(
+                heroTag: 'recenter_fab',
+                backgroundColor: AppTheme.accentColor,
+                shape: const CircleBorder(),
+                onPressed: recenter,
+                child: const Icon(Icons.gps_fixed, color: Colors.white),
+              ),
             ),
-        ],
-      ),
+
+            // Filter Bar
+            _buildFilterBar(),
+
+            // Persistent Shop Detail Card
+            if (_selectedShop != null)
+              ShopDetailCard(
+                shop: _selectedShop!,
+                currentLocation: _currentLocation,
+                clearedAreaGeojson: _clearedAreaGeojson,
+                onClose: () => setState(() => _selectedShop = null),
+                onEnterShop: _startEnteringShop,
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -977,7 +1034,8 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
 
     // Shift down if entering overlay is visible to avoid overlap
     // Also shift down if Quest Mode is active (top overlay present)
-    final topPadding = MediaQuery.of(context).padding.top + 
+    final topPadding =
+        MediaQuery.of(context).padding.top +
         (_isEntering ? 180 : (widget.questShop != null ? 170 : 16));
 
     return AnimatedPositioned(
@@ -1055,7 +1113,8 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
 
   Widget _buildFilterBar() {
     // Use the same logic as LevelBadge to avoid overlap
-    final topPadding = MediaQuery.of(context).padding.top + 
+    final topPadding =
+        MediaQuery.of(context).padding.top +
         (_isEntering ? 180 : (widget.questShop != null ? 170 : 16));
 
     return AnimatedPositioned(
@@ -1072,10 +1131,13 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
             heroTag: 'filter_toggle',
             backgroundColor: Colors.white,
             elevation: 4,
-            onPressed: () => setState(() => _isFilterExpanded = !_isFilterExpanded),
+            onPressed: () =>
+                setState(() => _isFilterExpanded = !_isFilterExpanded),
             child: Icon(
               _isFilterExpanded ? Icons.close : Icons.filter_list,
-              color: _hiddenCategories.isNotEmpty ? AppTheme.primaryColor : Colors.grey[700],
+              color: _hiddenCategories.isNotEmpty
+                  ? AppTheme.primaryColor
+                  : Colors.grey[700],
             ),
           ),
           const SizedBox(height: 12),
@@ -1098,7 +1160,14 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   // We use a fixed list of common categories for simplicity, or ideally map from ShopCategory
-                  ...['ramen', 'cafe', 'pub', 'sushi', 'izakaya', 'italian'].map((cat) {
+                  ...[
+                    'ramen',
+                    'cafe',
+                    'pub',
+                    'sushi',
+                    'izakaya',
+                    'italian',
+                  ].map((cat) {
                     final isHidden = _hiddenCategories.contains(cat);
                     final color = ShopCategory.getColor(cat);
                     final icon = ShopCategory.getIcon(cat);
@@ -1120,7 +1189,9 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
                           width: 36,
                           height: 36,
                           decoration: BoxDecoration(
-                            color: isHidden ? Colors.grey[200] : color.withValues(alpha: 0.2),
+                            color: isHidden
+                                ? Colors.grey[200]
+                                : color.withValues(alpha: 0.2),
                             shape: BoxShape.circle,
                             border: Border.all(
                               color: isHidden ? Colors.grey[400]! : color,
@@ -1146,7 +1217,11 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
                         child: CircleAvatar(
                           radius: 14,
                           backgroundColor: Colors.grey[200],
-                          child: const Icon(Icons.refresh, size: 16, color: Colors.black54),
+                          child: const Icon(
+                            Icons.refresh,
+                            size: 16,
+                            color: Colors.black54,
+                          ),
                         ),
                       ),
                     ),
@@ -1176,27 +1251,36 @@ class BlastPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     if (progress <= 0 || progress >= 1.0) return;
     final offset = camera.getOffsetFromOrigin(center);
-    
+
     // Meters to pixels conversion
     final latRad = center.latitude * math.pi / 180.0;
-    final metersPerPixel = 156543.03392 * math.cos(latRad) / math.pow(2, camera.zoom);
+    final metersPerPixel =
+        156543.03392 * math.cos(latRad) / math.pow(2, camera.zoom);
     final maxRadius = radiusInMeters / metersPerPixel;
 
     // Use a custom curve for the expansion feel
     final mainCurve = Curves.easeOutExpo.transform(progress);
-    
+
     // 0. Inner Fill (Fades out quickly)
     final fillPaint = Paint()
       ..color = AppTheme.primaryColor.withValues(alpha: (1.0 - mainCurve) * 0.3)
       ..style = PaintingStyle.fill;
-    canvas.drawCircle(Offset(offset.dx, offset.dy), maxRadius * mainCurve, fillPaint);
+    canvas.drawCircle(
+      Offset(offset.dx, offset.dy),
+      maxRadius * mainCurve,
+      fillPaint,
+    );
 
     // 1. Primary Shockwave (Primary Color)
     final paint1 = Paint()
       ..color = AppTheme.primaryColor.withValues(alpha: (1.0 - mainCurve) * 0.8)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 20.0 * (1.0 - mainCurve);
-    canvas.drawCircle(Offset(offset.dx, offset.dy), maxRadius * mainCurve, paint1);
+    canvas.drawCircle(
+      Offset(offset.dx, offset.dy),
+      maxRadius * mainCurve,
+      paint1,
+    );
 
     // 2. Secondary Shockwave (Accent Color, delayed)
     if (progress > 0.15) {
@@ -1206,9 +1290,13 @@ class BlastPainter extends CustomPainter {
         ..color = AppTheme.accentColor.withValues(alpha: (1.0 - c2) * 0.6)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 12.0 * (1.0 - c2);
-      canvas.drawCircle(Offset(offset.dx, offset.dy), maxRadius * 0.8 * c2, paint2);
+      canvas.drawCircle(
+        Offset(offset.dx, offset.dy),
+        maxRadius * 0.8 * c2,
+        paint2,
+      );
     }
-    
+
     // 3. Third Shockwave (White core, faster)
     if (progress < 0.6) {
       final p3 = progress / 0.6;
@@ -1217,54 +1305,76 @@ class BlastPainter extends CustomPainter {
         ..color = Colors.white.withValues(alpha: (1.0 - c3) * 0.5)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 5.0 * (1.0 - c3);
-       canvas.drawCircle(Offset(offset.dx, offset.dy), maxRadius * 0.5 * c3, paint3);
+      canvas.drawCircle(
+        Offset(offset.dx, offset.dy),
+        maxRadius * 0.5 * c3,
+        paint3,
+      );
     }
 
     // 4. Central Flash
     final flashCurve = Curves.easeIn.transform(1.0 - progress);
     if (flashCurve > 0.0) {
       final flashPaint = Paint()
-        ..shader = RadialGradient(
-          colors: [
-            Colors.white.withValues(alpha: flashCurve * 0.95),
-            AppTheme.primaryColor.withValues(alpha: flashCurve * 0.4),
-            Colors.transparent,
-          ],
-          stops: const [0.0, 0.3, 1.0],
-        ).createShader(Rect.fromCircle(center: Offset(offset.dx, offset.dy), radius: maxRadius * 0.6));
-      
-      canvas.drawCircle(Offset(offset.dx, offset.dy), maxRadius * 0.6 * progress, flashPaint);
+        ..shader =
+            RadialGradient(
+              colors: [
+                Colors.white.withValues(alpha: flashCurve * 0.95),
+                AppTheme.primaryColor.withValues(alpha: flashCurve * 0.4),
+                Colors.transparent,
+              ],
+              stops: const [0.0, 0.3, 1.0],
+            ).createShader(
+              Rect.fromCircle(
+                center: Offset(offset.dx, offset.dy),
+                radius: maxRadius * 0.6,
+              ),
+            );
+
+      canvas.drawCircle(
+        Offset(offset.dx, offset.dy),
+        maxRadius * 0.6 * progress,
+        flashPaint,
+      );
     }
 
     // 5. Particles (Expanded)
     final pPaint = Paint();
-    final random = math.Random(center.hashCode); // Consistent random based on location
-    
+    final random = math.Random(
+      center.hashCode,
+    ); // Consistent random based on location
+
     // More particles
     for (int i = 0; i < 24; i++) {
-        final angle = (i * math.pi / 12) + (progress * 0.5); // Slight rotation
-        final randomOffset = random.nextDouble() * 0.2; // Variance
-        
-        final particleProgress = Curves.easeOutCirc.transform(progress); 
-        final pDist = maxRadius * particleProgress * (0.8 + randomOffset);
-        
-        final px = offset.dx + math.cos(angle) * pDist;
-        final py = offset.dy + math.sin(angle) * pDist;
-        
-        // Randomly alternate between primary, accent and white
-        Color particleColor;
-        if (i % 3 == 0) {
-          particleColor = AppTheme.primaryColor;
-        } else if (i % 3 == 1) {
-          particleColor = AppTheme.accentColor;
-        } else {
-          particleColor = Colors.amber;
-        }
-        
-        pPaint.color = particleColor.withValues(alpha: (1.0 - particleProgress) * 0.9);
-        
-        final sizeBase = (i % 2 == 0) ? 6.0 : 3.0;
-        canvas.drawCircle(Offset(px, py), sizeBase * (1.0 - particleProgress), pPaint);
+      final angle = (i * math.pi / 12) + (progress * 0.5); // Slight rotation
+      final randomOffset = random.nextDouble() * 0.2; // Variance
+
+      final particleProgress = Curves.easeOutCirc.transform(progress);
+      final pDist = maxRadius * particleProgress * (0.8 + randomOffset);
+
+      final px = offset.dx + math.cos(angle) * pDist;
+      final py = offset.dy + math.sin(angle) * pDist;
+
+      // Randomly alternate between primary, accent and white
+      Color particleColor;
+      if (i % 3 == 0) {
+        particleColor = AppTheme.primaryColor;
+      } else if (i % 3 == 1) {
+        particleColor = AppTheme.accentColor;
+      } else {
+        particleColor = Colors.amber;
+      }
+
+      pPaint.color = particleColor.withValues(
+        alpha: (1.0 - particleProgress) * 0.9,
+      );
+
+      final sizeBase = (i % 2 == 0) ? 6.0 : 3.0;
+      canvas.drawCircle(
+        Offset(px, py),
+        sizeBase * (1.0 - particleProgress),
+        pPaint,
+      );
     }
   }
 
@@ -1287,10 +1397,16 @@ class QuestDirectionPainter extends CustomPainter {
     // Marker is approx 50x50 (radius 25).
     // We draw arc at radius ~38 to hover just outside.
     final rect = Rect.fromCircle(center: center, radius: 36);
-    
+
     // Draw Arc centered at Top (-pi/2)
     // Sweep angle approx 72 degrees (2*pi/5)
-    canvas.drawArc(rect, -math.pi / 2 - math.pi / 5, math.pi * 2 / 5, false, paint);
+    canvas.drawArc(
+      rect,
+      -math.pi / 2 - math.pi / 5,
+      math.pi * 2 / 5,
+      false,
+      paint,
+    );
   }
 
   @override
