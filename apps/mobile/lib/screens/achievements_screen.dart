@@ -85,7 +85,11 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline_rounded, size: 48, color: Colors.red),
+            const Icon(
+              Icons.error_outline_rounded,
+              size: 48,
+              color: Colors.red,
+            ),
             const SizedBox(height: AppTheme.spacingMd),
             Text('Error: $_error'),
             TextButton(
@@ -102,9 +106,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
         // Left Sidebar: Categories
         _buildSidebar(),
         // Right Content: Filtered Achievements
-        Expanded(
-          child: _buildAchievementList(),
-        ),
+        Expanded(child: _buildAchievementList()),
       ],
     );
   }
@@ -123,23 +125,31 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
         itemCount: _categories.length,
         itemBuilder: (context, index) {
           final cat = _categories[index];
-          final localizedLabel = AchievementLocalization.getLocalizedCategoryLabel(s, cat['id']);
+          final localizedLabel =
+              AchievementLocalization.getLocalizedCategoryLabel(s, cat['id']);
           final isSelected = _selectedCategory == cat['id'];
           return GestureDetector(
             onTap: () => setState(() => _selectedCategory = cat['id']),
             child: Container(
               height: 80,
               decoration: BoxDecoration(
-                border: isSelected ? const Border(
-                  right: BorderSide(color: AppTheme.primaryColor, width: 3),
-                ) : null,
+                border: isSelected
+                    ? const Border(
+                        right: BorderSide(
+                          color: AppTheme.primaryColor,
+                          width: 3,
+                        ),
+                      )
+                    : null,
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(
                     cat['icon'],
-                    color: isSelected ? AppTheme.primaryColor : AppTheme.textSecondaryLight,
+                    color: isSelected
+                        ? AppTheme.primaryColor
+                        : AppTheme.textSecondaryLight,
                     size: 28,
                   ),
                   const SizedBox(height: 4),
@@ -150,8 +160,12 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontSize: 10,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                      color: isSelected ? AppTheme.primaryColor : AppTheme.textSecondaryLight,
+                      fontWeight: isSelected
+                          ? FontWeight.bold
+                          : FontWeight.w500,
+                      color: isSelected
+                          ? AppTheme.primaryColor
+                          : AppTheme.textSecondaryLight,
                     ),
                   ),
                 ],
@@ -165,34 +179,41 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
 
   Widget _buildAchievementList() {
     final s = AppLocalizations.of(context)!;
-    final filtered = (_selectedCategory == 'ALL'
-        ? _achievements
-        : _achievements.where((a) => a.achievement.category.toUpperCase() == _selectedCategory).toList())
-      ..sort((a, b) {
-        // Prioritize In Progress (Not unlocked, partial progress)
-        final aInProgress = !a.isUnlocked && a.currentValue > 0;
-        final bInProgress = !b.isUnlocked && b.currentValue > 0;
-        if (aInProgress && !bInProgress) return -1;
-        if (!aInProgress && bInProgress) return 1;
+    final filtered =
+        (_selectedCategory == 'ALL'
+              ? _achievements
+              : _achievements
+                    .where(
+                      (a) =>
+                          a.achievement.category.toUpperCase() ==
+                          _selectedCategory,
+                    )
+                    .toList())
+          ..sort((a, b) {
+            // Prioritize In Progress (Not unlocked, partial progress)
+            final aInProgress = !a.isUnlocked && a.currentValue > 0;
+            final bInProgress = !b.isUnlocked && b.currentValue > 0;
+            if (aInProgress && !bInProgress) return -1;
+            if (!aInProgress && bInProgress) return 1;
 
-        // Then No Progress (Not unlocked, no progress)
-        final aNoProgress = !a.isUnlocked && a.currentValue == 0;
-        final bNoProgress = !b.isUnlocked && b.currentValue == 0;
-        if (aNoProgress && !bNoProgress) return -1;
-        if (!aNoProgress && bNoProgress) return 1;
+            // Then No Progress (Not unlocked, no progress)
+            final aNoProgress = !a.isUnlocked && a.currentValue == 0;
+            final bNoProgress = !b.isUnlocked && b.currentValue == 0;
+            if (aNoProgress && !bNoProgress) return -1;
+            if (!aNoProgress && bNoProgress) return 1;
 
-        // Finally Achieved (Unlocked), sorted by most recently unlocked
-        if (a.isUnlocked && b.isUnlocked) {
-           // Parse dates if available, otherwise strict sort isn't critical but good to have
-           // unlockedAt is string ISO? Proto says string. Assuming ISO8601 or empty.
-           if (a.unlockedAt.isNotEmpty && b.unlockedAt.isNotEmpty) {
-             return b.unlockedAt.compareTo(a.unlockedAt); // Descending
-           }
-        }
-        
-        // Fallback to name or ID if needed, or keep stable
-        return 0;
-      });
+            // Finally Achieved (Unlocked), sorted by most recently unlocked
+            if (a.isUnlocked && b.isUnlocked) {
+              // Parse dates if available, otherwise strict sort isn't critical but good to have
+              // unlockedAt is string ISO? Proto says string. Assuming ISO8601 or empty.
+              if (a.unlockedAt.isNotEmpty && b.unlockedAt.isNotEmpty) {
+                return b.unlockedAt.compareTo(a.unlockedAt); // Descending
+              }
+            }
+
+            // Fallback to name or ID if needed, or keep stable
+            return 0;
+          });
 
     if (filtered.isEmpty) {
       return Center(
@@ -208,10 +229,11 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
         left: AppTheme.spacingMd,
         right: AppTheme.spacingMd,
         top: AppTheme.spacingMd,
-        bottom: 100, // Extra space for FAB and bottom bar
+        bottom: 16, // Extra space for FAB and bottom bar
       ),
       itemCount: filtered.length,
-      separatorBuilder: (context, index) => const SizedBox(height: AppTheme.spacingMd),
+      separatorBuilder: (context, index) =>
+          const SizedBox(height: AppTheme.spacingMd),
       itemBuilder: (context, index) {
         return _buildAchievementCard(filtered[index]);
       },
@@ -239,9 +261,12 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
     final isUnlocked = status.isUnlocked;
     final progress = status.progress;
     final icon = _getIconForCategory(ach.category);
-    
+
     // Localize!
-    final localized = AchievementLocalization.getLocalizedAchievement(s, ach.id);
+    final localized = AchievementLocalization.getLocalizedAchievement(
+      s,
+      ach.id,
+    );
 
     return Container(
       padding: const EdgeInsets.all(AppTheme.spacingMd),
@@ -256,7 +281,9 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
           ),
         ],
         border: Border.all(
-          color: isUnlocked ? AppTheme.primaryColor.withValues(alpha: 0.1) : Colors.transparent,
+          color: isUnlocked
+              ? AppTheme.primaryColor.withValues(alpha: 0.1)
+              : Colors.transparent,
           width: 1.5,
         ),
       ),
@@ -269,7 +296,9 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: (isUnlocked ? AppTheme.primaryColor : Colors.grey[200]!).withValues(alpha: 0.1),
+                  color:
+                      (isUnlocked ? AppTheme.primaryColor : Colors.grey[200]!)
+                          .withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
@@ -288,7 +317,9 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
-                        color: isUnlocked ? AppTheme.textPrimaryLight : AppTheme.textSecondaryLight,
+                        color: isUnlocked
+                            ? AppTheme.textPrimaryLight
+                            : AppTheme.textSecondaryLight,
                       ),
                     ),
                     Text(
@@ -303,13 +334,17 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                 ),
               ),
               if (isUnlocked)
-                const Icon(Icons.stars_rounded, color: AppTheme.primaryColor, size: 20),
+                const Icon(
+                  Icons.stars_rounded,
+                  color: AppTheme.primaryColor,
+                  size: 20,
+                ),
             ],
           ),
           const SizedBox(height: AppTheme.spacingMd),
           const SizedBox(height: AppTheme.spacingMd),
           if (isUnlocked) ...[
-             Row(
+            Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Text(
@@ -323,7 +358,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
               ],
             ),
           ] else ...[
-             Row(
+            Row(
               children: [
                 Expanded(
                   child: ClipRRect(

@@ -13,6 +13,49 @@ import 'dart:convert' as $convert;
 import 'dart:core' as $core;
 import 'dart:typed_data' as $typed_data;
 
+@$core.Deprecated('Use foodCategoryDescriptor instead')
+const FoodCategory$json = {
+  '1': 'FoodCategory',
+  '2': [
+    {'1': 'FOOD_CATEGORY_UNSPECIFIED', '2': 0},
+    {'1': 'FOOD_CATEGORY_WASHOKU', '2': 1},
+    {'1': 'FOOD_CATEGORY_SUSHI', '2': 2},
+    {'1': 'FOOD_CATEGORY_AGEMONO', '2': 3},
+    {'1': 'FOOD_CATEGORY_YAKITORI', '2': 4},
+    {'1': 'FOOD_CATEGORY_YAKINIKU', '2': 5},
+    {'1': 'FOOD_CATEGORY_NIKURYOURI', '2': 6},
+    {'1': 'FOOD_CATEGORY_NABE', '2': 7},
+    {'1': 'FOOD_CATEGORY_DON', '2': 8},
+    {'1': 'FOOD_CATEGORY_MEN', '2': 9},
+    {'1': 'FOOD_CATEGORY_RAMEN', '2': 10},
+    {'1': 'FOOD_CATEGORY_KONAMONO', '2': 11},
+    {'1': 'FOOD_CATEGORY_YOSHOKU', '2': 12},
+    {'1': 'FOOD_CATEGORY_EUROPEAN', '2': 13},
+    {'1': 'FOOD_CATEGORY_CHINESE', '2': 14},
+    {'1': 'FOOD_CATEGORY_KOREAN', '2': 15},
+    {'1': 'FOOD_CATEGORY_ETHNIC', '2': 16},
+    {'1': 'FOOD_CATEGORY_CURRY', '2': 17},
+    {'1': 'FOOD_CATEGORY_IZAKAYA', '2': 18},
+    {'1': 'FOOD_CATEGORY_BAR', '2': 19},
+    {'1': 'FOOD_CATEGORY_CAFE', '2': 20},
+    {'1': 'FOOD_CATEGORY_SWEETS', '2': 21},
+  ],
+};
+
+/// Descriptor for `FoodCategory`. Decode as a `google.protobuf.EnumDescriptorProto`.
+final $typed_data.Uint8List foodCategoryDescriptor = $convert.base64Decode(
+    'CgxGb29kQ2F0ZWdvcnkSHQoZRk9PRF9DQVRFR09SWV9VTlNQRUNJRklFRBAAEhkKFUZPT0RfQ0'
+    'FURUdPUllfV0FTSE9LVRABEhcKE0ZPT0RfQ0FURUdPUllfU1VTSEkQAhIZChVGT09EX0NBVEVH'
+    'T1JZX0FHRU1PTk8QAxIaChZGT09EX0NBVEVHT1JZX1lBS0lUT1JJEAQSGgoWRk9PRF9DQVRFR0'
+    '9SWV9ZQUtJTklLVRAFEhwKGEZPT0RfQ0FURUdPUllfTklLVVJZT1VSSRAGEhYKEkZPT0RfQ0FU'
+    'RUdPUllfTkFCRRAHEhUKEUZPT0RfQ0FURUdPUllfRE9OEAgSFQoRRk9PRF9DQVRFR09SWV9NRU'
+    '4QCRIXChNGT09EX0NBVEVHT1JZX1JBTUVOEAoSGgoWRk9PRF9DQVRFR09SWV9LT05BTU9OTxAL'
+    'EhkKFUZPT0RfQ0FURUdPUllfWU9TSE9LVRAMEhoKFkZPT0RfQ0FURUdPUllfRVVST1BFQU4QDR'
+    'IZChVGT09EX0NBVEVHT1JZX0NISU5FU0UQDhIYChRGT09EX0NBVEVHT1JZX0tPUkVBThAPEhgK'
+    'FEZPT0RfQ0FURUdPUllfRVRITklDEBASFwoTRk9PRF9DQVRFR09SWV9DVVJSWRAREhkKFUZPT0'
+    'RfQ0FURUdPUllfSVpBS0FZQRASEhUKEUZPT0RfQ0FURUdPUllfQkFSEBMSFgoSRk9PRF9DQVRF'
+    'R09SWV9DQUZFEBQSGAoURk9PRF9DQVRFR09SWV9TV0VFVFMQFQ==');
+
 @$core.Deprecated('Use latLngDescriptor instead')
 const LatLng$json = {
   '1': 'LatLng',
@@ -219,6 +262,8 @@ const Shop$json = {
     {'1': 'rating', '3': 12, '4': 1, '5': 1, '10': 'rating'},
     {'1': 'source_url', '3': 13, '4': 1, '5': 9, '10': 'sourceUrl'},
     {'1': 'clearance_radius', '3': 14, '4': 1, '5': 1, '10': 'clearanceRadius'},
+    {'1': 'food_category', '3': 15, '4': 1, '5': 14, '6': '.fof.v1.FoodCategory', '10': 'foodCategory'},
+    {'1': 'reservable', '3': 16, '4': 1, '5': 8, '10': 'reservable'},
   ],
 };
 
@@ -230,7 +275,9 @@ final $typed_data.Uint8List shopDescriptor = $convert.base64Decode(
     'oHYWRkcmVzcxgIIAEoCVIHYWRkcmVzcxIUCgVwaG9uZRgJIAEoCVIFcGhvbmUSIwoNb3Blbmlu'
     'Z19ob3VycxgKIAEoCVIMb3BlbmluZ0hvdXJzEh0KCmltYWdlX3VybHMYCyADKAlSCWltYWdlVX'
     'JscxIWCgZyYXRpbmcYDCABKAFSBnJhdGluZxIdCgpzb3VyY2VfdXJsGA0gASgJUglzb3VyY2VV'
-    'cmwSKQoQY2xlYXJhbmNlX3JhZGl1cxgOIAEoAVIPY2xlYXJhbmNlUmFkaXVz');
+    'cmwSKQoQY2xlYXJhbmNlX3JhZGl1cxgOIAEoAVIPY2xlYXJhbmNlUmFkaXVzEjkKDWZvb2RfY2'
+    'F0ZWdvcnkYDyABKA4yFC5mb2YudjEuRm9vZENhdGVnb3J5Ugxmb29kQ2F0ZWdvcnkSHgoKcmVz'
+    'ZXJ2YWJsZRgQIAEoCFIKcmVzZXJ2YWJsZQ==');
 
 @$core.Deprecated('Use getAchievementsRequestDescriptor instead')
 const GetAchievementsRequest$json = {

@@ -79,7 +79,7 @@ class ShopDetailCard extends StatelessWidget {
     final isDiscovered = isInClearedArea || distanceToShop <= 50;
 
     return Positioned(
-      bottom: 150,
+      bottom: 16,
       left: 16,
       right: 16,
       child: Container(
@@ -112,7 +112,7 @@ class ShopDetailCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Icon(
-                        ShopCategory.getIcon(shop.category),
+                        ShopCategory.getIcon(shop.foodCategory),
                         color: shop.color,
                         size: 24,
                       ),
@@ -123,7 +123,7 @@ class ShopDetailCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            S.of(context).translateCategory(shop.category),
+                            S.of(context).translateCategory(shop.foodCategory),
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w800,
@@ -194,7 +194,7 @@ class ShopDetailCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Icon(
-                        ShopCategory.getIcon(shop.category),
+                        ShopCategory.getIcon(shop.foodCategory),
                         color: shop.isVisited ? shop.color : Colors.grey,
                         size: 30,
                       ),
@@ -221,7 +221,9 @@ class ShopDetailCard extends StatelessWidget {
                           Row(
                             children: [
                               Text(
-                                S.of(context).translateCategory(shop.category),
+                                S
+                                    .of(context)
+                                    .translateCategory(shop.foodCategory),
                                 style: TextStyle(
                                   fontSize: 11,
                                   color: shop.isVisited
@@ -233,6 +235,25 @@ class ShopDetailCard extends StatelessWidget {
                               ),
                             ],
                           ),
+                          if (shop.reservable)
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.event_available,
+                                  size: 11,
+                                  color: Colors.green.shade600,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  'Reservable',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: Colors.green.shade600,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
                         ],
                       ),
                     ),

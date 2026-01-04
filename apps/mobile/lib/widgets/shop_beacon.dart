@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../api/fof/v1/fof.pb.dart';
 import '../api/fof/v1/shop_extensions.dart';
+import '../constants/category_colors.dart';
 
 /// Custom marker widget for shop beacons with category-based coloring
 /// Implements FR-5 and FR-6 from PRD
@@ -35,10 +36,7 @@ class _ShopBeaconState extends State<ShopBeacon>
       vsync: this,
     );
     _pulseAnimation = Tween<double>(begin: 1.0, end: 1.3).animate(
-      CurvedAnimation(
-        parent: _pulseController,
-        curve: Curves.easeInOut,
-      ),
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
 
     if (widget.showPulse) {
@@ -55,7 +53,7 @@ class _ShopBeaconState extends State<ShopBeacon>
   @override
   Widget build(BuildContext context) {
     final shop = widget.shop;
-    
+
     return GestureDetector(
       onTap: widget.onTap,
       child: Opacity(
@@ -87,7 +85,7 @@ class _ShopBeaconState extends State<ShopBeacon>
                     ],
                   ),
                 ),
-              
+
               // Main beacon icon
               Container(
                 width: shop.markerSize,
@@ -95,10 +93,7 @@ class _ShopBeaconState extends State<ShopBeacon>
                 decoration: BoxDecoration(
                   color: shop.isVisited ? shop.color : Colors.grey[600],
                   shape: BoxShape.circle,
-                  border: Border.all(
-                    color: Colors.white,
-                    width: 3,
-                  ),
+                  border: Border.all(color: Colors.white, width: 3),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withValues(alpha: 0.15),
@@ -108,12 +103,12 @@ class _ShopBeaconState extends State<ShopBeacon>
                   ],
                 ),
                 child: Icon(
-                  _getIconForCategory(shop.category),
+                  ShopCategory.getIcon(shop.foodCategory),
                   size: shop.markerSize * 0.55,
                   color: Colors.white,
                 ),
               ),
-              
+
               // Chain badge (small indicator)
               if (shop.isChain)
                 Positioned(
@@ -125,10 +120,7 @@ class _ShopBeaconState extends State<ShopBeacon>
                     decoration: BoxDecoration(
                       color: const Color(0xFF424242),
                       shape: BoxShape.circle,
-                      border: Border.all(
-                        color: Colors.white,
-                        width: 1,
-                      ),
+                      border: Border.all(color: Colors.white, width: 1),
                     ),
                     child: Icon(
                       Icons.link,
@@ -142,48 +134,5 @@ class _ShopBeaconState extends State<ShopBeacon>
         ),
       ),
     );
-  }
-
-  IconData _getIconForCategory(String category) {
-    final lower = category.toLowerCase();
-    
-    if (lower.contains('ramen') || lower.contains('noodle') || lower.contains('ラーメン') || lower.contains('そば') || lower.contains('うどん') || lower.contains('麺')) {
-      return Icons.ramen_dining;
-    }
-    if (lower.contains('cafe') || lower.contains('coffee') || lower.contains('tea') || lower.contains('カフェ') || lower.contains('喫茶') || lower.contains('コーヒー')) {
-      return Icons.local_cafe;
-    }
-    if (lower.contains('izakaya') || lower.contains('pub') || lower.contains('bar') || lower.contains('alcohol') || lower.contains('居酒屋') || lower.contains('バー') || lower.contains('酒')) {
-      return Icons.local_bar;
-    }
-    if (lower.contains('sushi') || lower.contains('seafood') || lower.contains('fish') || lower.contains('寿司') || lower.contains('海鮮') || lower.contains('魚')) {
-      return Icons.set_meal;
-    }
-    if (lower.contains('italian') || lower.contains('pizza') || lower.contains('pasta') || lower.contains('イタリアン') || lower.contains('ピザ') || lower.contains('パスタ')) {
-      return Icons.local_pizza;
-    }
-    if (lower.contains('french') || lower.contains('bistro') || lower.contains('フレンチ') || lower.contains('ビストロ')) {
-      return Icons.wine_bar;
-    }
-    if (lower.contains('chinese') || lower.contains('dumpling') || lower.contains('中華') || lower.contains('餃子')) {
-      return Icons.rice_bowl;
-    }
-    if (lower.contains('korean') || lower.contains('bibimbap') || lower.contains('韓国') || lower.contains('焼肉')) {
-      return Icons.outdoor_grill;
-    }
-    if (lower.contains('steak') || lower.contains('meat') || lower.contains('hamburger') || lower.contains('burg') || lower.contains('ステーキ') || lower.contains('肉') || lower.contains('ハンバーグ')) {
-      return Icons.dinner_dining;
-    }
-    if (lower.contains('bakery') || lower.contains('bread') || lower.contains('cake') || lower.contains('sweet') || lower.contains('パン') || lower.contains('ケーキ') || lower.contains('スイーツ')) {
-      return Icons.bakery_dining;
-    }
-    if (lower.contains('fast food') || lower.contains('burger') || lower.contains('ファストフード') || lower.contains('ハンバーガー')) {
-      return Icons.fastfood;
-    }
-    if (lower.contains('convenience') || lower.contains('store') || lower.contains('コンビニ')) {
-      return Icons.storefront;
-    }
-    
-    return Icons.restaurant;
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
+import '../api/fof/v1/fof.pbenum.dart';
 
 class LanguageService extends ChangeNotifier {
   Locale _currentLocale = const Locale('ja');
@@ -33,7 +34,7 @@ class S {
   }
 
   String get appTitle => _l10n.appTitle;
-  
+
   // Tabs
   String get tabQuest => _l10n.tabQuest;
   String get tabJournal => _l10n.tabJournal;
@@ -46,7 +47,7 @@ class S {
   String get statsShops => _l10n.statsShops;
   String get statsIndie => _l10n.statsIndie;
   String get statsArea => _l10n.statsArea;
-  
+
   String get exploreAreaMsg => _l10n.exploreAreaMsg;
   String get locationLabel => _l10n.locationLabel;
   String get explorationRadius => _l10n.explorationRadius;
@@ -62,8 +63,9 @@ class S {
   String get entering => _l10n.entering;
   String get verificationInProgress => _l10n.verificationInProgress;
   String get tooFarToEnter => _l10n.tooFarToEnter;
-  String remainingTime(int minutes, int seconds) => _l10n.remainingTime(minutes, seconds);
-  
+  String remainingTime(int minutes, int seconds) =>
+      _l10n.remainingTime(minutes, seconds);
+
   // Account Screen
   String get accountTitle => _l10n.accountTitle;
   String get privacySettings => _l10n.privacySettings;
@@ -89,9 +91,17 @@ class S {
   String get errorLocationUnavailable => _l10n.errorLocationUnavailable;
   String get errorNoShopsFound => _l10n.errorNoShopsFound;
 
+  // Group Labels
+  String get groupJapanese => _l10n.groupJapanese;
+  String get groupNoodles => _l10n.groupNoodles;
+  String get groupWestern => _l10n.groupWestern;
+  String get groupAsian => _l10n.groupAsian;
+  String get groupDrinks => _l10n.groupDrinks;
+  String get groupCafe => _l10n.groupCafe;
+
   // Methods with arguments
   String arriveWithin(double distance) => _l10n.arriveWithin(distance.toInt());
-  
+
   // Journal Screen
   String get journalTitle => _l10n.journalTitle;
   String get neighborExplorer => _l10n.neighborExplorer;
@@ -99,30 +109,55 @@ class S {
 
   bool get isJa => _l10n.localeName == 'ja';
 
-  String translateCategory(String category) {
-    switch (category.toUpperCase()) {
-      case 'RAMEN':
-        return _l10n.categoryRamen;
-      case 'CAFE':
-        return _l10n.categoryCafe;
-      case 'SUSHI':
+  String translateCategory(FoodCategory category) {
+    switch (category) {
+      case FoodCategory.FOOD_CATEGORY_WASHOKU:
+        return _l10n.categoryWashoku;
+      case FoodCategory.FOOD_CATEGORY_SUSHI:
         return _l10n.categorySushi;
-      case 'YAKINIKU':
+      case FoodCategory.FOOD_CATEGORY_AGEMONO:
+        return _l10n.categoryAgemono;
+      case FoodCategory.FOOD_CATEGORY_YAKITORI:
+        return _l10n.categoryYakitori;
+      case FoodCategory.FOOD_CATEGORY_YAKINIKU:
         return _l10n.categoryYakiniku;
-      case 'IZAKAYA':
+      case FoodCategory.FOOD_CATEGORY_NIKURYOURI:
+        return _l10n.categoryNikuryouri;
+      case FoodCategory.FOOD_CATEGORY_NABE:
+        return _l10n.categoryNabe;
+      case FoodCategory.FOOD_CATEGORY_DON:
+        return _l10n.categoryDon;
+      case FoodCategory.FOOD_CATEGORY_MEN:
+        return _l10n.categoryMen;
+      case FoodCategory.FOOD_CATEGORY_RAMEN:
+        return _l10n.categoryRamen;
+      case FoodCategory.FOOD_CATEGORY_KONAMONO:
+        return _l10n.categoryKonamono;
+      case FoodCategory.FOOD_CATEGORY_YOSHOKU:
+        return _l10n.categoryYoshoku;
+      case FoodCategory.FOOD_CATEGORY_EUROPEAN:
+        return _l10n.categoryEuropean;
+      case FoodCategory.FOOD_CATEGORY_CHINESE:
+        return _l10n.categoryChinese;
+      case FoodCategory.FOOD_CATEGORY_KOREAN:
+        return _l10n.categoryKorean;
+      case FoodCategory.FOOD_CATEGORY_ETHNIC:
+        return _l10n.categoryEthnic;
+      case FoodCategory.FOOD_CATEGORY_CURRY:
+        return _l10n.categoryCurry;
+      case FoodCategory.FOOD_CATEGORY_IZAKAYA:
         return _l10n.categoryIzakaya;
-      case 'BAR':
+      case FoodCategory.FOOD_CATEGORY_BAR:
         return _l10n.categoryBar;
-      case 'DESSERT':
-        return _l10n.categoryDessert;
-      case 'BURGER':
-        return _l10n.categoryBurger;
-      case 'PUB':
-        return _l10n.categoryPub;
-      case 'TACOS':
-        return _l10n.categoryTacos;
+      case FoodCategory.FOOD_CATEGORY_CAFE:
+        return _l10n.categoryCafe;
+      case FoodCategory.FOOD_CATEGORY_SWEETS:
+        return _l10n.categorySweets;
+      case FoodCategory.FOOD_CATEGORY_UNSPECIFIED:
       default:
         return _l10n.categoryOther;
     }
   }
+
+  String get achCategoryAll => _l10n.achCategoryAll;
 }

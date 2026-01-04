@@ -43,6 +43,7 @@ func newShop(db *gorm.DB, opts ...gen.DOOption) shop {
 	_shop.Rating = field.NewFloat64(tableName, "rating")
 	_shop.SourceURL = field.NewString(tableName, "source_url")
 	_shop.ClearanceRadius = field.NewFloat64(tableName, "clearance_radius")
+	_shop.Reservable = field.NewBool(tableName, "reservable")
 	_shop.CreatedAt = field.NewTime(tableName, "created_at")
 	_shop.UpdatedAt = field.NewTime(tableName, "updated_at")
 
@@ -70,6 +71,7 @@ type shop struct {
 	Rating          field.Float64
 	SourceURL       field.String
 	ClearanceRadius field.Float64
+	Reservable      field.Bool
 	CreatedAt       field.Time
 	UpdatedAt       field.Time
 
@@ -103,6 +105,7 @@ func (s *shop) updateTableName(table string) *shop {
 	s.Rating = field.NewFloat64(table, "rating")
 	s.SourceURL = field.NewString(table, "source_url")
 	s.ClearanceRadius = field.NewFloat64(table, "clearance_radius")
+	s.Reservable = field.NewBool(table, "reservable")
 	s.CreatedAt = field.NewTime(table, "created_at")
 	s.UpdatedAt = field.NewTime(table, "updated_at")
 
@@ -121,7 +124,7 @@ func (s *shop) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (s *shop) fillFieldMap() {
-	s.fieldMap = make(map[string]field.Expr, 17)
+	s.fieldMap = make(map[string]field.Expr, 18)
 	s.fieldMap["id"] = s.ID
 	s.fieldMap["name"] = s.Name
 	s.fieldMap["category"] = s.Category
@@ -137,6 +140,7 @@ func (s *shop) fillFieldMap() {
 	s.fieldMap["rating"] = s.Rating
 	s.fieldMap["source_url"] = s.SourceURL
 	s.fieldMap["clearance_radius"] = s.ClearanceRadius
+	s.fieldMap["reservable"] = s.Reservable
 	s.fieldMap["created_at"] = s.CreatedAt
 	s.fieldMap["updated_at"] = s.UpdatedAt
 }

@@ -109,16 +109,55 @@ class AppLocalizationsJa extends AppLocalizations {
   String get appTitle => 'フォグ・オブ・フレーバー';
 
   @override
-  String get categoryRamen => 'ラーメン';
-
-  @override
-  String get categoryCafe => 'カフェ';
+  String get categoryWashoku => '和食';
 
   @override
   String get categorySushi => '寿司';
 
   @override
+  String get categoryAgemono => '揚げ物';
+
+  @override
+  String get categoryYakitori => '焼き鳥';
+
+  @override
   String get categoryYakiniku => '焼肉';
+
+  @override
+  String get categoryNikuryouri => '肉料理';
+
+  @override
+  String get categoryNabe => '鍋';
+
+  @override
+  String get categoryDon => '丼';
+
+  @override
+  String get categoryMen => '麺';
+
+  @override
+  String get categoryRamen => 'ラーメン';
+
+  @override
+  String get categoryKonamono => '粉もの';
+
+  @override
+  String get categoryYoshoku => '洋食';
+
+  @override
+  String get categoryEuropean => '欧州料理';
+
+  @override
+  String get categoryChinese => '中華料理';
+
+  @override
+  String get categoryKorean => '韓国料理';
+
+  @override
+  String get categoryEthnic => 'エスニック';
+
+  @override
+  String get categoryCurry => 'カレー';
 
   @override
   String get categoryIzakaya => '居酒屋';
@@ -127,19 +166,31 @@ class AppLocalizationsJa extends AppLocalizations {
   String get categoryBar => 'バー';
 
   @override
-  String get categoryDessert => 'デザート';
+  String get categoryCafe => 'カフェ';
 
   @override
-  String get categoryBurger => 'バーガー';
-
-  @override
-  String get categoryPub => 'パブ';
-
-  @override
-  String get categoryTacos => 'タコス';
+  String get categorySweets => 'スイーツ';
 
   @override
   String get categoryOther => 'その他';
+
+  @override
+  String get groupJapanese => '和食料理';
+
+  @override
+  String get groupNoodles => '麺類';
+
+  @override
+  String get groupWestern => '西洋・欧州料理';
+
+  @override
+  String get groupAsian => 'アジア・エスニック';
+
+  @override
+  String get groupDrinks => '居酒屋・バー';
+
+  @override
+  String get groupCafe => 'カフェ・スイーツ';
 
   @override
   String get errorLocationUnavailable => '位置情報が利用できません';

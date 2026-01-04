@@ -290,71 +290,173 @@ abstract class AppLocalizations {
   /// **'Fog of Flavor'**
   String get appTitle;
 
-  /// No description provided for @categoryRamen.
+  /// No description provided for @categoryWashoku.
   ///
   /// In en, this message translates to:
-  /// **'RAMEN'**
-  String get categoryRamen;
-
-  /// No description provided for @categoryCafe.
-  ///
-  /// In en, this message translates to:
-  /// **'CAFE'**
-  String get categoryCafe;
+  /// **'Washoku'**
+  String get categoryWashoku;
 
   /// No description provided for @categorySushi.
   ///
   /// In en, this message translates to:
-  /// **'SUSHI'**
+  /// **'Sushi'**
   String get categorySushi;
+
+  /// No description provided for @categoryAgemono.
+  ///
+  /// In en, this message translates to:
+  /// **'Fried'**
+  String get categoryAgemono;
+
+  /// No description provided for @categoryYakitori.
+  ///
+  /// In en, this message translates to:
+  /// **'Yakitori'**
+  String get categoryYakitori;
 
   /// No description provided for @categoryYakiniku.
   ///
   /// In en, this message translates to:
-  /// **'YAKINIKU'**
+  /// **'Yakiniku'**
   String get categoryYakiniku;
+
+  /// No description provided for @categoryNikuryouri.
+  ///
+  /// In en, this message translates to:
+  /// **'Meat'**
+  String get categoryNikuryouri;
+
+  /// No description provided for @categoryNabe.
+  ///
+  /// In en, this message translates to:
+  /// **'Hot Pot'**
+  String get categoryNabe;
+
+  /// No description provided for @categoryDon.
+  ///
+  /// In en, this message translates to:
+  /// **'Rice Bowl'**
+  String get categoryDon;
+
+  /// No description provided for @categoryMen.
+  ///
+  /// In en, this message translates to:
+  /// **'Noodles'**
+  String get categoryMen;
+
+  /// No description provided for @categoryRamen.
+  ///
+  /// In en, this message translates to:
+  /// **'Ramen'**
+  String get categoryRamen;
+
+  /// No description provided for @categoryKonamono.
+  ///
+  /// In en, this message translates to:
+  /// **'Flour-based'**
+  String get categoryKonamono;
+
+  /// No description provided for @categoryYoshoku.
+  ///
+  /// In en, this message translates to:
+  /// **'Western'**
+  String get categoryYoshoku;
+
+  /// No description provided for @categoryEuropean.
+  ///
+  /// In en, this message translates to:
+  /// **'European'**
+  String get categoryEuropean;
+
+  /// No description provided for @categoryChinese.
+  ///
+  /// In en, this message translates to:
+  /// **'Chinese'**
+  String get categoryChinese;
+
+  /// No description provided for @categoryKorean.
+  ///
+  /// In en, this message translates to:
+  /// **'Korean'**
+  String get categoryKorean;
+
+  /// No description provided for @categoryEthnic.
+  ///
+  /// In en, this message translates to:
+  /// **'Ethnic'**
+  String get categoryEthnic;
+
+  /// No description provided for @categoryCurry.
+  ///
+  /// In en, this message translates to:
+  /// **'Curry'**
+  String get categoryCurry;
 
   /// No description provided for @categoryIzakaya.
   ///
   /// In en, this message translates to:
-  /// **'IZAKAYA'**
+  /// **'Izakaya'**
   String get categoryIzakaya;
 
   /// No description provided for @categoryBar.
   ///
   /// In en, this message translates to:
-  /// **'BAR'**
+  /// **'Bar'**
   String get categoryBar;
 
-  /// No description provided for @categoryDessert.
+  /// No description provided for @categoryCafe.
   ///
   /// In en, this message translates to:
-  /// **'DESSERT'**
-  String get categoryDessert;
+  /// **'Cafe'**
+  String get categoryCafe;
 
-  /// No description provided for @categoryBurger.
+  /// No description provided for @categorySweets.
   ///
   /// In en, this message translates to:
-  /// **'BURGER'**
-  String get categoryBurger;
-
-  /// No description provided for @categoryPub.
-  ///
-  /// In en, this message translates to:
-  /// **'PUB'**
-  String get categoryPub;
-
-  /// No description provided for @categoryTacos.
-  ///
-  /// In en, this message translates to:
-  /// **'TACOS'**
-  String get categoryTacos;
+  /// **'Sweets'**
+  String get categorySweets;
 
   /// No description provided for @categoryOther.
   ///
   /// In en, this message translates to:
-  /// **'OTHER'**
+  /// **'Other'**
   String get categoryOther;
+
+  /// No description provided for @groupJapanese.
+  ///
+  /// In en, this message translates to:
+  /// **'Japanese Cuisine'**
+  String get groupJapanese;
+
+  /// No description provided for @groupNoodles.
+  ///
+  /// In en, this message translates to:
+  /// **'Noodles'**
+  String get groupNoodles;
+
+  /// No description provided for @groupWestern.
+  ///
+  /// In en, this message translates to:
+  /// **'Western & European'**
+  String get groupWestern;
+
+  /// No description provided for @groupAsian.
+  ///
+  /// In en, this message translates to:
+  /// **'Asian & International'**
+  String get groupAsian;
+
+  /// No description provided for @groupDrinks.
+  ///
+  /// In en, this message translates to:
+  /// **'Nightlife & Drinks'**
+  String get groupDrinks;
+
+  /// No description provided for @groupCafe.
+  ///
+  /// In en, this message translates to:
+  /// **'Café & Sweets'**
+  String get groupCafe;
 
   /// No description provided for @errorLocationUnavailable.
   ///

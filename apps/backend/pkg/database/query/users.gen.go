@@ -31,6 +31,7 @@ func newUser(db *gorm.DB, opts ...gen.DOOption) user {
 	_user.ID = field.NewField(tableName, "id")
 	_user.Username = field.NewString(tableName, "username")
 	_user.Email = field.NewString(tableName, "email")
+	_user.FirebaseUID = field.NewString(tableName, "firebase_uid")
 	_user.Level = field.NewInt(tableName, "level")
 	_user.Exp = field.NewInt(tableName, "exp")
 	_user.CreatedAt = field.NewTime(tableName, "created_at")
@@ -45,15 +46,16 @@ func newUser(db *gorm.DB, opts ...gen.DOOption) user {
 type user struct {
 	userDo
 
-	ALL       field.Asterisk
-	ID        field.Field
-	Username  field.String
-	Email     field.String
-	Level     field.Int
-	Exp       field.Int
-	CreatedAt field.Time
-	UpdatedAt field.Time
-	DeletedAt field.Field
+	ALL         field.Asterisk
+	ID          field.Field
+	Username    field.String
+	Email       field.String
+	FirebaseUID field.String
+	Level       field.Int
+	Exp         field.Int
+	CreatedAt   field.Time
+	UpdatedAt   field.Time
+	DeletedAt   field.Field
 
 	fieldMap map[string]field.Expr
 }
@@ -73,6 +75,7 @@ func (u *user) updateTableName(table string) *user {
 	u.ID = field.NewField(table, "id")
 	u.Username = field.NewString(table, "username")
 	u.Email = field.NewString(table, "email")
+	u.FirebaseUID = field.NewString(table, "firebase_uid")
 	u.Level = field.NewInt(table, "level")
 	u.Exp = field.NewInt(table, "exp")
 	u.CreatedAt = field.NewTime(table, "created_at")
@@ -94,10 +97,11 @@ func (u *user) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (u *user) fillFieldMap() {
-	u.fieldMap = make(map[string]field.Expr, 8)
+	u.fieldMap = make(map[string]field.Expr, 9)
 	u.fieldMap["id"] = u.ID
 	u.fieldMap["username"] = u.Username
 	u.fieldMap["email"] = u.Email
+	u.fieldMap["firebase_uid"] = u.FirebaseUID
 	u.fieldMap["level"] = u.Level
 	u.fieldMap["exp"] = u.Exp
 	u.fieldMap["created_at"] = u.CreatedAt

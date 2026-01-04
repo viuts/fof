@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../api/fof/v1/fof.pb.dart';
+import '../constants/category_colors.dart';
 import 'package:intl/intl.dart';
 
 class VisitDetailScreen extends StatelessWidget {
@@ -30,9 +31,9 @@ class VisitDetailScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                   _buildVisitSummary(visitedAt, dateFormat),
-                   const SizedBox(height: 32),
-                   _buildReviewSection(),
+                  _buildVisitSummary(visitedAt, dateFormat),
+                  const SizedBox(height: 32),
+                  _buildReviewSection(),
                 ],
               ),
             ),
@@ -56,8 +57,8 @@ class VisitDetailScreen extends StatelessWidget {
               shape: BoxShape.circle,
             ),
             child: Icon(
-              _getIconForCategory(shop.category),
-              color: AppTheme.primaryColor,
+              ShopCategory.getIcon(shop.foodCategory),
+              color: ShopCategory.getColor(shop.foodCategory),
               size: 40,
             ),
           ),
@@ -84,10 +85,7 @@ class VisitDetailScreen extends StatelessWidget {
             const SizedBox(height: 12),
             Text(
               shop.address,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[600],
-              ),
+              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
               textAlign: TextAlign.center,
             ),
           ],
@@ -98,35 +96,42 @@ class VisitDetailScreen extends StatelessWidget {
 
   Widget _buildVisitSummary(DateTime date, DateFormat format) {
     return Container(
-        padding: const EdgeInsets.all(AppTheme.spacingMd),
-        decoration: BoxDecoration(
-          color: AppTheme.primaryColor.withValues(alpha: 0.05),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppTheme.primaryColor.withValues(alpha: 0.1)),
-        ),
-        child: Row(
-          children: [
-            const Icon(Icons.event_available_rounded, color: AppTheme.primaryColor, size: 20),
-            const SizedBox(width: 12),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Visited on',
-                  style: TextStyle(fontSize: 12, color: AppTheme.textSecondaryLight),
+      padding: const EdgeInsets.all(AppTheme.spacingMd),
+      decoration: BoxDecoration(
+        color: AppTheme.primaryColor.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppTheme.primaryColor.withValues(alpha: 0.1)),
+      ),
+      child: Row(
+        children: [
+          const Icon(
+            Icons.event_available_rounded,
+            color: AppTheme.primaryColor,
+            size: 20,
+          ),
+          const SizedBox(width: 12),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Visited on',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: AppTheme.textSecondaryLight,
                 ),
-                Text(
-                  format.format(date),
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: AppTheme.textPrimaryLight,
-                  ),
+              ),
+              Text(
+                format.format(date),
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: AppTheme.textPrimaryLight,
                 ),
-              ],
-            ),
-          ],
-        ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -147,7 +152,9 @@ class VisitDetailScreen extends StatelessWidget {
         Row(
           children: List.generate(5, (index) {
             return Icon(
-              index < visit.rating ? Icons.star_rounded : Icons.star_outline_rounded,
+              index < visit.rating
+                  ? Icons.star_rounded
+                  : Icons.star_outline_rounded,
               color: index < visit.rating ? Colors.amber : Colors.grey[300],
               size: 32,
             );
@@ -171,17 +178,25 @@ class VisitDetailScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Icon(Icons.format_quote_rounded, color: Colors.grey, size: 24),
+              const Icon(
+                Icons.format_quote_rounded,
+                color: Colors.grey,
+                size: 24,
+              ),
               const SizedBox(height: 8),
               Text(
-                visit.comment.isNotEmpty ? visit.comment : 'No comment provided.',
+                visit.comment.isNotEmpty
+                    ? visit.comment
+                    : 'No comment provided.',
                 style: TextStyle(
                   fontSize: 16,
                   height: 1.5,
-                  color: visit.comment.isNotEmpty 
-                    ? AppTheme.textPrimaryLight 
-                    : Colors.grey[400],
-                  fontStyle: visit.comment.isNotEmpty ? FontStyle.normal : FontStyle.italic,
+                  color: visit.comment.isNotEmpty
+                      ? AppTheme.textPrimaryLight
+                      : Colors.grey[400],
+                  fontStyle: visit.comment.isNotEmpty
+                      ? FontStyle.normal
+                      : FontStyle.italic,
                 ),
               ),
             ],
@@ -189,18 +204,5 @@ class VisitDetailScreen extends StatelessWidget {
         ),
       ],
     );
-  }
-
-  IconData _getIconForCategory(String category) {
-    switch (category.toUpperCase()) {
-      case 'RESTAURANT':
-        return Icons.restaurant_rounded;
-      case 'CAFE':
-        return Icons.coffee_rounded;
-      case 'BAR':
-        return Icons.local_bar_rounded;
-      default:
-        return Icons.place_rounded;
-    }
   }
 }

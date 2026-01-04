@@ -36,6 +36,7 @@ type Shop struct {
 	Rating       float64
 	SourceURL    string  `gorm:"uniqueIndex;column:source_url"`
 	ClearanceRadius float64 `gorm:"column:clearance_radius"`
+	Reservable   bool    `gorm:"default:false"`
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
 }

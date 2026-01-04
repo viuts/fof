@@ -20,13 +20,13 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/joho/godotenv"
-	"github.com/viuts/fof/apps/backend/internal/domain"
 	"github.com/viuts/fof/apps/backend/internal/handler"
 	"github.com/viuts/fof/apps/backend/internal/middleware"
 	"github.com/viuts/fof/apps/backend/internal/repository"
 	"github.com/viuts/fof/apps/backend/internal/seeds"
 	"github.com/viuts/fof/apps/backend/internal/usecase"
 	fofv1 "github.com/viuts/fof/apps/backend/pkg/api/fof/v1"
+	"github.com/viuts/fof/apps/backend/pkg/database"
 )
 
 func main() {
@@ -46,10 +46,10 @@ func main() {
 	}
 
 	// Auto Migration
-	err = db.AutoMigrate(&domain.User{}, &domain.Shop{}, &domain.Visit{}, &domain.UserFog{}, &domain.Achievement{}, &domain.UserAchievement{})
-
-	// Initialize PostGIS extension if not exists
-	db.Exec("CREATE EXTENSION IF NOT EXISTS postgis;")
+	err = database.AutoMigrate(db)
+	if err != nil {
+		log.Fatalf("failed to auto migrate: %v", err)
+	}
 
 	// Seed Achievements
 	seeds.SeedAchievements(db)

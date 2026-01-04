@@ -109,37 +109,88 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appTitle => 'Fog of Flavor';
 
   @override
-  String get categoryRamen => 'RAMEN';
+  String get categoryWashoku => 'Washoku';
 
   @override
-  String get categoryCafe => 'CAFE';
+  String get categorySushi => 'Sushi';
 
   @override
-  String get categorySushi => 'SUSHI';
+  String get categoryAgemono => 'Fried';
 
   @override
-  String get categoryYakiniku => 'YAKINIKU';
+  String get categoryYakitori => 'Yakitori';
 
   @override
-  String get categoryIzakaya => 'IZAKAYA';
+  String get categoryYakiniku => 'Yakiniku';
 
   @override
-  String get categoryBar => 'BAR';
+  String get categoryNikuryouri => 'Meat';
 
   @override
-  String get categoryDessert => 'DESSERT';
+  String get categoryNabe => 'Hot Pot';
 
   @override
-  String get categoryBurger => 'BURGER';
+  String get categoryDon => 'Rice Bowl';
 
   @override
-  String get categoryPub => 'PUB';
+  String get categoryMen => 'Noodles';
 
   @override
-  String get categoryTacos => 'TACOS';
+  String get categoryRamen => 'Ramen';
 
   @override
-  String get categoryOther => 'OTHER';
+  String get categoryKonamono => 'Flour-based';
+
+  @override
+  String get categoryYoshoku => 'Western';
+
+  @override
+  String get categoryEuropean => 'European';
+
+  @override
+  String get categoryChinese => 'Chinese';
+
+  @override
+  String get categoryKorean => 'Korean';
+
+  @override
+  String get categoryEthnic => 'Ethnic';
+
+  @override
+  String get categoryCurry => 'Curry';
+
+  @override
+  String get categoryIzakaya => 'Izakaya';
+
+  @override
+  String get categoryBar => 'Bar';
+
+  @override
+  String get categoryCafe => 'Cafe';
+
+  @override
+  String get categorySweets => 'Sweets';
+
+  @override
+  String get categoryOther => 'Other';
+
+  @override
+  String get groupJapanese => 'Japanese Cuisine';
+
+  @override
+  String get groupNoodles => 'Noodles';
+
+  @override
+  String get groupWestern => 'Western & European';
+
+  @override
+  String get groupAsian => 'Asian & International';
+
+  @override
+  String get groupDrinks => 'Nightlife & Drinks';
+
+  @override
+  String get groupCafe => 'Café & Sweets';
 
   @override
   String get errorLocationUnavailable => 'Location not available';

@@ -12,6 +12,10 @@ import (
 func AutoMigrate(db *gorm.DB) error {
 	log.Println("Running auto migrations...")
 
+	if err := db.Exec("CREATE EXTENSION IF NOT EXISTS postgis;").Error; err != nil {
+		return fmt.Errorf("failed to create postgis extension %w", err)
+	}
+
 	if err := db.AutoMigrate(
 		&domain.User{},
 		&domain.Shop{},

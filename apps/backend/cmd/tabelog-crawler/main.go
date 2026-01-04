@@ -12,10 +12,23 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/playwright-community/playwright-go"
 	"github.com/viuts/fof/apps/backend/internal/domain"
+	fofv1 "github.com/viuts/fof/apps/backend/pkg/api/fof/v1"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
+
+const WorkerCount = 5
+
+type Job struct {
+	URL string
+}
+
+type Result struct {
+	URL      string
+	SubLinks []string
+	Error    error
+}
 
 func main() {
 	preference := flag.String("preference", "tokyo", "Preference (e.g. tokyo)")
@@ -48,24 +61,16 @@ func main() {
 	}
 	defer browser.Close()
 
-	context, err := browser.NewContext(playwright.BrowserNewContextOptions{
-		Locale: playwright.String("ja-JP"),
-		ExtraHttpHeaders: map[string]string{
-			"Accept-Language": "ja-JP,ja;q=0.9",
-		},
-		UserAgent: playwright.String("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"),
-	})
-	if err != nil {
-		log.Fatalf("could not create context: %v", err)
-	}
+	// Initialize Workers
+	jobs := make(chan Job, 1000)
+	results := make(chan Result, 1000)
 
-	// Block ads, analytics and non-essential resources at context level
-	context.Route("**/*", func(route playwright.Route) {
+	// Create common ad-block handler
+	routeHandler := func(route playwright.Route) {
 		request := route.Request()
 		resourceType := request.ResourceType()
 		url := request.URL()
 
-		// Abort if it's an ad/tracker or a heavy secondary resource
 		if resourceType == "image" || resourceType == "stylesheet" || resourceType == "font" || resourceType == "media" ||
 			strings.Contains(url, "google-analytics") ||
 			strings.Contains(url, "googletagmanager") ||
@@ -81,19 +86,292 @@ func main() {
 		} else {
 			route.Continue()
 		}
-	})
-
-	page, err := context.NewPage()
-	if err != nil {
-		log.Fatalf("could not create page: %v", err)
 	}
 
-	// URL for Tabelog
-	// Format: https://tabelog.com/{preference}/rstLst/{category}/?SrtT=nod&Srt=D
-	baseURL := fmt.Sprintf("https://tabelog.com/%s/rstLst/%s/?SrtT=nod&Srt=D", *preference, *category)
-	log.Printf("Starting crawl for: %s", baseURL)
+	for i := 0; i < WorkerCount; i++ {
+		log.Printf("Initializing Worker %d...", i+1)
+		context, err := browser.NewContext(playwright.BrowserNewContextOptions{
+			Locale: playwright.String("ja-JP"),
+			ExtraHttpHeaders: map[string]string{
+				"Accept-Language": "ja-JP,ja;q=0.9",
+			},
+			UserAgent: playwright.String(fmt.Sprintf("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Worker/%d", i)),
+		})
+		if err != nil {
+			log.Fatalf("could not create context for worker %d: %v", i, err)
+		}
 
-	currentPageURL := baseURL
+		context.Route("**/*", routeHandler)
+
+		go worker(i+1, context, db, *category, jobs, results)
+	}
+
+	baseURL := fmt.Sprintf("https://tabelog.com/%s/rstLst/%s/?SrtT=nod&Srt=D", *preference, *category)
+
+	// Manager Loop
+	queue := []string{baseURL}
+	visited := make(map[string]bool)
+	visited[baseURL] = true
+
+	processingCount := 0
+
+	log.Printf("Starting crawler manager with initial URL: %s", baseURL)
+
+	for len(queue) > 0 || processingCount > 0 {
+		var currentURL string
+		var jobsCh chan Job
+
+		if len(queue) > 0 {
+			currentURL = queue[0]
+			jobsCh = jobs // Enable sending if queue has items
+		}
+
+		select {
+		case jobsCh <- Job{URL: currentURL}:
+			// Job sent successfully
+			queue = queue[1:]
+			processingCount++
+		case res := <-results:
+			processingCount--
+			if res.Error != nil {
+				log.Printf("Job failed for %s: %v", res.URL, res.Error)
+			}
+
+			if len(res.SubLinks) > 0 {
+				log.Printf("Manager: Received %d sub-links from %s", len(res.SubLinks), res.URL)
+				for _, link := range res.SubLinks {
+					if !visited[link] {
+						visited[link] = true
+						queue = append(queue, link)
+					}
+				}
+			}
+		}
+	}
+
+	close(jobs)
+	log.Println("All jobs completed. Exiting.")
+}
+
+func worker(id int, ctx playwright.BrowserContext, db *gorm.DB, category string, jobs <-chan Job, results chan<- Result) {
+	for job := range jobs {
+		log.Printf("[Worker %d] Processing: %s", id, job.URL)
+		links, err := processURL(ctx, db, job.URL, category)
+		results <- Result{
+			URL:      job.URL,
+			SubLinks: links,
+			Error:    err,
+		}
+	}
+}
+
+// processURL handles a single list page.
+// If results > 1200, it extracts sub-area links and returns them.
+// If results <= 1200, it crawls all shops using pagination and returns nil.
+func processURL(ctx playwright.BrowserContext, db *gorm.DB, url string, category string) ([]string, error) {
+	page, err := ctx.NewPage()
+	if err != nil {
+		return nil, fmt.Errorf("could not create page: %v", err)
+	}
+	defer page.Close()
+
+	if _, err = page.Goto(url, playwright.PageGotoOptions{
+		WaitUntil: playwright.WaitUntilStateCommit,
+		Timeout:   playwright.Float(60000),
+	}); err != nil {
+		return nil, err
+	}
+
+	// Wait for content
+	page.WaitForSelector(".c-page-count__num", playwright.PageWaitForSelectorOptions{Timeout: playwright.Float(10000)})
+
+	// 1. Check Total Count
+	totalCount, err := getTotalCount(page)
+	if err != nil {
+		log.Printf("Warning: could not get total count for %s: %v", url, err)
+		// If we can't get count, we might default to crawling?
+		// But let's assume it's small if not found, or handle error.
+		// For now, proceed to crawl if count fails (maybe it's 0 or small layout diff)
+		totalCount = 0
+	}
+
+	log.Printf("Total results for %s: %d", url, totalCount)
+
+	// 1200 limit (60 pages * 20 items)
+	if totalCount > 1200 {
+		log.Printf("Results exceed 1200. Extracting sub-areas...")
+
+		// Extract sub-area links
+		links, err := page.Locator(".c-link-arrow").All()
+		if err != nil {
+			return nil, fmt.Errorf("failed to get sub-area links: %v", err)
+		}
+
+		var subAreaLinks []string
+		for _, link := range links {
+			href, err := link.GetAttribute("href")
+			if err == nil && href != "" {
+				// Basic filter to ensure we actally go deeper/relevant
+				// e.g. check if it contains "rstLst" and maybe avoid going back to parent?
+				// The hrefs are usually absolute.
+				if strings.Contains(href, "rstLst") && !strings.Contains(href, "http") {
+					// Handle relative URL if any (Tabelog usually uses absolute, but just in case)
+					href = "https://tabelog.com" + href
+				}
+				if strings.Contains(href, "/rstLst/") {
+					subAreaLinks = append(subAreaLinks, href)
+				}
+			}
+		}
+
+		// If no sub-links found but count > 1200, we are stuck. we should crawl what we can?
+		if len(subAreaLinks) == 0 {
+			log.Printf("Warning: Count > 1200 but no sub-area links found. Crawling first 1200...")
+			// Fallthrough to pagination logic below
+		} else {
+			return subAreaLinks, nil // Return links to be queued
+		}
+	}
+
+	// === Pagination Logic (Crawling Shops) ===
+	currentPageURL := url
+
+	// We need to keep the page open or handle navigation loop.
+	// Since we are already on 'page' with 'url', we can start loop using 'page'.
+	// But the existing logic loops by 'Goto'. Let's reuse that structure but be careful with 'page' lifecycle.
+	// Actually, easier to close the current 'page' logic and run the dedicated loop logic,
+	// or just implement the loop here.
+
+	// Let's close the temp page used for count check and start fresh loop to be safe/clean
+	page.Close()
+
+	crawlPagination(ctx, db, currentPageURL, category)
+
+	return nil, nil
+}
+
+func getTotalCount(page playwright.Page) (int, error) {
+	// Select the last count element which usually holds the total
+	el := page.Locator(".c-page-count__num").Last()
+	if el == nil {
+		return 0, fmt.Errorf("count element not found")
+	}
+	text, err := el.InnerText()
+	if err != nil {
+		return 0, err
+	}
+	// text might be "7,080"
+	clean := strings.ReplaceAll(text, ",", "")
+	var count int
+	_, err = fmt.Sscanf(clean, "%d", &count)
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
+func getShopCategory(cuisine string) fofv1.FoodCategory {
+	// Priority 1: Izakaya
+	if strings.Contains(cuisine, "居酒屋") {
+		return fofv1.FoodCategory_FOOD_CATEGORY_IZAKAYA
+	}
+	// Priority 2: Chinese
+	if strings.Contains(cuisine, "中華料理") {
+		return fofv1.FoodCategory_FOOD_CATEGORY_CHINESE
+	}
+
+	// Priority 3: First match in list
+	cuisines := strings.Split(cuisine, "、")
+	for _, c := range cuisines {
+		cat := mapSubCategoryToMajor(c)
+		if cat != fofv1.FoodCategory_FOOD_CATEGORY_UNSPECIFIED {
+			return cat
+		}
+	}
+
+	return fofv1.FoodCategory_FOOD_CATEGORY_UNSPECIFIED
+}
+
+func mapSubCategoryToMajor(sub string) fofv1.FoodCategory {
+	sub = strings.TrimSpace(sub)
+	switch sub {
+	// 和食
+	case "郷土料理", "豆腐料理", "うなぎ", "あなご", "どじょう", "釜飯", "お茶漬け", "ろばた焼き", "きりたんぽ", "和食":
+		return fofv1.FoodCategory_FOOD_CATEGORY_WASHOKU
+	// 寿司
+	case "寿司", "回転寿司", "立ち食い寿司", "いなり寿司", "海鮮", "ふぐ", "かに", "かき":
+		return fofv1.FoodCategory_FOOD_CATEGORY_SUSHI
+	// 揚げ物
+	case "天ぷら", "とんかつ", "牛カツ", "串揚げ", "からあげ", "コロッケ", "揚げ物":
+		return fofv1.FoodCategory_FOOD_CATEGORY_AGEMONO
+	// 焼き鳥
+	case "焼き鳥", "串焼き", "もつ焼き", "鳥料理", "手羽先":
+		return fofv1.FoodCategory_FOOD_CATEGORY_YAKITORI
+	// 焼肉
+	case "焼肉", "ホルモン", "ジンギスカン", "牛タン", "バーベキュー":
+		return fofv1.FoodCategory_FOOD_CATEGORY_YAKINIKU
+	// 肉料理
+	case "ステーキ", "鉄板焼き", "牛料理", "豚料理", "馬肉料理", "ジビエ料理", "肉料理":
+		return fofv1.FoodCategory_FOOD_CATEGORY_NIKURYOURI
+	// 鍋
+	case "鍋", "しゃぶしゃぶ", "すき焼き", "もつ鍋", "水炊き", "ちゃんこ鍋", "火鍋", "おでん":
+		return fofv1.FoodCategory_FOOD_CATEGORY_NABE
+	// 丼
+	case "丼", "牛丼", "親子丼", "天丼", "かつ丼", "海鮮丼", "豚丼":
+		return fofv1.FoodCategory_FOOD_CATEGORY_DON
+	// 麺
+	case "そば", "うどん", "カレーうどん", "焼きそば", "沖縄そば", "ほうとう", "ちゃんぽん", "麺":
+		return fofv1.FoodCategory_FOOD_CATEGORY_MEN
+	// ラーメン
+	case "ラーメン", "つけ麺", "油そば", "まぜそば", "担々麺", "刀削麺":
+		return fofv1.FoodCategory_FOOD_CATEGORY_RAMEN
+	// 粉もの
+	case "お好み焼き", "もんじゃ焼き", "たこ焼き", "明石焼き", "粉もの":
+		return fofv1.FoodCategory_FOOD_CATEGORY_KONAMONO
+	// 洋食
+	case "洋食", "ハンバーグ", "オムライス", "ハンバーガー", "ホットドッグ", "スープ":
+		return fofv1.FoodCategory_FOOD_CATEGORY_YOSHOKU
+	// 欧州
+	case "イタリアン", "フレンチ", "ビストロ", "パスタ", "ピザ", "スペイン料理", "ドイツ料理", "ロシア料理", "欧州カレー", "欧州": // Added 欧州
+		return fofv1.FoodCategory_FOOD_CATEGORY_EUROPEAN
+	// 中華
+	case "四川料理", "台湾料理", "飲茶", "点心", "餃子", "小籠包", "中華粥", "中華": // 中華料理 handled by Priority 2
+		return fofv1.FoodCategory_FOOD_CATEGORY_CHINESE
+	// 韓国
+	case "韓国料理", "冷麺", "韓国":
+		return fofv1.FoodCategory_FOOD_CATEGORY_KOREAN
+	// エスニック
+	case "タイ料理", "ベトナム料理", "インドネシア料理", "メキシコ料理", "トルコ料理", "アフリカ料理", "エスニック":
+		return fofv1.FoodCategory_FOOD_CATEGORY_ETHNIC
+	// カレー
+	case "カレー", "インドカレー", "スープカレー", "欧風カレー":
+		return fofv1.FoodCategory_FOOD_CATEGORY_CURRY
+	// 居酒屋
+	case "ダイニングバー", "バル", "立ち飲み", "ビアガーデン", "ビアホール": // 居酒屋 handled by Priority 1
+		return fofv1.FoodCategory_FOOD_CATEGORY_IZAKAYA
+	// バー
+	case "バー", "パブ", "ワインバー", "ビアバー", "スポーツバー", "日本酒バー", "焼酎バー":
+		return fofv1.FoodCategory_FOOD_CATEGORY_BAR
+	// カフェ
+	case "カフェ", "喫茶店", "パン", "サンドイッチ", "ベーグル", "コーヒースタンド", "甘味処":
+		return fofv1.FoodCategory_FOOD_CATEGORY_CAFE
+	// スイーツ
+	case "ケーキ", "チョコレート", "和菓子", "ジェラート", "かき氷", "パンケーキ", "クレープ", "ドーナツ", "スイーツ":
+		return fofv1.FoodCategory_FOOD_CATEGORY_SWEETS
+	}
+	return fofv1.FoodCategory_FOOD_CATEGORY_UNSPECIFIED
+}
+
+func crawlPagination(ctx playwright.BrowserContext, db *gorm.DB, startURL string, category string) {
+	page, err := ctx.NewPage()
+	if err != nil {
+		log.Printf("Failed to create page for pagination: %v", err)
+		return
+	}
+	defer page.Close()
+
+	currentPageURL := startURL
+
 	for {
 		log.Printf("Crawling page: %s", currentPageURL)
 		if _, err = page.Goto(currentPageURL, playwright.PageGotoOptions{
@@ -112,11 +390,10 @@ func main() {
 		}
 
 		// Handle language modal if any
-		// Try to click "Japanese" or the close button
 		modalClose := page.Locator(".js-modal-close, .p-lang-modal__btn-ja").First()
 		if visible, _ := modalClose.IsVisible(); visible {
 			modalClose.Click()
-			time.Sleep(500 * time.Millisecond) // Wait for state to be saved
+			time.Sleep(500 * time.Millisecond)
 		}
 
 		// Get all restaurant links on the page
@@ -137,29 +414,35 @@ func main() {
 		log.Printf("Found %d shops on page", len(shopURLs))
 
 		for i, url := range shopURLs {
-			loopStart := time.Now()
-			log.Printf("[Loop] Starting shop %d/%d: %s", i+1, len(shopURLs), url)
-			shop, err := crawlShopDetail(context, url)
+			// loopStart := time.Now()
+			// log.Printf("[Loop] Starting shop %d/%d: %s", i+1, len(shopURLs), url)
+			shop, err := crawlShopDetail(ctx, url, category)
 			if err != nil {
 				log.Printf("Error crawling shop %s: %v", url, err)
 				continue
 			}
 
 			// Save to DB (Upsert)
-			dbStart := time.Now()
+			// dbStart := time.Now()
 			result := db.Clauses(clause.OnConflict{
 				Columns:   []clause.Column{{Name: "source_url"}},
-				DoUpdates: clause.AssignmentColumns([]string{"name", "category", "lat", "lng", "geom", "address", "phone", "opening_hours", "image_urls", "rating", "updated_at"}),
+				DoUpdates: clause.AssignmentColumns([]string{"name", "category", "lat", "lng", "geom", "address", "phone", "opening_hours", "image_urls", "rating", "reservable", "updated_at"}),
 			}).Create(shop)
-			log.Printf("[Timing] DB Upsert: %v", time.Since(dbStart))
-			log.Printf("Shop Detail: %v", shop)
+			// log.Printf("[Timing] DB Upsert: %v", time.Since(dbStart))
+			// log.Printf("Shop Detail: %v", shop)
 
 			if result.Error != nil {
 				log.Printf("Error saving shop to DB: %v", result.Error)
 			} else {
-				log.Printf("Saved/Updated shop: %s", shop.Name)
+				// log.Printf("Saved/Updated shop: %s", shop.Name)
 			}
-			log.Printf("[Timing] Shop total: %v", time.Since(loopStart))
+
+			// Simple progress log
+			if (i+1)%5 == 0 {
+				log.Printf("Processed %d/%d shops on this page", i+1, len(shopURLs))
+			}
+
+			// log.Printf("[Timing] Shop total: %v", time.Since(loopStart))
 		}
 
 		// Find next page
@@ -182,28 +465,27 @@ func main() {
 		currentPageURL = nextURL
 
 		// Anti-bot measure
-		fmt.Println("Sleeping for 500ms...")
 		time.Sleep(500 * time.Millisecond)
 	}
 }
 
-func crawlShopDetail(ctx playwright.BrowserContext, url string) (*domain.Shop, error) {
-	start := time.Now()
+func crawlShopDetail(ctx playwright.BrowserContext, url string, category string) (*domain.Shop, error) {
+	// start := time.Now()
 	page, err := ctx.NewPage()
 	if err != nil {
 		return nil, err
 	}
 	defer page.Close()
-	log.Printf("[Timing] Page creation: %v", time.Since(start))
+	// log.Printf("[Timing] Page creation: %v", time.Since(start))
 
-	navStart := time.Now()
+	// navStart := time.Now()
 	if _, err := page.Goto(url, playwright.PageGotoOptions{
 		WaitUntil: playwright.WaitUntilStateLoad,
 		Timeout:   playwright.Float(10000),
 	}); err != nil {
 		return nil, err
 	}
-	log.Printf("[Timing] Goto: %v", time.Since(navStart))
+	// log.Printf("[Timing] Goto: %v", time.Since(navStart))
 
 	// Wait for the script tag to be present
 	page.WaitForSelector("script[type='application/ld+json']", playwright.PageWaitForSelectorOptions{
@@ -211,16 +493,9 @@ func crawlShopDetail(ctx playwright.BrowserContext, url string) (*domain.Shop, e
 		Timeout: playwright.Float(2000),
 	})
 
-	extractStart := time.Now()
+	// extractStart := time.Now()
 
-	// DEBUG: Check full page content length
-	content, _ := page.Content()
-	log.Printf("[Debug] Page content length: %d", len(content))
-	if len(content) < 1000 {
-		log.Printf("[Debug] Page content suspicious: %s", content)
-	}
-
-	// Extract JSON-LD scripts using Evaluate to avoid Playwright locator timeouts
+	// Extract JSON-LD scripts
 	var scripts interface{}
 	for i := 0; i < 3; i++ {
 		scripts, err = page.Evaluate(`() => {
@@ -233,7 +508,6 @@ func crawlShopDetail(ctx playwright.BrowserContext, url string) (*domain.Shop, e
 		}`)
 		if err == nil {
 			if sc, ok := scripts.([]interface{}); ok && len(sc) > 0 {
-				log.Printf("[Debug] Found %d scripts on attempt %d", len(sc), i+1)
 				break
 			}
 		}
@@ -249,27 +523,14 @@ func crawlShopDetail(ctx playwright.BrowserContext, url string) (*domain.Shop, e
 				if !ok {
 					continue
 				}
-				log.Printf("[Debug] JSON-LD Content (first 100 chars): %s", content[:min(100, len(content))])
 				var data map[string]interface{}
 				if err := json.Unmarshal([]byte(content), &data); err != nil {
 					continue
 				}
 
-				// Check @type or other markers - broaden to include LocalBusiness
 				if strings.Contains(content, "Restaurant") || strings.Contains(content, "LocalBusiness") {
 					if name, ok := data["name"].(string); ok {
 						shop.Name = name
-					}
-					if genre, ok := data["genre"].(string); ok {
-						shop.Category = genre
-					} else if genres, ok := data["genre"].([]interface{}); ok && len(genres) > 0 {
-						var gs []string
-						for _, g := range genres {
-							if s, ok := g.(string); ok {
-								gs = append(gs, s)
-							}
-						}
-						shop.Category = strings.Join(gs, ", ")
 					}
 
 					if geo, ok := data["geo"].(map[string]interface{}); ok {
@@ -282,8 +543,42 @@ func crawlShopDetail(ctx playwright.BrowserContext, url string) (*domain.Shop, e
 					}
 
 					if address, ok := data["address"].(map[string]interface{}); ok {
+						fullAddress := ""
+						if region, ok := address["addressRegion"].(string); ok {
+							fullAddress += region
+						}
+
+						if locality, ok := address["addressLocality"].(string); ok {
+							fullAddress += locality
+						}
+
 						if street, ok := address["streetAddress"].(string); ok {
-							shop.Address = street
+							fullAddress += street
+						}
+
+						shop.Address = fullAddress
+					}
+
+					// serve cusine
+					if cusine, ok := data["servesCuisine"].(string); ok {
+						shop.Category = getShopCategory(cusine).String()
+						// log.Printf("Mapped cuisine '%s' to category '%s'", cusine, shop.Category)
+					}
+
+					// Check for potentialAction (ReserveAction)
+					if potentialAction, ok := data["potentialAction"].(map[string]interface{}); ok {
+						if typeStr, ok := potentialAction["@type"].(string); ok && typeStr == "ReserveAction" {
+							shop.Reservable = true
+						}
+					} else if potentialActions, ok := data["potentialAction"].([]interface{}); ok {
+						for _, action := range potentialActions {
+							if actionMap, ok := action.(map[string]interface{}); ok {
+								if typeStr, ok := actionMap["@type"].(string); ok && typeStr == "ReserveAction" {
+									shop.Reservable = true
+									log.Printf("Found reservable shop: %s", shop.Name)
+									break
+								}
+							}
 						}
 					}
 
@@ -323,23 +618,20 @@ func crawlShopDetail(ctx playwright.BrowserContext, url string) (*domain.Shop, e
 							}
 						}
 					}
-					// Found the main data object, can stop searching scripts
 					break
 				}
 			}
 		}
 	}
-	log.Printf("[Timing] JSON-LD extraction: %v", time.Since(extractStart))
+	// log.Printf("[Timing] JSON-LD extraction: %v", time.Since(extractStart))
 
-	// Calculate Geom for PostGIS
 	if shop.Lat != 0 && shop.Lng != 0 {
 		geom := fmt.Sprintf("SRID=4326;POINT(%f %f)", shop.Lng, shop.Lat)
 		shop.Geom = &geom
 	}
 
-	shopStart := time.Now()
+	// shopStart := time.Now()
 
-	// Data cleanup
 	shop.Address = strings.ReplaceAll(shop.Address, "大きな地図を見る", "")
 	shop.Address = strings.ReplaceAll(shop.Address, "周辺のお店を探す", "")
 	shop.Address = strings.TrimSpace(shop.Address)
@@ -347,7 +639,6 @@ func crawlShopDetail(ctx playwright.BrowserContext, url string) (*domain.Shop, e
 	shop.OpeningHours = strings.ReplaceAll(shop.OpeningHours, "営業時間・定休日は変更となる場合がございますので、ご来店前に店舗にご確認ください。", "")
 	shop.OpeningHours = strings.TrimSpace(shop.OpeningHours)
 
-	// Clean ImageURLs - remove "nophoto" images
 	var filteredImages []string
 	for _, img := range shop.ImageURLs {
 		if !strings.Contains(img, "nophoto") {
@@ -356,7 +647,7 @@ func crawlShopDetail(ctx playwright.BrowserContext, url string) (*domain.Shop, e
 	}
 	shop.ImageURLs = filteredImages
 
-	log.Printf("[Timing] Shop extraction: %v", time.Since(shopStart))
+	// log.Printf("[Timing] Shop extraction: %v", time.Since(shopStart))
 
 	shop.CreatedAt = time.Now()
 	shop.UpdatedAt = time.Now()

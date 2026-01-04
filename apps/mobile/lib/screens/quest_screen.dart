@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import '../api/fof/v1/fof.pb.dart';
+import '../api/fof/v1/fof.pbenum.dart';
 import '../constants/category_colors.dart';
 import '../theme/app_theme.dart';
 import '../services/api_service.dart';
@@ -21,7 +22,7 @@ class QuestScreen extends StatefulWidget {
 
 class _QuestScreenState extends State<QuestScreen>
     with TickerProviderStateMixin {
-  String? _selectedCategory;
+  FoodCategory? _selectedCategory;
   Shop? _targetShop;
   bool _isQuestActive = false;
   late AnimationController _compassController;
@@ -41,9 +42,9 @@ class _QuestScreenState extends State<QuestScreen>
     super.dispose();
   }
 
-  void _startQuest(String category) async {
+  void _startQuest(FoodCategory category) async {
     try {
-      final response = await ApiService().getQuestShop(category);
+      final response = await ApiService().getQuestShop(category.name);
       if (response.shops.isNotEmpty) {
         setState(() {
           _selectedCategory = category;
@@ -68,7 +69,7 @@ class _QuestScreenState extends State<QuestScreen>
           name: '???',
           lat: widget.currentPosition!.latitude + 0.001,
           lng: widget.currentPosition!.longitude + 0.001,
-          category: category,
+          foodCategory: category,
           isChain: false,
         );
       });
@@ -161,7 +162,7 @@ class _QuestScreenState extends State<QuestScreen>
     );
   }
 
-  Widget _buildCategoryCard(String category, Color color) {
+  Widget _buildCategoryCard(FoodCategory category, Color color) {
     return GestureDetector(
       onTap: widget.currentPosition != null
           ? () => _startQuest(category)
@@ -182,7 +183,7 @@ class _QuestScreenState extends State<QuestScreen>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.restaurant, size: 48, color: color),
+            Icon(ShopCategory.getIcon(category), size: 48, color: color),
             const SizedBox(height: AppTheme.spacingSm),
             Text(
               S.of(context).translateCategory(category),

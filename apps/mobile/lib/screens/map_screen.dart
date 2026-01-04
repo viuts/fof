@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
+import 'package:flutter/foundation.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart' as latlong2;
 import 'package:geolocator/geolocator.dart';
@@ -11,7 +11,6 @@ import '../services/location_service.dart';
 import '../services/language_service.dart';
 import '../api/fof/v1/fof.pb.dart';
 import '../api/fof/v1/shop_extensions.dart';
-import '../api/fof/v1/fof.pb.dart' as fof_pb;
 import '../widgets/fog_layer.dart';
 import '../widgets/shop_beacon.dart';
 import '../widgets/shop_detail_card.dart';
@@ -42,7 +41,6 @@ class MapScreenState extends State<MapScreen>
   final List<Shop> _visitedShops = [];
   latlong2.LatLng? _currentLocation;
   Shop? _selectedShop; // Selected shop for non-blocking detail view
-  double? _currentHeading; // Compass heading in degrees
 
   Timer? _shopUpdateTimer;
   Timer? _locationBatchTimer;
@@ -62,10 +60,8 @@ class MapScreenState extends State<MapScreen>
   latlong2.LatLng? _blastCenterLocation;
 
   // Filter State
-  // Filter State
-  Set<String>? _hiddenCategoriesBacking;
-  Set<String> get _hiddenCategories => _hiddenCategoriesBacking ??= {};
-  bool _isFilterExpanded = false;
+  Set<FoodCategory>? _hiddenCategoriesBacking;
+  Set<FoodCategory> get _hiddenCategories => _hiddenCategoriesBacking ??= {};
 
   @override
   void initState() {
@@ -103,7 +99,6 @@ class MapScreenState extends State<MapScreen>
             );
             setState(() {
               _currentLocation = newLoc;
-              _currentHeading = bearing;
             });
           } else {
             setState(() {
@@ -136,7 +131,15 @@ class MapScreenState extends State<MapScreen>
       debugPrint('MapScreen: Loaded filters: $hidden');
       if (hidden != null && mounted) {
         setState(() {
-          _hiddenCategoriesBacking = hidden.toSet();
+          _hiddenCategoriesBacking = hidden
+              .map(
+                (name) => FoodCategory.values.firstWhere(
+                  (e) => e.name == name,
+                  orElse: () => FoodCategory.FOOD_CATEGORY_UNSPECIFIED,
+                ),
+              )
+              .where((e) => e != FoodCategory.FOOD_CATEGORY_UNSPECIFIED)
+              .toSet();
         });
       }
     } catch (e) {
@@ -147,7 +150,7 @@ class MapScreenState extends State<MapScreen>
   Future<void> _saveFilters() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final list = _hiddenCategories.toList();
+      final list = _hiddenCategories.map((e) => e.name).toList();
       await prefs.setStringList('hidden_categories', list);
       debugPrint('MapScreen: Saved filters: $list');
     } catch (e) {
@@ -174,7 +177,7 @@ class MapScreenState extends State<MapScreen>
 
     try {
       final path = pathPositions
-          .map((p) => fof_pb.LatLng(lat: p.latitude, lng: p.longitude))
+          .map((p) => LatLng(lat: p.latitude, lng: p.longitude))
           .toList();
       final response = await ApiService().updateLocation(path);
 
@@ -372,7 +375,9 @@ class MapScreenState extends State<MapScreen>
                         Text(
                           S
                               .of(context)
-                              .translateCategory(widget.questShop!.category),
+                              .translateCategory(
+                                widget.questShop!.foodCategory,
+                              ),
                           style: const TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
@@ -501,10 +506,6 @@ class MapScreenState extends State<MapScreen>
     final newLat = _currentLocation!.latitude + latOffset;
     final newLng = _currentLocation!.longitude + lngOffset;
 
-    setState(() {
-      _currentHeading = newHeading;
-    });
-
     // Update via service so all listeners (including map & proximity) are notified
     LocationService().updateVirtualLocation(newLat, newLng);
 
@@ -525,7 +526,7 @@ class MapScreenState extends State<MapScreen>
   Widget _buildVirtualDPad() {
     return Positioned(
       left: 16,
-      bottom: 150,
+      bottom: 32,
       child: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
@@ -928,9 +929,7 @@ class MapScreenState extends State<MapScreen>
                       }
 
                       return allShops.values.where(
-                        (s) => !_hiddenCategories.contains(
-                          s.category.toLowerCase(),
-                        ),
+                        (s) => !_hiddenCategories.contains(s.foodCategory),
                       );
                     }()).map((shop) {
                       final shopLocation = latlong2.LatLng(shop.lat, shop.lng);
@@ -996,19 +995,6 @@ class MapScreenState extends State<MapScreen>
 
             // Level Badge
             _buildLevelBadge(),
-
-            // Recenter FAB
-            Positioned(
-              bottom: 32,
-              right: 16,
-              child: FloatingActionButton(
-                heroTag: 'recenter_fab',
-                backgroundColor: AppTheme.accentColor,
-                shape: const CircleBorder(),
-                onPressed: recenter,
-                child: const Icon(Icons.gps_fixed, color: Colors.white),
-              ),
-            ),
 
             // Filter Bar
             _buildFilterBar(),
@@ -1126,110 +1112,180 @@ class MapScreenState extends State<MapScreen>
         crossAxisAlignment: CrossAxisAlignment.end,
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Toggle Button
+          // Filter Button
           FloatingActionButton.small(
             heroTag: 'filter_toggle',
             backgroundColor: Colors.white,
             elevation: 4,
-            onPressed: () =>
-                setState(() => _isFilterExpanded = !_isFilterExpanded),
+            onPressed: _showFilterSheet,
             child: Icon(
-              _isFilterExpanded ? Icons.close : Icons.filter_list,
+              Icons.filter_list,
               color: _hiddenCategories.isNotEmpty
                   ? AppTheme.primaryColor
                   : Colors.grey[700],
             ),
           ),
-          const SizedBox(height: 12),
-          // Expanded List
-          if (_isFilterExpanded)
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.95),
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.1),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // We use a fixed list of common categories for simplicity, or ideally map from ShopCategory
-                  ...[
-                    'ramen',
-                    'cafe',
-                    'pub',
-                    'sushi',
-                    'izakaya',
-                    'italian',
-                  ].map((cat) {
-                    final isHidden = _hiddenCategories.contains(cat);
-                    final color = ShopCategory.getColor(cat);
-                    final icon = ShopCategory.getIcon(cat);
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4),
-                      child: GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            if (_hiddenCategories.contains(cat)) {
-                              _hiddenCategories.remove(cat);
-                            } else {
-                              _hiddenCategories.add(cat);
-                            }
-                            _saveFilters();
-                          });
-                        },
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          width: 36,
-                          height: 36,
-                          decoration: BoxDecoration(
-                            color: isHidden
-                                ? Colors.grey[200]
-                                : color.withValues(alpha: 0.2),
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: isHidden ? Colors.grey[400]! : color,
-                              width: 2,
-                            ),
-                          ),
-                          child: isHidden
-                              ? Icon(icon, size: 20, color: Colors.grey)
-                              : Icon(icon, size: 20, color: color),
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                  // Clear All option
-                  if (_hiddenCategories.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8),
-                      child: GestureDetector(
-                        onTap: () => setState(() {
-                          _hiddenCategories.clear();
-                          _saveFilters();
-                        }),
-                        child: CircleAvatar(
-                          radius: 14,
-                          backgroundColor: Colors.grey[200],
-                          child: const Icon(
-                            Icons.refresh,
-                            size: 16,
-                            color: Colors.black54,
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
         ],
       ),
+    );
+  }
+
+  void _showFilterSheet() {
+    final s = S.of(context);
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      isScrollControlled: true,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            final grouped = ShopCategory.getGroupedCategories(s);
+            return DraggableScrollableSheet(
+              initialChildSize: 0.6,
+              minChildSize: 0.4,
+              maxChildSize: 0.9,
+              expand: false,
+              builder: (context, scrollController) {
+                return Column(
+                  children: [
+                    const SizedBox(height: 12),
+                    Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            s.selectCuisine,
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: -0.5,
+                            ),
+                          ),
+                          if (_hiddenCategories.isNotEmpty)
+                            TextButton(
+                              onPressed: () {
+                                setState(() => _hiddenCategories.clear());
+                                setModalState(() {});
+                                _saveFilters();
+                              },
+                              child: Text(
+                                s.achCategoryAll, // Using "ALL" label for resetting
+                                style: const TextStyle(
+                                  color: AppTheme.primaryColor,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                    const Divider(height: 32),
+                    Expanded(
+                      child: ListView.builder(
+                        controller: scrollController,
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        itemCount: grouped.length,
+                        itemBuilder: (context, index) {
+                          final group = grouped[index];
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                  top: 8,
+                                  bottom: 12,
+                                ),
+                                child: Text(
+                                  group.label,
+                                  style: TextStyle(
+                                    color: Colors.grey[600],
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w800,
+                                    letterSpacing: 1.0,
+                                  ),
+                                ),
+                              ),
+                              Wrap(
+                                spacing: 8,
+                                runSpacing: 8,
+                                children: group.categories.map((cat) {
+                                  final isHidden = _hiddenCategories.contains(
+                                    cat,
+                                  );
+                                  final color = ShopCategory.getColor(cat);
+                                  final icon = ShopCategory.getIcon(cat);
+                                  return FilterChip(
+                                    label: Text(
+                                      s.translateCategory(cat),
+                                      style: TextStyle(
+                                        color: isHidden
+                                            ? Colors.grey[600]
+                                            : Colors.black87,
+                                        fontSize: 13,
+                                        fontWeight: isHidden
+                                            ? FontWeight.normal
+                                            : FontWeight.w600,
+                                      ),
+                                    ),
+                                    avatar: Icon(
+                                      icon,
+                                      size: 16,
+                                      color: isHidden ? Colors.grey : color,
+                                    ),
+                                    selected: !isHidden,
+                                    onSelected: (selected) {
+                                      setState(() {
+                                        if (selected) {
+                                          _hiddenCategories.remove(cat);
+                                        } else {
+                                          _hiddenCategories.add(cat);
+                                        }
+                                        _saveFilters();
+                                      });
+                                      setModalState(() {});
+                                    },
+                                    backgroundColor: Colors.white,
+                                    selectedColor: color.withValues(
+                                      alpha: 0.15,
+                                    ),
+                                    checkmarkColor: color,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      side: BorderSide(
+                                        color: isHidden
+                                            ? Colors.grey[300]!
+                                            : color,
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
+                              ),
+                              const SizedBox(height: 24),
+                            ],
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                );
+              },
+            );
+          },
+        );
+      },
     );
   }
 }

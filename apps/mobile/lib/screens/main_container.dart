@@ -38,7 +38,6 @@ class _MainContainerState extends State<MainContainer> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBody: _currentIndex == 2, // Only extend for Map screen
       body: IndexedStack(
         index: _currentIndex,
         children: [
@@ -60,11 +59,11 @@ class _MainContainerState extends State<MainContainer> {
       ),
       bottomNavigationBar: BottomAppBar(
         shape: const CircularNotchedRectangle(),
-        notchMargin: 10.0,
+        notchMargin: 8.0,
         color: AppTheme.lightSurface,
         elevation: 10,
-        height: 72, // Explicit height for better control
-        padding: EdgeInsets.zero, // We use SafeArea inside
+        height: 72, // Main bar height
+        padding: EdgeInsets.zero,
         shadowColor: Colors.black.withValues(alpha: 0.2),
         child: SafeArea(
           top: false,
@@ -72,74 +71,91 @@ class _MainContainerState extends State<MainContainer> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildTabItem(0, Icons.explore_outlined, Icons.explore, S.of(context).tabQuest),
-              _buildTabItem(1, Icons.auto_stories_outlined, Icons.auto_stories, S.of(context).tabJournal),
-              const SizedBox(width: 52), // Space for FAB
-              _buildTabItem(3, Icons.emoji_events_outlined, Icons.emoji_events, S.of(context).tabAwards),
-              _buildTabItem(4, Icons.person_outline, Icons.person, S.of(context).tabAccount),
+              _buildTabItem(
+                0,
+                Icons.explore_outlined,
+                Icons.explore,
+                S.of(context).tabQuest,
+              ),
+              _buildTabItem(
+                1,
+                Icons.auto_stories_outlined,
+                Icons.auto_stories,
+                S.of(context).tabJournal,
+              ),
+              SizedBox(height: 16, width: 16),
+              FloatingActionButton(
+                onPressed: () {
+                  if (_currentIndex == 2) {
+                    _mapKey.currentState?.recenter();
+                  } else {
+                    setState(() => _currentIndex = 2);
+                  }
+                },
+                backgroundColor: AppTheme.primaryColor,
+                elevation: 0,
+                shape: const CircleBorder(),
+                child: const Icon(Icons.map, color: Colors.white, size: 30),
+              ),
+              SizedBox(height: 16, width: 16),
+              _buildTabItem(
+                3,
+                Icons.emoji_events_outlined,
+                Icons.emoji_events,
+                S.of(context).tabAwards,
+              ),
+              _buildTabItem(
+                4,
+                Icons.person_outline,
+                Icons.person,
+                S.of(context).tabAccount,
+              ),
             ],
           ),
         ),
       ),
-      floatingActionButton: Container(
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: AppTheme.primaryColor.withValues(alpha: 0.3),
-              blurRadius: 15,
-              spreadRadius: 2,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: FloatingActionButton(
-          onPressed: () {
-            if (_currentIndex == 2) {
-              _mapKey.currentState?.recenter();
-            } else {
-              setState(() => _currentIndex = 2);
-            }
-          },
-          backgroundColor: _currentIndex == 2 ? AppTheme.primaryColor : Colors.white,
-          elevation: 0,
-          shape: const CircleBorder(),
-          child: Icon(
-            Icons.map,
-            color: _currentIndex == 2 ? Colors.white : AppTheme.textSecondaryLight,
-            size: 30,
-          ),
-        ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
 
-  Widget _buildTabItem(int index, IconData outlineIcon, IconData solidIcon, String label) {
-    // We skip index 2 in the Row because it's handled by the FAB
+  Widget _buildTabItem(
+    int index,
+    IconData outlineIcon,
+    IconData solidIcon,
+    String label,
+  ) {
+    // Index 2 is handled by the FAB
     if (index == 2) return const SizedBox.shrink();
 
     final isSelected = _currentIndex == index;
-    return GestureDetector(
-      onTap: () => setState(() => _currentIndex = index),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            isSelected ? solidIcon : outlineIcon,
-            color: isSelected ? AppTheme.primaryColor : AppTheme.textSecondaryLight,
-            size: 24,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 10,
-              color: isSelected ? AppTheme.primaryColor : AppTheme.textSecondaryLight,
-              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => setState(() => _currentIndex = index),
+        behavior: HitTestBehavior.opaque,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              isSelected ? solidIcon : outlineIcon,
+              color: isSelected
+                  ? AppTheme.primaryColor
+                  : AppTheme.textSecondaryLight,
+              size: 24,
             ),
-          ),
-        ],
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 10,
+                color: isSelected
+                    ? AppTheme.primaryColor
+                    : AppTheme.textSecondaryLight,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

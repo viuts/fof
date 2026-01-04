@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../services/api_service.dart';
 import '../api/fof/v1/fof.pb.dart';
+import '../constants/category_colors.dart';
 import '../services/language_service.dart';
 import 'visit_detail_screen.dart';
 
@@ -17,15 +18,7 @@ class _JournalScreenState extends State<JournalScreen> {
   List<VisitedShop> _visitedShops = [];
   bool _isLoading = true;
   String? _error;
-  String _selectedCategory = 'ALL';
-
-  final List<Map<String, dynamic>> _categories = [
-    {'id': 'ALL', 'label': 'ALL', 'icon': Icons.history_rounded},
-    {'id': 'RESTAURANT', 'label': 'DINING', 'icon': Icons.restaurant_rounded},
-    {'id': 'CAFE', 'label': 'CAFE', 'icon': Icons.coffee_rounded},
-    {'id': 'BAR', 'label': 'BAR', 'icon': Icons.local_bar_rounded},
-    {'id': 'OTHERS', 'label': 'OTHER', 'icon': Icons.more_horiz_rounded},
-  ];
+  FoodCategory? _selectedCategory; // null means ALL
 
   @override
   void initState() {
@@ -81,7 +74,11 @@ class _JournalScreenState extends State<JournalScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline_rounded, size: 48, color: Colors.red),
+            const Icon(
+              Icons.error_outline_rounded,
+              size: 48,
+              color: Colors.red,
+            ),
             const SizedBox(height: AppTheme.spacingMd),
             Text('Error: $_error'),
             TextButton(
@@ -98,14 +95,14 @@ class _JournalScreenState extends State<JournalScreen> {
         // Left Sidebar: Categories
         _buildSidebar(),
         // Right Content: Filtered Visited Shops
-        Expanded(
-          child: _buildVisitedShopsList(),
-        ),
+        Expanded(child: _buildVisitedShopsList()),
       ],
     );
   }
 
   Widget _buildSidebar() {
+    final s = S.of(context);
+    final groups = ShopCategory.getGroupedCategories(s);
     return Container(
       width: 80,
       decoration: BoxDecoration(
@@ -114,56 +111,102 @@ class _JournalScreenState extends State<JournalScreen> {
           right: BorderSide(color: Colors.grey.withValues(alpha: 0.1)),
         ),
       ),
-      child: ListView.builder(
-        itemCount: _categories.length,
-        itemBuilder: (context, index) {
-          final cat = _categories[index];
-          final isSelected = _selectedCategory == cat['id'];
-          return GestureDetector(
-            onTap: () => setState(() => _selectedCategory = cat['id']),
-            child: Container(
-              height: 80,
-              decoration: BoxDecoration(
-                border: isSelected ? const Border(
-                  right: BorderSide(color: AppTheme.primaryColor, width: 3),
-                ) : null,
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    cat['icon'],
-                    color: isSelected ? AppTheme.primaryColor : AppTheme.textSecondaryLight,
-                    size: 28,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    cat['label'],
+      child: ListView(
+        children: [
+          // "ALL" Option
+          _buildSidebarItem(
+            icon: Icons.history_rounded,
+            label: s.achCategoryAll,
+            isSelected: _selectedCategory == null,
+            onTap: () => setState(() => _selectedCategory = null),
+          ),
+          const Divider(height: 1),
+          // Grouped Categories
+          ...groups.map((group) {
+            return Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: Text(
+                    group.label,
+                    textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                      color: isSelected ? AppTheme.primaryColor : AppTheme.textSecondaryLight,
+                      fontSize: 8,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.grey[400],
+                      letterSpacing: 0.5,
                     ),
                   ),
-                ],
+                ),
+                ...group.categories.map((cat) {
+                  return _buildSidebarItem(
+                    icon: ShopCategory.getIcon(cat),
+                    label: s.translateCategory(cat),
+                    isSelected: _selectedCategory == cat,
+                    onTap: () => setState(() => _selectedCategory = cat),
+                    activeColor: ShopCategory.getColor(cat),
+                  );
+                }),
+                const Divider(height: 1),
+              ],
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSidebarItem({
+    required IconData icon,
+    required String label,
+    required bool isSelected,
+    required VoidCallback onTap,
+    Color activeColor = AppTheme.primaryColor,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 72,
+        decoration: BoxDecoration(
+          border: isSelected
+              ? Border(right: BorderSide(color: activeColor, width: 3))
+              : null,
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              color: isSelected ? activeColor : AppTheme.textSecondaryLight,
+              size: 24,
+            ),
+            const SizedBox(height: 4),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: Text(
+                label,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 9,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                  color: isSelected ? activeColor : AppTheme.textSecondaryLight,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
-          );
-        },
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildVisitedShopsList() {
-    final filtered = _selectedCategory == 'ALL'
+    final filtered = _selectedCategory == null
         ? _visitedShops
-        : _visitedShops.where((v) {
-            final cat = v.shop.category.toUpperCase();
-            if (_selectedCategory == 'OTHERS') {
-              return cat != 'RESTAURANT' && cat != 'CAFE' && cat != 'BAR';
-            }
-            return cat == _selectedCategory;
-          }).toList();
+        : _visitedShops
+              .where((v) => v.shop.foodCategory == _selectedCategory)
+              .toList();
 
     if (filtered.isEmpty) {
       return Center(
@@ -186,7 +229,7 @@ class _JournalScreenState extends State<JournalScreen> {
         left: AppTheme.spacingMd,
         right: AppTheme.spacingMd,
         top: AppTheme.spacingMd,
-        bottom: 100, // Extra space for FAB and bottom bar
+        bottom: 16, // Extra space for FAB and bottom bar
       ),
       itemCount: filtered.length,
       itemBuilder: (context, index) {
@@ -200,8 +243,10 @@ class _JournalScreenState extends State<JournalScreen> {
   Widget _buildTimelineItem(VisitedShop visit, bool isLast) {
     final shop = visit.shop;
     final visitedAt = DateTime.parse(visit.visitedAt).toLocal();
-    final timeStr = '${visitedAt.hour.toString().padLeft(2, '0')}:${visitedAt.minute.toString().padLeft(2, '0')}';
-    final dateStr = '${visitedAt.day.toString().padLeft(2, '0')} ${_getMonthName(visitedAt.month)}';
+    final timeStr =
+        '${visitedAt.hour.toString().padLeft(2, '0')}:${visitedAt.minute.toString().padLeft(2, '0')}';
+    final dateStr =
+        '${visitedAt.day.toString().padLeft(2, '0')} ${_getMonthName(visitedAt.month)}';
 
     return IntrinsicHeight(
       child: Row(
@@ -306,8 +351,8 @@ class _JournalScreenState extends State<JournalScreen> {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
-                _getIconForCategory(shop.category),
-                color: AppTheme.primaryColor,
+                ShopCategory.getIcon(shop.foodCategory),
+                color: ShopCategory.getColor(shop.foodCategory),
                 size: 20,
               ),
             ),
@@ -325,7 +370,7 @@ class _JournalScreenState extends State<JournalScreen> {
                     ),
                   ),
                   Text(
-                    shop.category,
+                    S.of(context).translateCategory(shop.foodCategory),
                     style: const TextStyle(
                       fontSize: 12,
                       color: AppTheme.textSecondaryLight,
@@ -334,7 +379,11 @@ class _JournalScreenState extends State<JournalScreen> {
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right_rounded, color: Colors.grey, size: 20),
+            const Icon(
+              Icons.chevron_right_rounded,
+              color: Colors.grey,
+              size: 20,
+            ),
           ],
         ),
       ),
@@ -342,20 +391,20 @@ class _JournalScreenState extends State<JournalScreen> {
   }
 
   String _getMonthName(int month) {
-    const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+    const months = [
+      'JAN',
+      'FEB',
+      'MAR',
+      'APR',
+      'MAY',
+      'JUN',
+      'JUL',
+      'AUG',
+      'SEP',
+      'OCT',
+      'NOV',
+      'DEC',
+    ];
     return months[month - 1];
-  }
-
-  IconData _getIconForCategory(String category) {
-    switch (category.toUpperCase()) {
-      case 'RESTAURANT':
-        return Icons.restaurant_rounded;
-      case 'CAFE':
-        return Icons.coffee_rounded;
-      case 'BAR':
-        return Icons.local_bar_rounded;
-      default:
-        return Icons.place_rounded;
-    }
   }
 }

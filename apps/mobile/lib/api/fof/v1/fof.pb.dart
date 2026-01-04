@@ -13,6 +13,10 @@ import 'dart:core' as $core;
 
 import 'package:protobuf/protobuf.dart' as $pb;
 
+import 'fof.pbenum.dart';
+
+export 'fof.pbenum.dart';
+
 class LatLng extends $pb.GeneratedMessage {
   factory LatLng({
     $core.double? lat,
@@ -915,6 +919,8 @@ class Shop extends $pb.GeneratedMessage {
     $core.double? rating,
     $core.String? sourceUrl,
     $core.double? clearanceRadius,
+    FoodCategory? foodCategory,
+    $core.bool? reservable,
   }) {
     final $result = create();
     if (id != null) {
@@ -959,6 +965,12 @@ class Shop extends $pb.GeneratedMessage {
     if (clearanceRadius != null) {
       $result.clearanceRadius = clearanceRadius;
     }
+    if (foodCategory != null) {
+      $result.foodCategory = foodCategory;
+    }
+    if (reservable != null) {
+      $result.reservable = reservable;
+    }
     return $result;
   }
   Shop._() : super();
@@ -980,6 +992,8 @@ class Shop extends $pb.GeneratedMessage {
     ..a<$core.double>(12, _omitFieldNames ? '' : 'rating', $pb.PbFieldType.OD)
     ..aOS(13, _omitFieldNames ? '' : 'sourceUrl')
     ..a<$core.double>(14, _omitFieldNames ? '' : 'clearanceRadius', $pb.PbFieldType.OD)
+    ..e<FoodCategory>(15, _omitFieldNames ? '' : 'foodCategory', $pb.PbFieldType.OE, defaultOrMaker: FoodCategory.FOOD_CATEGORY_UNSPECIFIED, valueOf: FoodCategory.valueOf, enumValues: FoodCategory.values)
+    ..aOB(16, _omitFieldNames ? '' : 'reservable')
     ..hasRequiredFields = false
   ;
 
@@ -1123,6 +1137,24 @@ class Shop extends $pb.GeneratedMessage {
   $core.bool hasClearanceRadius() => $_has(13);
   @$pb.TagNumber(14)
   void clearClearanceRadius() => clearField(14);
+
+  @$pb.TagNumber(15)
+  FoodCategory get foodCategory => $_getN(14);
+  @$pb.TagNumber(15)
+  set foodCategory(FoodCategory v) { setField(15, v); }
+  @$pb.TagNumber(15)
+  $core.bool hasFoodCategory() => $_has(14);
+  @$pb.TagNumber(15)
+  void clearFoodCategory() => clearField(15);
+
+  @$pb.TagNumber(16)
+  $core.bool get reservable => $_getBF(15);
+  @$pb.TagNumber(16)
+  set reservable($core.bool v) { $_setBool(15, v); }
+  @$pb.TagNumber(16)
+  $core.bool hasReservable() => $_has(15);
+  @$pb.TagNumber(16)
+  void clearReservable() => clearField(16);
 }
 
 class GetAchievementsRequest extends $pb.GeneratedMessage {
