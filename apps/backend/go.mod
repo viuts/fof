@@ -1,6 +1,6 @@
 module github.com/viuts/fof/apps/backend
 
-go 1.25.5
+go 1.25
 
 require (
 	firebase.google.com/go/v4 v4.18.0
