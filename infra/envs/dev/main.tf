@@ -47,6 +47,20 @@ module "backend_service" {
   allow_unauthenticated = true
 }
 
+module "artifact_registry" {
+  source = "../../modules/artifact_registry"
+
+  project_id    = var.project_id
+  region        = var.region
+  repository_id = "fof-backend"
+
+  writer_service_accounts = [
+    # The account used by GitHub Actions (via Workload Identity or key)
+    # The user identified this as the one needing access
+    "firebase-adminsdk-fbsvc@${var.project_id}.iam.gserviceaccount.com"
+  ]
+}
+
 output "service_url" {
   value = module.backend_service.service_url
 }

@@ -12,7 +12,7 @@ class ApiService {
 
   void init({String host = 'localhost', int port = 8080}) {
     // _baseUrl = 'http://$host:$port';
-    _baseUrl = 'https://fof-backend-urjmlwf4ka-an.a.run.app';
+    _baseUrl = 'https://fof-backend-urjmlwf4ka-uc.a.run.app';
   }
 
   Future<Map<String, String>> _getHeaders() async {

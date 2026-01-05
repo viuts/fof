@@ -1,2 +1,2 @@
 project_id = "dev-fof"
-region     = "asia-northeast1"
+region     = "us-central1"
