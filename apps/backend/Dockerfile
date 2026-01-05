@@ -17,7 +17,7 @@ COPY . .
 
 # Build the binary.
 # Adjust the path to your main package.
-RUN CGO_ENABLED=0 GOOS=linux go build -v -o server ./apps/backend/cmd/tabelog-crawler
+RUN CGO_ENABLED=0 GOOS=linux go build -v -o server ./apps/backend/cmd/server
 
 # Use a Docker multi-stage build to create a lean production image.
 FROM alpine:3
