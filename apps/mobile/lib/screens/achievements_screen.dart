@@ -178,7 +178,6 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
   }
 
   Widget _buildAchievementList() {
-    final s = AppLocalizations.of(context)!;
     final filtered =
         (_selectedCategory == 'ALL'
               ? _achievements

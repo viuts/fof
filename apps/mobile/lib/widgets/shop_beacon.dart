@@ -103,7 +103,7 @@ class _ShopBeaconState extends State<ShopBeacon>
                   ],
                 ),
                 child: Icon(
-                  ShopCategory.getIcon(shop.foodCategory),
+                  ShopCategory.getIcon(shop.effectiveFoodCategory),
                   size: shop.markerSize * 0.55,
                   color: Colors.white,
                 ),

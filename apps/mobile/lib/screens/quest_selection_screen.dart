@@ -3,6 +3,7 @@ import '../services/language_service.dart';
 import '../services/api_service.dart';
 import '../services/location_service.dart';
 import '../api/fof/v1/fof.pb.dart';
+import '../api/fof/v1/shop_extensions.dart';
 import '../constants/category_colors.dart';
 import 'dart:math';
 
@@ -291,7 +292,9 @@ class _QuestSelectionScreenState extends State<QuestSelectionScreen> {
 
               // Filter by selected category (client-side for now)
               final filtered = result.shops
-                  .where((shop) => shop.foodCategory == _selectedCategory)
+                  .where(
+                    (shop) => shop.effectiveFoodCategory == _selectedCategory,
+                  )
                   .where((shop) => !shop.isVisited) // Exclude visited shops
                   .toList();
 

@@ -4,6 +4,7 @@ import '../services/api_service.dart';
 import '../api/fof/v1/fof.pb.dart';
 import '../constants/category_colors.dart';
 import '../services/language_service.dart';
+import '../api/fof/v1/shop_extensions.dart';
 import 'visit_detail_screen.dart';
 
 class JournalScreen extends StatefulWidget {
@@ -205,7 +206,7 @@ class _JournalScreenState extends State<JournalScreen> {
     final filtered = _selectedCategory == null
         ? _visitedShops
         : _visitedShops
-              .where((v) => v.shop.foodCategory == _selectedCategory)
+              .where((v) => v.shop.effectiveFoodCategory == _selectedCategory)
               .toList();
 
     if (filtered.isEmpty) {
@@ -351,8 +352,8 @@ class _JournalScreenState extends State<JournalScreen> {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
-                ShopCategory.getIcon(shop.foodCategory),
-                color: ShopCategory.getColor(shop.foodCategory),
+                ShopCategory.getIcon(shop.effectiveFoodCategory),
+                color: ShopCategory.getColor(shop.effectiveFoodCategory),
                 size: 20,
               ),
             ),
@@ -370,7 +371,7 @@ class _JournalScreenState extends State<JournalScreen> {
                     ),
                   ),
                   Text(
-                    S.of(context).translateCategory(shop.foodCategory),
+                    S.of(context).translateCategory(shop.effectiveFoodCategory),
                     style: const TextStyle(
                       fontSize: 12,
                       color: AppTheme.textSecondaryLight,

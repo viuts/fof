@@ -11,8 +11,8 @@ class ApiService {
   late String _baseUrl;
 
   void init({String host = 'localhost', int port = 8080}) {
-    _baseUrl = 'http://$host:$port';
-    // _baseUrl = 'https://636bab46de53.ngrok-free.app';
+    // _baseUrl = 'http://$host:$port';
+    _baseUrl = 'https://fof-backend-urjmlwf4ka-an.a.run.app';
   }
 
   Future<Map<String, String>> _getHeaders() async {

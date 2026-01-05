@@ -1,0 +1,58 @@
+name: Deploy Backend to Cloud Run
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "apps/backend/**"
+      - "infra/**"
+      - ".github/workflows/deploy_backend.yml"
+
+env:
+  PROJECT_ID: dev-fof
+  REGION: us-central1
+  SERVICE_NAME: fof-backend
+  REPO_NAME: fof-backend
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: "read"
+      id-token: "write"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: "auth"
+        uses: "google-github-actions/auth@v2"
+        with:
+          credentials_json: "${{ secrets.GOOGLE_CREDENTIALS }}"
+
+      - name: "Set up Cloud SDK"
+        uses: "google-github-actions/setup-gcloud@v2"
+        with:
+          version: ">= 416.0.0"
+
+      - name: "Docker Auth"
+        run: |-
+          gcloud auth configure-docker ${REGION}-docker.pkg.dev
+
+      - name: "Build and Push Container"
+        run: |-
+          docker build -t "${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO_NAME}/${SERVICE_NAME}:${GITHUB_SHA}" -f apps/backend/Dockerfile .
+          docker push "${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO_NAME}/${SERVICE_NAME}:${GITHUB_SHA}"
+
+      - name: "Deploy to Cloud Run"
+        uses: "google-github-actions/deploy-cloudrun@v2"
+        with:
+          service: "${{ env.SERVICE_NAME }}"
+          region: "${{ env.REGION }}"
+          image: "${{ env.REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO_NAME}/${SERVICE_NAME}:${GITHUB_SHA}"
+          env_vars: |
+             DATABASE_URL=${{ secrets.DATABASE_URL }}
+             GOOGLE_APPLICATION_CREDENTIALS=/secrets/auth-firebase-private-key
+          secrets: |
+             /secrets/auth-firebase-private-key=auth-firebase-private-key-dev:latest
+          flags: "--allow-unauthenticated"

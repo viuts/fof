@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 /// App theme configuration for Fog of Flavor
 /// Per PRD: Dark mode by default to emphasize "Fog" and "Light" contrast
@@ -59,13 +60,12 @@ class AppTheme {
       scaffoldBackgroundColor: lightBackground,
 
       // App Bar
-      appBarTheme: const AppBarTheme(
+      appBarTheme: AppBarTheme(
         backgroundColor: lightSurface,
         foregroundColor: textPrimaryLight,
         elevation: 0,
         centerTitle: true,
-        titleTextStyle: TextStyle(
-          fontFamily: 'Outfit',
+        titleTextStyle: GoogleFonts.notoSansJp(
           fontSize: 18,
           fontWeight: FontWeight.w700,
           color: textPrimaryLight,
@@ -82,54 +82,45 @@ class AppTheme {
       ),
 
       // Text theme
-      textTheme: const TextTheme(
-        displayLarge: TextStyle(
-          fontFamily: 'Outfit',
-          fontSize: 32,
-          fontWeight: FontWeight.w800,
-          color: textPrimaryLight,
-          letterSpacing: -1.0,
-        ),
-        displayMedium: TextStyle(
-          fontFamily: 'Outfit',
-          fontSize: 28,
-          fontWeight: FontWeight.w700,
-          color: textPrimaryLight,
-        ),
-        headlineMedium: TextStyle(
-          fontFamily: 'Outfit',
-          fontSize: 20,
-          fontWeight: FontWeight.w700,
-          color: textPrimaryLight,
-        ),
-        titleLarge: TextStyle(
-          fontFamily: 'Outfit',
-          fontSize: 18,
-          fontWeight: FontWeight.w700,
-          color: textPrimaryLight,
-        ),
-        titleMedium: TextStyle(
-          fontFamily: 'Outfit',
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
-          color: textPrimaryLight,
-        ),
-        bodyLarge: TextStyle(
-          fontFamily: 'Inter',
-          fontSize: 16,
-          fontWeight: FontWeight.w400,
-          color: textPrimaryLight,
-        ),
-        bodyMedium: TextStyle(
-          fontFamily: 'Inter',
-          fontSize: 14,
-          fontWeight: FontWeight.w400,
-          color: textPrimaryLight,
-        ),
-        bodySmall: TextStyle(
-          fontFamily: 'Inter',
-          fontSize: 12,
-          color: textSecondaryLight,
+      textTheme: GoogleFonts.notoSansJpTextTheme(
+        const TextTheme(
+          displayLarge: TextStyle(
+            fontSize: 32,
+            fontWeight: FontWeight.w800,
+            color: textPrimaryLight,
+            letterSpacing: -1.0,
+          ),
+          displayMedium: TextStyle(
+            fontSize: 28,
+            fontWeight: FontWeight.w700,
+            color: textPrimaryLight,
+          ),
+          headlineMedium: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+            color: textPrimaryLight,
+          ),
+          titleLarge: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: textPrimaryLight,
+          ),
+          titleMedium: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: textPrimaryLight,
+          ),
+          bodyLarge: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w400,
+            color: textPrimaryLight,
+          ),
+          bodyMedium: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w400,
+            color: textPrimaryLight,
+          ),
+          bodySmall: TextStyle(fontSize: 12, color: textSecondaryLight),
         ),
       ),
 
@@ -171,6 +162,13 @@ class AppTheme {
         onSurface: textPrimaryDark,
       ),
       scaffoldBackgroundColor: darkBackground,
+      textTheme: GoogleFonts.notoSansJpTextTheme(
+        const TextTheme(
+          bodyLarge: TextStyle(color: textPrimaryDark),
+          bodyMedium: TextStyle(color: textPrimaryDark),
+          bodySmall: TextStyle(color: textSecondaryDark),
+        ),
+      ),
       // ... kept for compatibility but lightTheme is preferred now
     );
   }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../api/fof/v1/fof.pb.dart';
+import '../api/fof/v1/shop_extensions.dart';
 import '../constants/category_colors.dart';
 import 'package:intl/intl.dart';
 
@@ -57,8 +58,8 @@ class VisitDetailScreen extends StatelessWidget {
               shape: BoxShape.circle,
             ),
             child: Icon(
-              ShopCategory.getIcon(shop.foodCategory),
-              color: ShopCategory.getColor(shop.foodCategory),
+              ShopCategory.getIcon(shop.effectiveFoodCategory),
+              color: ShopCategory.getColor(shop.effectiveFoodCategory),
               size: 40,
             ),
           ),

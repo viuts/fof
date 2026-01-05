@@ -122,65 +122,104 @@ func main() {
 		log.Fatalf("could not create producer page: %v", err)
 	}
 
-	currentPageURL := baseURL
 	go func() {
 		defer close(jobs)
-		for {
-			log.Printf("[Producer] Fetching page: %s", currentPageURL)
-			if _, err := producerPage.Goto(currentPageURL, playwright.PageGotoOptions{
-				WaitUntil: playwright.WaitUntilStateCommit,
-				Timeout:   playwright.Float(60000),
-			}); err != nil {
-				log.Printf("[Producer] Error going to page %s: %v", currentPageURL, err)
-				break
-			}
 
-			// Wait for results
-			if _, err := producerPage.WaitForSelector(".list-rst__rst-name-target, .c-pagination", playwright.PageWaitForSelectorOptions{
-				Timeout: playwright.Float(10000),
-			}); err != nil {
-				log.Printf("[Producer] Warning: selector not found on %s", currentPageURL)
-			}
+		log.Printf("[Producer] Initializing: Fetching base URL to extract sub-areas: %s", baseURL)
+		if _, err := producerPage.Goto(baseURL, playwright.PageGotoOptions{
+			WaitUntil: playwright.WaitUntilStateCommit,
+			Timeout:   playwright.Float(60000),
+		}); err != nil {
+			log.Printf("[Producer] Error going to base URL %s: %v", baseURL, err)
+			return
+		}
 
-			// Handle language modal
-			modalClose := producerPage.Locator(".js-modal-close, .p-lang-modal__btn-ja").First()
-			if visible, _ := modalClose.IsVisible(); visible {
-				modalClose.Click()
-				time.Sleep(500 * time.Millisecond)
-			}
+		// Handle language modal
+		modalClose := producerPage.Locator(".js-modal-close, .p-lang-modal__btn-ja").First()
+		if visible, _ := modalClose.IsVisible(); visible {
+			modalClose.Click()
+			time.Sleep(500 * time.Millisecond)
+		}
 
-			// Extract shop URLs
-			links, err := producerPage.Locator(".list-rst__rst-name-target").All()
-			if err != nil {
-				log.Printf("[Producer] Error getting links: %v", err)
-				break
-			}
+		// Add a small delay till the page is fully loaded
+		time.Sleep(1 * time.Second)
 
-			foundCount := 0
-			for _, link := range links {
-				href, _ := link.GetAttribute("href")
-				if href != "" {
-					jobs <- Job{URL: href}
-					foundCount++
+		// Extract sub-area URLs
+		// Selector: #tabs-panel-balloon-pref-area .list-balloon__list-item a
+		subAreaLinks, _ := producerPage.Locator("#tabs-panel-balloon-pref-area .list-balloon__list-item a").All()
+		var areaURLs []string
+		for _, link := range subAreaLinks {
+			href, _ := link.GetAttribute("href")
+			if href != "" && !strings.Contains(href, "javascript:") {
+				if !strings.HasPrefix(href, "http") {
+					href = "https://tabelog.com" + href
 				}
+				areaURLs = append(areaURLs, href)
 			}
-			log.Printf("[Producer] Queued %d shops from %s", foundCount, currentPageURL)
+		}
 
-			// Find next page
-			nextPage := producerPage.Locator(".c-pagination__arrow--next").First()
-			if nextPage == nil {
-				break
+		if len(areaURLs) == 0 {
+			log.Printf("[Producer] No sub-areas found, processing base URL only.")
+			areaURLs = []string{baseURL}
+		} else {
+			log.Printf("[Producer] Found %d sub-areas. Starting crawl loop...", len(areaURLs))
+		}
+
+		for _, areaURL := range areaURLs {
+			currentPageURL := areaURL
+			for {
+				log.Printf("[Producer] Fetching page: %s", currentPageURL)
+				if _, err := producerPage.Goto(currentPageURL, playwright.PageGotoOptions{
+					WaitUntil: playwright.WaitUntilStateCommit,
+					Timeout:   playwright.Float(60000),
+				}); err != nil {
+					log.Printf("[Producer] Error going to page %s: %v", currentPageURL, err)
+					break
+				}
+
+				// Wait for results
+				if _, err := producerPage.WaitForSelector(".list-rst__rst-name-target, .c-pagination", playwright.PageWaitForSelectorOptions{
+					Timeout: playwright.Float(10000),
+				}); err != nil {
+					log.Printf("[Producer] Warning: selector not found on %s", currentPageURL)
+				}
+
+				// Extract shop URLs
+				links, err := producerPage.Locator(".list-rst__rst-name-target").All()
+				if err != nil {
+					log.Printf("[Producer] Error getting links: %v", err)
+					break
+				}
+
+				foundCount := 0
+				for _, link := range links {
+					href, _ := link.GetAttribute("href")
+					if href != "" {
+						jobs <- Job{URL: href}
+						foundCount++
+					}
+				}
+				log.Printf("[Producer] Queued %d shops from %s", foundCount, currentPageURL)
+
+				// Find next page
+				nextPage := producerPage.Locator(".c-pagination__arrow--next").First()
+				if nextPage == nil {
+					break
+				}
+				isVisible, _ := nextPage.IsVisible()
+				if !isVisible {
+					break
+				}
+				nextURL, err := nextPage.GetAttribute("href")
+				if err != nil || nextURL == "" {
+					break
+				}
+				currentPageURL = nextURL
+				if !strings.HasPrefix(currentPageURL, "http") {
+					currentPageURL = "https://tabelog.com" + currentPageURL
+				}
+				time.Sleep(1 * time.Second) // Anti-bot delay
 			}
-			isVisible, _ := nextPage.IsVisible()
-			if !isVisible {
-				break
-			}
-			nextURL, err := nextPage.GetAttribute("href")
-			if err != nil || nextURL == "" {
-				break
-			}
-			currentPageURL = nextURL
-			time.Sleep(1 * time.Second) // Anti-bot delay
 		}
 	}()
 
@@ -425,20 +464,13 @@ func crawlShopDetail(ctx playwright.BrowserContext, url string) (*domain.Shop, e
 					}
 
 					if telephone, ok := data["telephone"].(string); ok {
-						shop.Phone = telephone
+						if !strings.Contains(telephone, "情報") {
+							shop.Phone = telephone
+						}
 					}
 
-					if openingHours, ok := data["openingHours"].(string); ok {
-						shop.OpeningHours = openingHours
-					} else if ohs, ok := data["openingHours"].([]interface{}); ok {
-						var hours []string
-						for _, h := range ohs {
-							if hs, ok := h.(string); ok {
-								hours = append(hours, hs)
-							}
-						}
-						shop.OpeningHours = strings.Join(hours, "\n")
-					}
+					// Skip openingHours string from JSON-LD for now, as we prefer the FAQ structured data
+					// if openingHours, ok := data["openingHours"].(string); ok { ... }
 
 					if image, ok := data["image"].(string); ok {
 						shop.ImageURLs = append(shop.ImageURLs, image)
@@ -460,7 +492,6 @@ func crawlShopDetail(ctx playwright.BrowserContext, url string) (*domain.Shop, e
 							}
 						}
 					}
-					break
 				}
 
 				if data["@type"].(string) == "FAQPage" {
@@ -471,7 +502,7 @@ func crawlShopDetail(ctx playwright.BrowserContext, url string) (*domain.Shop, e
 									if answer, ok := faqMap["acceptedAnswer"].(map[string]interface{}); ok {
 										if text, ok := answer["text"].(string); ok {
 											parsedHours := parseOpeningHours(text)
-											if parsedHours != "" {
+											if len(parsedHours) > 0 {
 												shop.OpeningHours = parsedHours
 											}
 										}
@@ -497,9 +528,6 @@ func crawlShopDetail(ctx playwright.BrowserContext, url string) (*domain.Shop, e
 	shop.Address = strings.ReplaceAll(shop.Address, "周辺のお店を探す", "")
 	shop.Address = strings.TrimSpace(shop.Address)
 
-	shop.OpeningHours = strings.ReplaceAll(shop.OpeningHours, "営業時間・定休日は変更となる場合がございますので、ご来店前に店舗にご確認ください。", "")
-	shop.OpeningHours = strings.TrimSpace(shop.OpeningHours)
-
 	var filteredImages []string
 	for _, img := range shop.ImageURLs {
 		if !strings.Contains(img, "nophoto") {
@@ -516,81 +544,69 @@ func crawlShopDetail(ctx playwright.BrowserContext, url string) (*domain.Shop, e
 	return &shop, nil
 }
 
-func parseOpeningHours(htmlContent string) string {
+func parseOpeningHours(htmlContent string) domain.BusinessHours {
 	// 1. Strip HTML tags
 	reTags := regexp.MustCompile(`<[^>]*>`)
-	text := reTags.ReplaceAllString(htmlContent, "\n") // Replace with newline to preserve separation
+	text := reTags.ReplaceAllString(htmlContent, "\n")
 
 	// 2. Normalize whitespace and split by lines
-	text = strings.ReplaceAll(text, "　", " ") // Full-width space to normal space
+	text = strings.ReplaceAll(text, "　", " ")
 	lines := strings.Split(text, "\n")
 
-	// map[string][]string (Day -> Hours)
-	dayToHours := make(map[string][]string)
-	var orderedDays []string
-	var lastDay string
+	dayToIntervals := make(domain.BusinessHours)
+	var lastDays []string
 
 	dayRe := regexp.MustCompile(`^\[(.*?)\]$`)
-	timeRe := regexp.MustCompile(`\d{1,2}:\d{2}`)
+	timeRe := regexp.MustCompile(`(\d{1,2}:\d{2})\s*-\s*(\d{1,2}:\d{2})`)
+
+	dayMap := map[string]domain.BusinessDay{
+		"月":  domain.BusinessDayMonday,
+		"火":  domain.BusinessDayTuesday,
+		"水":  domain.BusinessDayWednesday,
+		"木":  domain.BusinessDayThursday,
+		"金":  domain.BusinessDayFriday,
+		"土":  domain.BusinessDaySaturday,
+		"日":  domain.BusinessDaySunday,
+		"祝":  domain.BusinessDayHoliday,
+		"祝日": domain.BusinessDayHoliday,
+	}
 
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
 		if line == "" {
 			continue
 		}
+
 		if matches := dayRe.FindStringSubmatch(line); len(matches) > 1 {
-			lastDay = matches[1]
-			if _, exists := dayToHours[lastDay]; !exists {
-				orderedDays = append(orderedDays, lastDay)
+			dayStr := matches[1]
+			// Handle groupings like [月・火・水]
+			dayParts := strings.Split(dayStr, "・")
+			lastDays = nil
+			for _, part := range dayParts {
+				if eng, ok := dayMap[part]; ok {
+					lastDays = append(lastDays, string(eng))
+				} else {
+					// Default to using the part as is if not in map
+					lastDays = append(lastDays, part)
+				}
 			}
 			continue
 		}
-		if lastDay != "" && timeRe.MatchString(line) {
-			dayToHours[lastDay] = append(dayToHours[lastDay], line)
-		}
-	}
 
-	if len(orderedDays) == 0 {
-		return ""
-	}
-
-	// Group days by identical hours
-	type group struct {
-		days  []string
-		hours []string
-	}
-	var groupedHours []group
-
-	for _, day := range orderedDays {
-		hours := dayToHours[day]
-		if len(hours) == 0 {
-			continue
-		}
-
-		found := false
-		for i, g := range groupedHours {
-			if strings.Join(g.hours, "|") == strings.Join(hours, "|") {
-				groupedHours[i].days = append(groupedHours[i].days, day)
-				found = true
-				break
+		if len(lastDays) > 0 && timeRe.MatchString(line) {
+			matches := timeRe.FindStringSubmatch(line)
+			if len(matches) > 2 {
+				interval := domain.TimeInterval{
+					Open:  matches[1],
+					Close: matches[2],
+				}
+				for _, d := range lastDays {
+					day := domain.BusinessDay(d)
+					dayToIntervals[day] = append(dayToIntervals[day], interval)
+				}
 			}
 		}
-		if !found {
-			groupedHours = append(groupedHours, group{days: []string{day}, hours: hours})
-		}
 	}
 
-	// If all days have the same hours, just return the hours
-	if len(groupedHours) == 1 {
-		return strings.Join(groupedHours[0].hours, "\n")
-	}
-
-	// Format output
-	var result []string
-	for _, g := range groupedHours {
-		result = append(result, strings.Join(g.days, "・"))
-		result = append(result, strings.Join(g.hours, "\n"))
-	}
-
-	return strings.Join(result, "\n")
+	return dayToIntervals
 }

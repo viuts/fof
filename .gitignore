@@ -50,3 +50,8 @@ logs/
 
 # google service account
 google-dev.json
+
+# Terraform
+.terraform
+.terraform.lock.hcl
+secrets.tfvars

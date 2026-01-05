@@ -376,7 +376,7 @@ class MapScreenState extends State<MapScreen>
                           S
                               .of(context)
                               .translateCategory(
-                                widget.questShop!.foodCategory,
+                                widget.questShop!.effectiveFoodCategory,
                               ),
                           style: const TextStyle(
                             fontSize: 12,
@@ -481,25 +481,19 @@ class MapScreenState extends State<MapScreen>
 
     double latOffset = 0;
     double lngOffset = 0;
-    double newHeading = 0;
-
     switch (direction) {
       case 'up':
         latOffset = metersToMove / metersPerDegree;
-        newHeading = 0; // North
         break;
       case 'down':
         latOffset = -metersToMove / metersPerDegree;
-        newHeading = 180; // South
         break;
       case 'left':
         lngOffset =
             -metersToMove / (metersPerDegree * 0.9); // Adjust for longitude
-        newHeading = 270; // West
         break;
       case 'right':
         lngOffset = metersToMove / (metersPerDegree * 0.9);
-        newHeading = 90; // East
         break;
     }
 
@@ -882,7 +876,7 @@ class MapScreenState extends State<MapScreen>
                     ),
                     markerSize: const Size(24, 24),
                     markerDirection: MarkerDirection.heading,
-                    showAccuracyCircle: true,
+                    showAccuracyCircle: false,
                     accuracyCircleColor: AppTheme.accentColor.withValues(
                       alpha: 0.3,
                     ),
@@ -929,7 +923,9 @@ class MapScreenState extends State<MapScreen>
                       }
 
                       return allShops.values.where(
-                        (s) => !_hiddenCategories.contains(s.foodCategory),
+                        (s) => !_hiddenCategories.contains(
+                          s.effectiveFoodCategory,
+                        ),
                       );
                     }()).map((shop) {
                       final shopLocation = latlong2.LatLng(shop.lat, shop.lng);

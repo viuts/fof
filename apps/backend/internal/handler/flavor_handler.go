@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"encoding/json"
 	"time"
 
 	"github.com/viuts/fof/apps/backend/internal/middleware"
@@ -59,21 +60,22 @@ func (h *FlavorHandler) GetNearbyShops(ctx context.Context, req *fofv1.GetNearby
 
 	pbShops := make([]*fofv1.Shop, len(shops))
 	for i, s := range shops {
+		ohJSON, _ := json.Marshal(s.OpeningHours)
 		pbShops[i] = &fofv1.Shop{
-			Id:           s.ID.String(),
-			Name:         s.Name,
-			Lat:          s.Lat,
-			Lng:          s.Lng,
-			Category:     s.Category,
-			IsChain:      s.IsChain,
-			Address:      s.Address,
-			Phone:        s.Phone,
-			OpeningHours: s.OpeningHours,
-			ImageUrls:    s.ImageURLs,
-			Rating:       s.Rating,
-			SourceUrl:    s.SourceURL,
+			Id:              s.ID.String(),
+			Name:            s.Name,
+			Lat:             s.Lat,
+			Lng:             s.Lng,
+			Category:        s.Category,
+			IsChain:         s.IsChain,
+			Address:         s.Address,
+			Phone:           s.Phone,
+			OpeningHours:    string(ohJSON),
+			ImageUrls:       s.ImageURLs,
+			Rating:          s.Rating,
+			SourceUrl:       s.SourceURL,
 			ClearanceRadius: s.ClearanceRadius,
-			IsVisited:    visitedMap[s.ID.String()],
+			IsVisited:       visitedMap[s.ID.String()],
 		}
 	}
 
@@ -96,22 +98,23 @@ func (h *FlavorHandler) GetVisitedShops(ctx context.Context, req *fofv1.GetVisit
 	pbVisitedShops := make([]*fofv1.VisitedShop, len(visits))
 	for i, v := range visits {
 		s := v.Shop
+		ohJSON, _ := json.Marshal(s.OpeningHours)
 		pbVisitedShops[i] = &fofv1.VisitedShop{
 			Shop: &fofv1.Shop{
-				Id:           s.ID.String(),
-				Name:         s.Name,
-				Lat:          s.Lat,
-				Lng:          s.Lng,
-				Category:     s.Category,
-				IsChain:      s.IsChain,
-				Address:      s.Address,
-				Phone:        s.Phone,
-				OpeningHours: s.OpeningHours,
-				ImageUrls:    s.ImageURLs,
-				Rating:       s.Rating,
-				SourceUrl:    s.SourceURL,
+				Id:              s.ID.String(),
+				Name:            s.Name,
+				Lat:             s.Lat,
+				Lng:             s.Lng,
+				Category:        s.Category,
+				IsChain:         s.IsChain,
+				Address:         s.Address,
+				Phone:           s.Phone,
+				OpeningHours:    string(ohJSON),
+				ImageUrls:       s.ImageURLs,
+				Rating:          s.Rating,
+				SourceUrl:       s.SourceURL,
 				ClearanceRadius: s.ClearanceRadius,
-				IsVisited:    true,
+				IsVisited:       true,
 			},
 			VisitedAt: v.VisitedAt.Format(time.RFC3339),
 			Rating:    int32(v.Rating),

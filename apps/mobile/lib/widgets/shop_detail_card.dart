@@ -112,7 +112,7 @@ class ShopDetailCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Icon(
-                        ShopCategory.getIcon(shop.foodCategory),
+                        ShopCategory.getIcon(shop.effectiveFoodCategory),
                         color: shop.color,
                         size: 24,
                       ),
@@ -123,7 +123,9 @@ class ShopDetailCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            S.of(context).translateCategory(shop.foodCategory),
+                            S
+                                .of(context)
+                                .translateCategory(shop.effectiveFoodCategory),
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w800,
@@ -194,7 +196,7 @@ class ShopDetailCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Icon(
-                        ShopCategory.getIcon(shop.foodCategory),
+                        ShopCategory.getIcon(shop.effectiveFoodCategory),
                         color: shop.isVisited ? shop.color : Colors.grey,
                         size: 30,
                       ),
@@ -223,7 +225,9 @@ class ShopDetailCard extends StatelessWidget {
                               Text(
                                 S
                                     .of(context)
-                                    .translateCategory(shop.foodCategory),
+                                    .translateCategory(
+                                      shop.effectiveFoodCategory,
+                                    ),
                                 style: TextStyle(
                                   fontSize: 11,
                                   color: shop.isVisited
