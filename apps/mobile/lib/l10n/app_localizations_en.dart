@@ -9,6 +9,60 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get appTitle => 'Fog of Flavor';
+
+  @override
+  String errorLabel(String error) {
+    return 'Error: $error';
+  }
+
+  @override
+  String get retry => 'Retry';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get submit => 'Submit';
+
+  @override
+  String get skip => 'Skip';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String levelLabel(int level) {
+    return 'LV. $level';
+  }
+
+  @override
+  String nextExp(int exp) {
+    return 'Next: $exp EXP';
+  }
+
+  @override
+  String get discoverTaste => 'Discover your taste.';
+
+  @override
+  String get googleSignIn => 'Sign in with Google';
+
+  @override
+  String failedToSignIn(String error) {
+    return 'Failed to sign in: $error';
+  }
+
+  @override
+  String unexpectedError(String error) {
+    return 'An unexpected error occurred: $error';
+  }
+
+  @override
+  String signInFailed(String error) {
+    return 'Sign in failed: $error';
+  }
+
+  @override
   String get questTitle => 'DESIGN YOUR\nADVENTURE';
 
   @override
@@ -104,9 +158,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String tilesClearedMsg(int count) {
     return 'You cleared $count new fog tiles.';
   }
-
-  @override
-  String get appTitle => 'Fog of Flavor';
 
   @override
   String get categoryWashoku => 'Washoku';
@@ -226,6 +277,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String visitRecordedExp(int exp) {
+    return 'Visit recorded! Gained $exp EXP';
+  }
+
+  @override
   String get visitThisShop => 'Visit this shop';
 
   @override
@@ -250,6 +306,122 @@ class AppLocalizationsEn extends AppLocalizations {
   String remainingTime(int minutes, int seconds) {
     return '${minutes}m ${seconds}s remaining';
   }
+
+  @override
+  String visitComplete(String shopName) {
+    return 'Visit Complete: $shopName';
+  }
+
+  @override
+  String get howWasExperience => 'How was your experience?';
+
+  @override
+  String get commentOptional => 'Comment (optional)';
+
+  @override
+  String get shareThoughts => 'Share your thoughts...';
+
+  @override
+  String levelUp(int level) {
+    return 'LEVEL UP! Now at Level $level';
+  }
+
+  @override
+  String unlockedAchievement(String name) {
+    return '🏆 UNLOCKED: $name!';
+  }
+
+  @override
+  String get noVisitsYet => 'No visits yet.';
+
+  @override
+  String get mapStyle => 'Map Style';
+
+  @override
+  String get selectMapStyle => 'Select Map Style';
+
+  @override
+  String get deleteHistoryTitle => 'Delete History?';
+
+  @override
+  String get deleteHistoryConfirm =>
+      'This will reset all cleared fog on your map. This action cannot be undone.';
+
+  @override
+  String get pathHistoryDeleted => 'Path history deleted.';
+
+  @override
+  String get questMode => 'Quest Mode';
+
+  @override
+  String get cancelQuest => 'Cancel Quest';
+
+  @override
+  String get noHiddenGems => 'No hidden gems found in this category nearby.';
+
+  @override
+  String get chooseCuisineQuest => 'Choose Your Cuisine Quest';
+
+  @override
+  String get selectCategoryHint =>
+      'Select a category to discover a hidden restaurant';
+
+  @override
+  String get questActive => 'Quest Active';
+
+  @override
+  String get toDestination => 'to destination';
+
+  @override
+  String get revealOnArrival =>
+      'Restaurant details will be revealed when you arrive';
+
+  @override
+  String get noAchievementsYet => 'No achievements yet.';
+
+  @override
+  String get independentShop => 'Independent Shop';
+
+  @override
+  String hiddenGem(String name) {
+    return 'Hidden Gem: $name';
+  }
+
+  @override
+  String get monthJan => 'JAN';
+
+  @override
+  String get monthFeb => 'FEB';
+
+  @override
+  String get monthMar => 'MAR';
+
+  @override
+  String get monthApr => 'APR';
+
+  @override
+  String get monthMay => 'MAY';
+
+  @override
+  String get monthJun => 'JUN';
+
+  @override
+  String get monthJul => 'JUL';
+
+  @override
+  String get monthAug => 'AUG';
+
+  @override
+  String get monthSep => 'SEP';
+
+  @override
+  String get monthOct => 'OCT';
+
+  @override
+  String get monthNov => 'NOV';
+
+  @override
+  String get monthDec => 'DEC';
 
   @override
   String get achNameFirstSteps => 'First Steps';
@@ -306,4 +478,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get achievementTabTitle => 'Achievements';
+
+  @override
+  String get deselectAll => 'Clear All';
+
+  @override
+  String get selectAll => 'Select All';
 }

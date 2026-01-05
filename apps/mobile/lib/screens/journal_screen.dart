@@ -66,6 +66,7 @@ class _JournalScreenState extends State<JournalScreen> {
   }
 
   Widget _buildBody() {
+    final s = S.of(context);
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -81,11 +82,8 @@ class _JournalScreenState extends State<JournalScreen> {
               color: Colors.red,
             ),
             const SizedBox(height: AppTheme.spacingMd),
-            Text('Error: $_error'),
-            TextButton(
-              onPressed: _loadVisitedShops,
-              child: const Text('Retry'),
-            ),
+            Text(s.errorLabel(_error!)),
+            TextButton(onPressed: _loadVisitedShops, child: Text(s.retry)),
           ],
         ),
       );
@@ -203,6 +201,7 @@ class _JournalScreenState extends State<JournalScreen> {
   }
 
   Widget _buildVisitedShopsList() {
+    final s = S.of(context);
     final filtered = _selectedCategory == null
         ? _visitedShops
         : _visitedShops
@@ -217,7 +216,7 @@ class _JournalScreenState extends State<JournalScreen> {
             Icon(Icons.history_rounded, size: 48, color: Colors.grey[300]),
             const SizedBox(height: 12),
             Text(
-              'No visits yet.',
+              s.noVisitsYet,
               style: TextStyle(color: AppTheme.textSecondaryLight),
             ),
           ],
@@ -242,12 +241,11 @@ class _JournalScreenState extends State<JournalScreen> {
   }
 
   Widget _buildTimelineItem(VisitedShop visit, bool isLast) {
-    final shop = visit.shop;
     final visitedAt = DateTime.parse(visit.visitedAt).toLocal();
     final timeStr =
         '${visitedAt.hour.toString().padLeft(2, '0')}:${visitedAt.minute.toString().padLeft(2, '0')}';
     final dateStr =
-        '${visitedAt.day.toString().padLeft(2, '0')} ${_getMonthName(visitedAt.month)}';
+        '${visitedAt.day.toString().padLeft(2, '0')} ${_getMonthName(context, visitedAt.month)}';
 
     return IntrinsicHeight(
       child: Row(
@@ -391,20 +389,21 @@ class _JournalScreenState extends State<JournalScreen> {
     );
   }
 
-  String _getMonthName(int month) {
-    const months = [
-      'JAN',
-      'FEB',
-      'MAR',
-      'APR',
-      'MAY',
-      'JUN',
-      'JUL',
-      'AUG',
-      'SEP',
-      'OCT',
-      'NOV',
-      'DEC',
+  String _getMonthName(BuildContext context, int month) {
+    final s = S.of(context);
+    final months = [
+      s.monthJan,
+      s.monthFeb,
+      s.monthMar,
+      s.monthApr,
+      s.monthMay,
+      s.monthJun,
+      s.monthJul,
+      s.monthAug,
+      s.monthSep,
+      s.monthOct,
+      s.monthNov,
+      s.monthDec,
     ];
     return months[month - 1];
   }

@@ -98,6 +98,90 @@ abstract class AppLocalizations {
     Locale('ja'),
   ];
 
+  /// No description provided for @appTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Fog of Flavor'**
+  String get appTitle;
+
+  /// No description provided for @errorLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Error: {error}'**
+  String errorLabel(String error);
+
+  /// No description provided for @retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retry;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @submit.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit'**
+  String get submit;
+
+  /// No description provided for @skip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get skip;
+
+  /// No description provided for @delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// No description provided for @levelLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'LV. {level}'**
+  String levelLabel(int level);
+
+  /// No description provided for @nextExp.
+  ///
+  /// In en, this message translates to:
+  /// **'Next: {exp} EXP'**
+  String nextExp(int exp);
+
+  /// No description provided for @discoverTaste.
+  ///
+  /// In en, this message translates to:
+  /// **'Discover your taste.'**
+  String get discoverTaste;
+
+  /// No description provided for @googleSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with Google'**
+  String get googleSignIn;
+
+  /// No description provided for @failedToSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to sign in: {error}'**
+  String failedToSignIn(String error);
+
+  /// No description provided for @unexpectedError.
+  ///
+  /// In en, this message translates to:
+  /// **'An unexpected error occurred: {error}'**
+  String unexpectedError(String error);
+
+  /// No description provided for @signInFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in failed: {error}'**
+  String signInFailed(String error);
+
   /// No description provided for @questTitle.
   ///
   /// In en, this message translates to:
@@ -283,12 +367,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You cleared {count} new fog tiles.'**
   String tilesClearedMsg(int count);
-
-  /// No description provided for @appTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Fog of Flavor'**
-  String get appTitle;
 
   /// No description provided for @categoryWashoku.
   ///
@@ -518,6 +596,12 @@ abstract class AppLocalizations {
   /// **'Failed to record visit: {error}'**
   String errorVisitFailed(String error);
 
+  /// No description provided for @visitRecordedExp.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit recorded! Gained {exp} EXP'**
+  String visitRecordedExp(int exp);
+
   /// No description provided for @visitThisShop.
   ///
   /// In en, this message translates to:
@@ -565,6 +649,216 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{minutes}m {seconds}s remaining'**
   String remainingTime(int minutes, int seconds);
+
+  /// No description provided for @visitComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit Complete: {shopName}'**
+  String visitComplete(String shopName);
+
+  /// No description provided for @howWasExperience.
+  ///
+  /// In en, this message translates to:
+  /// **'How was your experience?'**
+  String get howWasExperience;
+
+  /// No description provided for @commentOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Comment (optional)'**
+  String get commentOptional;
+
+  /// No description provided for @shareThoughts.
+  ///
+  /// In en, this message translates to:
+  /// **'Share your thoughts...'**
+  String get shareThoughts;
+
+  /// No description provided for @levelUp.
+  ///
+  /// In en, this message translates to:
+  /// **'LEVEL UP! Now at Level {level}'**
+  String levelUp(int level);
+
+  /// No description provided for @unlockedAchievement.
+  ///
+  /// In en, this message translates to:
+  /// **'🏆 UNLOCKED: {name}!'**
+  String unlockedAchievement(String name);
+
+  /// No description provided for @noVisitsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No visits yet.'**
+  String get noVisitsYet;
+
+  /// No description provided for @mapStyle.
+  ///
+  /// In en, this message translates to:
+  /// **'Map Style'**
+  String get mapStyle;
+
+  /// No description provided for @selectMapStyle.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Map Style'**
+  String get selectMapStyle;
+
+  /// No description provided for @deleteHistoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete History?'**
+  String get deleteHistoryTitle;
+
+  /// No description provided for @deleteHistoryConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'This will reset all cleared fog on your map. This action cannot be undone.'**
+  String get deleteHistoryConfirm;
+
+  /// No description provided for @pathHistoryDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Path history deleted.'**
+  String get pathHistoryDeleted;
+
+  /// No description provided for @questMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Quest Mode'**
+  String get questMode;
+
+  /// No description provided for @cancelQuest.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel Quest'**
+  String get cancelQuest;
+
+  /// No description provided for @noHiddenGems.
+  ///
+  /// In en, this message translates to:
+  /// **'No hidden gems found in this category nearby.'**
+  String get noHiddenGems;
+
+  /// No description provided for @chooseCuisineQuest.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose Your Cuisine Quest'**
+  String get chooseCuisineQuest;
+
+  /// No description provided for @selectCategoryHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a category to discover a hidden restaurant'**
+  String get selectCategoryHint;
+
+  /// No description provided for @questActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Quest Active'**
+  String get questActive;
+
+  /// No description provided for @toDestination.
+  ///
+  /// In en, this message translates to:
+  /// **'to destination'**
+  String get toDestination;
+
+  /// No description provided for @revealOnArrival.
+  ///
+  /// In en, this message translates to:
+  /// **'Restaurant details will be revealed when you arrive'**
+  String get revealOnArrival;
+
+  /// No description provided for @noAchievementsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No achievements yet.'**
+  String get noAchievementsYet;
+
+  /// No description provided for @independentShop.
+  ///
+  /// In en, this message translates to:
+  /// **'Independent Shop'**
+  String get independentShop;
+
+  /// No description provided for @hiddenGem.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden Gem: {name}'**
+  String hiddenGem(String name);
+
+  /// No description provided for @monthJan.
+  ///
+  /// In en, this message translates to:
+  /// **'JAN'**
+  String get monthJan;
+
+  /// No description provided for @monthFeb.
+  ///
+  /// In en, this message translates to:
+  /// **'FEB'**
+  String get monthFeb;
+
+  /// No description provided for @monthMar.
+  ///
+  /// In en, this message translates to:
+  /// **'MAR'**
+  String get monthMar;
+
+  /// No description provided for @monthApr.
+  ///
+  /// In en, this message translates to:
+  /// **'APR'**
+  String get monthApr;
+
+  /// No description provided for @monthMay.
+  ///
+  /// In en, this message translates to:
+  /// **'MAY'**
+  String get monthMay;
+
+  /// No description provided for @monthJun.
+  ///
+  /// In en, this message translates to:
+  /// **'JUN'**
+  String get monthJun;
+
+  /// No description provided for @monthJul.
+  ///
+  /// In en, this message translates to:
+  /// **'JUL'**
+  String get monthJul;
+
+  /// No description provided for @monthAug.
+  ///
+  /// In en, this message translates to:
+  /// **'AUG'**
+  String get monthAug;
+
+  /// No description provided for @monthSep.
+  ///
+  /// In en, this message translates to:
+  /// **'SEP'**
+  String get monthSep;
+
+  /// No description provided for @monthOct.
+  ///
+  /// In en, this message translates to:
+  /// **'OCT'**
+  String get monthOct;
+
+  /// No description provided for @monthNov.
+  ///
+  /// In en, this message translates to:
+  /// **'NOV'**
+  String get monthNov;
+
+  /// No description provided for @monthDec.
+  ///
+  /// In en, this message translates to:
+  /// **'DEC'**
+  String get monthDec;
 
   /// No description provided for @achNameFirstSteps.
   ///
@@ -673,6 +967,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Achievements'**
   String get achievementTabTitle;
+
+  /// No description provided for @deselectAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear All'**
+  String get deselectAll;
+
+  /// No description provided for @selectAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Select All'**
+  String get selectAll;
 }
 
 class _AppLocalizationsDelegate

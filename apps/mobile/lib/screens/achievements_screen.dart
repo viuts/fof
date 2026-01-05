@@ -4,6 +4,7 @@ import '../services/api_service.dart';
 import '../api/fof/v1/fof.pb.dart';
 import '../l10n/app_localizations.dart';
 import '../utils/achievement_localization.dart';
+import '../services/language_service.dart';
 
 extension UserAchievementStatusExtension on UserAchievementStatus {
   double get progress => targetValue > 0 ? currentValue / targetValue : 0.0;
@@ -217,7 +218,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
     if (filtered.isEmpty) {
       return Center(
         child: Text(
-          'No achievements yet.',
+          S.of(context).noAchievementsYet,
           style: TextStyle(color: AppTheme.textSecondaryLight),
         ),
       );

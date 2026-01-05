@@ -1,4 +1,49 @@
 {
+    "appTitle": "フォグ・オブ・フレーバー",
+    "errorLabel": "エラー: {error}",
+    "@errorLabel": {
+        "placeholders": {
+            "error": { "type": "String" }
+        }
+    },
+    "retry": "再試行",
+    "cancel": "キャンセル",
+    "submit": "送信",
+    "skip": "スキップ",
+    "delete": "削除",
+    "levelLabel": "LV. {level}",
+    "@levelLabel": {
+        "placeholders": {
+            "level": { "type": "int" }
+        }
+    },
+    "nextExp": "次まで: {exp} EXP",
+    "@nextExp": {
+        "placeholders": {
+            "exp": { "type": "int" }
+        }
+    },
+    "discoverTaste": "あなたの「味」を見つけよう",
+    "googleSignIn": "Googleでサインイン",
+    "failedToSignIn": "サインインに失敗しました: {error}",
+    "@failedToSignIn": {
+        "placeholders": {
+            "error": { "type": "String" }
+        }
+    },
+    "unexpectedError": "予期しないエラーが発生しました: {error}",
+    "@unexpectedError": {
+        "placeholders": {
+            "error": { "type": "String" }
+        }
+    },
+    "signInFailed": "サインイン失敗: {error}",
+    "@signInFailed": {
+        "placeholders": {
+            "error": { "type": "String" }
+        }
+    },
+
     "questTitle": "冒険をデザイン",
     "questCraving": "何を食べたい？",
     "questDistance": "距離",
@@ -29,7 +74,21 @@
     "journalTitle": "探索ジャーナル",
     "neighborExplorer": "近隣の探索者",
     "arriveWithin": "あと{distance}mで到着です！",
+    "@arriveWithin": {
+        "placeholders": {
+            "distance": {
+                "type": "Object"
+            }
+        }
+    },
     "tilesClearedMsg": "{count} 個の新しいタイルをクリアしました。",
+    "@tilesClearedMsg": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
     "appTitle": "フォグ・オブ・フレーバー",
     "categoryWashoku": "和食",
     "categorySushi": "寿司",
@@ -69,6 +128,21 @@
     "visitedLabel": "訪問済み",
     "visitRecordedMsg": "訪問を記録しました！フォグが晴れました。",
     "errorVisitFailed": "訪問の記録に失敗しました: {error}",
+    "@errorVisitFailed": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "visitRecordedExp": "訪問を記録しました！ {exp} EXPを獲得",
+    "@visitRecordedExp": {
+        "placeholders": {
+            "exp": {
+                "type": "int"
+            }
+        }
+    },
     "visitThisShop": "このショップに訪問する",
     "away": " 離れています",
     "arrived": "到着しました！",
@@ -83,6 +157,63 @@
             "seconds": { "type": "int" }
         }
     },
+    "visitComplete": "訪問完了: {shopName}",
+    "@visitComplete": {
+        "placeholders": {
+            "shopName": { "type": "String" }
+        }
+    },
+    "howWasExperience": "いかがでしたか？",
+    "commentOptional": "コメント（任意）",
+    "shareThoughts": "感想を共有しましょう...",
+    "levelUp": "レベルアップ！ 現在レベル {level}",
+    "@levelUp": {
+        "placeholders": {
+            "level": { "type": "int" }
+        }
+    },
+    "unlockedAchievement": "🏆 実績解除: {name}!",
+    "@unlockedAchievement": {
+        "placeholders": {
+            "name": { "type": "String" }
+        }
+    },
+    "noVisitsYet": "まだ訪問履歴がありません。",
+    "mapStyle": "マップスタイル",
+    "selectMapStyle": "マップスタイルを選択",
+    "deleteHistoryTitle": "履歴を削除しますか？",
+    "deleteHistoryConfirm": "これにより、マップ上のすべての霧がリセットされます。この操作は取り消せません。",
+    "pathHistoryDeleted": "移動履歴を削除しました。",
+    "questMode": "クエストモード",
+    "cancelQuest": "クエストをキャンセル",
+    "noHiddenGems": "このカテゴリーの隠れた名店は近くに見つかりませんでした。",
+    "chooseCuisineQuest": "料理クエストを選択",
+    "selectCategoryHint": "カテゴリーを選択して、隠れた名店を見つけましょう",
+    "questActive": "クエスト実施中",
+    "toDestination": "目的地まで",
+    "revealOnArrival": "ショップの詳細は到着してからのお楽しみ！",
+    "arrived": "到着！",
+    "noAchievementsYet": "まだ実績がありません。",
+    "independentShop": "個人経営店",
+    "hiddenGem": "隠れた名店: {name}",
+    "@hiddenGem": {
+        "placeholders": {
+            "name": { "type": "String" }
+        }
+    },
+    "monthJan": "1月",
+    "monthFeb": "2月",
+    "monthMar": "3月",
+    "monthApr": "4月",
+    "monthMay": "5月",
+    "monthJun": "6月",
+    "monthJul": "7月",
+    "monthAug": "8月",
+    "monthSep": "9月",
+    "monthOct": "10月",
+    "monthNov": "11月",
+    "monthDec": "12月",
+
     "achNameFirstSteps": "はじめの一歩",
     "achDescFirstSteps": "初めてショップを訪問する。",
     "achNameRamenFan": "ラーメンファン",
@@ -100,5 +231,7 @@
     "achCategoryFoodie": "食通",
     "achCategoryQuest": "クエスト",
     "achCategorySocial": "社交",
-    "achievementTabTitle": "実績"
+    "achievementTabTitle": "実績",
+    "deselectAll": "全てクリア",
+    "selectAll": "全て選択"
 }

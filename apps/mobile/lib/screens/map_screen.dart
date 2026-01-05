@@ -91,16 +91,12 @@ class MapScreenState extends State<MapScreen>
 
           // Calculate heading from movement direction
           if (_currentLocation != null) {
-            final bearing = Geolocator.bearingBetween(
-              _currentLocation!.latitude,
-              _currentLocation!.longitude,
-              lat,
-              lng,
-            );
+            if (!mounted) return;
             setState(() {
               _currentLocation = newLoc;
             });
           } else {
+            if (!mounted) return;
             setState(() {
               _currentLocation = newLoc;
             });
@@ -112,7 +108,9 @@ class MapScreenState extends State<MapScreen>
           }
         },
       );
-      _loadInitialData();
+      if (mounted) {
+        _loadInitialData();
+      }
     } catch (e) {
       debugPrint('Error starting location service: $e');
     }
@@ -161,6 +159,7 @@ class MapScreenState extends State<MapScreen>
   Future<void> _loadInitialData() async {
     try {
       final response = await ApiService().getClearedArea();
+      if (!mounted) return;
       setState(() {
         _clearedAreaGeojson = response.clearedAreaGeojson;
       });
@@ -181,10 +180,9 @@ class MapScreenState extends State<MapScreen>
           .toList();
       final response = await ApiService().updateLocation(path);
 
-      // ONLY flush the path from local storage if the backend call was successful
       await LocationService().clearPath();
 
-      if (response.newlyCleared) {
+      if (response.newlyCleared && mounted) {
         setState(() {
           _clearedAreaGeojson = response.clearedAreaGeojson;
         });
@@ -197,12 +195,20 @@ class MapScreenState extends State<MapScreen>
   Future<void> _loadShops() async {
     if (_currentLocation == null) return;
     try {
-      final nearby = await ApiService().getNearbyShops(
-        _currentLocation!.latitude,
-        _currentLocation!.longitude,
-        1000.0, // 1km radius
-      );
-      final visited = await ApiService().getVisitedShops();
+      final results = await Future.wait([
+        ApiService().getNearbyShops(
+          _currentLocation!.latitude,
+          _currentLocation!.longitude,
+          1000.0, // 1km radius
+        ),
+        ApiService().getVisitedShops(),
+      ]);
+
+      final nearby = results[0] as GetNearbyShopsResponse;
+      final visited = results[1] as GetVisitedShopsResponse;
+
+      if (!mounted) return;
+
       setState(() {
         _nearbyShops.clear();
         _nearbyShops.addAll(nearby.shops);
@@ -624,92 +630,92 @@ class MapScreenState extends State<MapScreen>
       context: context,
       barrierDismissible: false,
       builder: (context) => StatefulBuilder(
-        builder: (context, setDialogState) => AlertDialog(
-          backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          title: Text(
-            'Visit Complete: ${_enteringShop!.name}',
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text(
-                'How was your experience?',
-                style: TextStyle(fontSize: 16),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(
-                  5,
-                  (index) => IconButton(
-                    icon: Icon(
-                      index < rating ? Icons.star : Icons.star_border,
-                      color: Colors.amber,
-                      size: 40,
-                    ),
-                    onPressed: () => setDialogState(() => rating = index + 1),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-              TextField(
-                controller: commentController,
-                decoration: InputDecoration(
-                  labelText: 'Comment (optional)',
-                  hintText: 'Share your thoughts...',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(
-                      color: AppTheme.primaryColor,
-                      width: 2,
+        builder: (context, setDialogState) {
+          final s = S.of(context);
+          return AlertDialog(
+            backgroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            title: Text(
+              s.visitComplete(_enteringShop!.name),
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(s.howWasExperience, style: const TextStyle(fontSize: 16)),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(
+                    5,
+                    (index) => IconButton(
+                      icon: Icon(
+                        index < rating ? Icons.star : Icons.star_border,
+                        color: Colors.amber,
+                        size: 40,
+                      ),
+                      onPressed: () => setDialogState(() => rating = index + 1),
                     ),
                   ),
                 ),
-                maxLines: 3,
+                const SizedBox(height: 24),
+                TextField(
+                  controller: commentController,
+                  decoration: InputDecoration(
+                    labelText: s.commentOptional,
+                    hintText: s.shareThoughts,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(
+                        color: AppTheme.primaryColor,
+                        width: 2,
+                      ),
+                    ),
+                  ),
+                  maxLines: 3,
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  setState(() {
+                    _enteringShop = null;
+                  });
+                  Navigator.pop(context);
+                },
+                child: Text(s.skip, style: TextStyle(color: Colors.grey[600])),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  final shopId = _enteringShop!.id;
+                  final r = rating;
+                  final comment = commentController.text;
+
+                  Navigator.pop(context); // Close dialog
+                  _submitVisit(shopId, r, comment);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.primaryColor,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
+                ),
+                child: Text(s.submit),
               ),
             ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                setState(() {
-                  _enteringShop = null;
-                });
-                Navigator.pop(context);
-              },
-              child: Text('Skip', style: TextStyle(color: Colors.grey[600])),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                final shopId = _enteringShop!.id;
-                final r = rating;
-                final comment = commentController.text;
-
-                Navigator.pop(context); // Close dialog
-                _submitVisit(shopId, r, comment);
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.primaryColor,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 12,
-                ),
-              ),
-              child: const Text('Submit'),
-            ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
@@ -729,15 +735,16 @@ class MapScreenState extends State<MapScreen>
 
         // Show reward feedback
         if (mounted) {
+          final s = S.of(context);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('Visit recorded! Gained ${response.expGained} EXP'),
+                  Text(S.of(context).visitRecordedExp(response.expGained)),
                   if (_currentLevel > oldLevel)
                     Text(
-                      'LEVEL UP! Now at Level $_currentLevel',
+                      s.levelUp(_currentLevel),
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 18,
@@ -746,7 +753,7 @@ class MapScreenState extends State<MapScreen>
                     ),
                   ...response.unlockedAchievements.map(
                     (ach) => Text(
-                      '🏆 UNLOCKED: ${ach.name}!',
+                      s.unlockedAchievement(ach.name),
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
@@ -786,8 +793,9 @@ class MapScreenState extends State<MapScreen>
     }
 
     if (shop != null) {
+      final validShop = shop;
       setState(() {
-        _blastCenterLocation = latlong2.LatLng(shop!.lat, shop!.lng);
+        _blastCenterLocation = latlong2.LatLng(validShop.lat, validShop.lng);
       });
       _blastController.reset();
       _blastController.forward();
@@ -875,7 +883,9 @@ class MapScreenState extends State<MapScreen>
                       ),
                     ),
                     markerSize: const Size(24, 24),
-                    markerDirection: MarkerDirection.heading,
+                    markerDirection: kIsWeb
+                        ? MarkerDirection.top
+                        : MarkerDirection.heading,
                     showAccuracyCircle: false,
                     accuracyCircleColor: AppTheme.accentColor.withValues(
                       alpha: 0.3,
@@ -884,7 +894,7 @@ class MapScreenState extends State<MapScreen>
                       alpha: 0.4,
                     ),
                     headingSectorRadius: 60,
-                    showHeadingSector: true,
+                    showHeadingSector: !kIsWeb,
                   ),
                 ),
                 MarkerLayer(
@@ -1011,6 +1021,7 @@ class MapScreenState extends State<MapScreen>
   }
 
   Widget _buildLevelBadge() {
+    final s = S.of(context);
     final nextLevelThreshold = _currentLevel * _currentLevel * 100;
     final expNeeded = nextLevelThreshold - _currentExp;
 
@@ -1054,7 +1065,7 @@ class MapScreenState extends State<MapScreen>
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'LV. $_currentLevel',
+                  s.levelLabel(_currentLevel),
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 14,
@@ -1062,7 +1073,7 @@ class MapScreenState extends State<MapScreen>
                   ),
                 ),
                 Text(
-                  'Next: $expNeeded EXP',
+                  s.nextExp(expNeeded),
                   style: TextStyle(
                     fontSize: 10,
                     color: AppTheme.textSecondaryLight,
@@ -1170,21 +1181,44 @@ class MapScreenState extends State<MapScreen>
                               letterSpacing: -0.5,
                             ),
                           ),
-                          if (_hiddenCategories.isNotEmpty)
-                            TextButton(
-                              onPressed: () {
-                                setState(() => _hiddenCategories.clear());
-                                setModalState(() {});
-                                _saveFilters();
-                              },
-                              child: Text(
-                                s.achCategoryAll, // Using "ALL" label for resetting
-                                style: const TextStyle(
-                                  color: AppTheme.primaryColor,
-                                  fontWeight: FontWeight.bold,
+                          Row(
+                            children: [
+                              TextButton(
+                                onPressed: () {
+                                  setState(() => _hiddenCategories.clear());
+                                  setModalState(() {});
+                                  _saveFilters();
+                                },
+                                child: Text(
+                                  s.selectAll,
+                                  style: const TextStyle(
+                                    color: AppTheme.primaryColor,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
-                            ),
+                              const SizedBox(width: 8),
+                              TextButton(
+                                onPressed: () {
+                                  setState(() {
+                                    _hiddenCategories.clear();
+                                    _hiddenCategories.addAll(
+                                      ShopCategory.allCategories,
+                                    );
+                                  });
+                                  setModalState(() {});
+                                  _saveFilters();
+                                },
+                                child: Text(
+                                  s.deselectAll,
+                                  style: const TextStyle(
+                                    color: Colors.grey,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ],
                       ),
                     ),

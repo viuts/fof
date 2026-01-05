@@ -24,9 +24,7 @@ class _AccountScreenState extends State<AccountScreen> {
     final mapStyleService = Provider.of<MapStyleService>(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(s.accountTitle),
-      ),
+      appBar: AppBar(title: Text(s.accountTitle)),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(
           AppTheme.spacingLg,
@@ -42,7 +40,11 @@ class _AccountScreenState extends State<AccountScreen> {
                 CircleAvatar(
                   radius: 50,
                   backgroundColor: AppTheme.darkSurfaceVariant,
-                  child: Icon(Icons.person, size: 50, color: AppTheme.textSecondary),
+                  child: Icon(
+                    Icons.person,
+                    size: 50,
+                    color: AppTheme.textSecondary,
+                  ),
                 ),
                 SizedBox(height: AppTheme.spacingMd),
                 Text(
@@ -79,7 +81,10 @@ class _AccountScreenState extends State<AccountScreen> {
                 ListTile(
                   title: Text(s.deleteHistory),
                   subtitle: Text(s.deleteSubtitle),
-                  trailing: Icon(Icons.delete_outline, color: Theme.of(context).colorScheme.error),
+                  trailing: Icon(
+                    Icons.delete_outline,
+                    color: Theme.of(context).colorScheme.error,
+                  ),
                   onTap: () => _confirmDeleteHistory(context),
                 ),
               ],
@@ -97,7 +102,10 @@ class _AccountScreenState extends State<AccountScreen> {
                   title: Text(s.language),
                   trailing: Text(
                     s.languageName,
-                    style: const TextStyle(color: AppTheme.primaryColor, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      color: AppTheme.primaryColor,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   onTap: () {
                     languageService.toggleLanguage();
@@ -107,18 +115,18 @@ class _AccountScreenState extends State<AccountScreen> {
                 ListTile(
                   leading: const Icon(Icons.volume_up),
                   title: Text(s.soundEffects),
-                  trailing: Switch(
-                    value: true,
-                    onChanged: (v) {},
-                  ),
+                  trailing: Switch(value: true, onChanged: (v) {}),
                 ),
                 const Divider(height: 1),
                 ListTile(
                   leading: const Icon(Icons.map_outlined),
-                  title: const Text('Map Style'),
+                  title: Text(s.mapStyle),
                   subtitle: Text(
                     mapStyleService.currentStyle.name,
-                    style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppTheme.textSecondary,
+                    ),
                   ),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => _showMapStyleDialog(context, mapStyleService),
@@ -126,7 +134,7 @@ class _AccountScreenState extends State<AccountScreen> {
               ],
             ),
           ),
-          
+
           const SizedBox(height: AppTheme.spacingXl),
           ElevatedButton(
             onPressed: () {},
@@ -159,60 +167,66 @@ class _AccountScreenState extends State<AccountScreen> {
   void _showMapStyleDialog(BuildContext context, MapStyleService service) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Select Map Style'),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: ListView.builder(
-            shrinkWrap: true,
-            itemCount: MapStyleService.styles.length,
-            itemBuilder: (context, index) {
-              final style = MapStyleService.styles[index];
-              return RadioListTile<String>(
-                title: Text(style.name),
-                value: style.name,
-                groupValue: service.currentStyle.name,
-                onChanged: (_) {
-                  service.setStyle(style);
-                  Navigator.pop(context);
-                },
-              );
-            },
+      builder: (context) {
+        final s = S.of(context);
+        return AlertDialog(
+          title: Text(s.selectMapStyle),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: MapStyleService.styles.length,
+              itemBuilder: (context, index) {
+                final style = MapStyleService.styles[index];
+                return RadioListTile<String>(
+                  title: Text(style.name),
+                  value: style.name,
+                  groupValue: service.currentStyle.name,
+                  onChanged: (_) {
+                    service.setStyle(style);
+                    Navigator.pop(context);
+                  },
+                );
+              },
+            ),
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-        ],
-      ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(s.cancel),
+            ),
+          ],
+        );
+      },
     );
   }
 
   void _confirmDeleteHistory(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete History?'),
-        content: const Text('This will reset all cleared fog on your map. This action cannot be undone.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              widget.onDeleteHistory?.call();
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Path history deleted.')),
-              );
-            },
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
+      builder: (context) {
+        final s = S.of(context);
+        return AlertDialog(
+          title: Text(s.deleteHistoryTitle),
+          content: Text(s.deleteHistoryConfirm),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(s.cancel),
+            ),
+            TextButton(
+              onPressed: () {
+                widget.onDeleteHistory?.call();
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Path history deleted.')),
+                );
+              },
+              child: Text(s.delete, style: const TextStyle(color: Colors.red)),
+            ),
+          ],
+        );
+      },
     );
   }
 }

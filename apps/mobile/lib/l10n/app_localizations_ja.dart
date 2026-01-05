@@ -9,6 +9,60 @@ class AppLocalizationsJa extends AppLocalizations {
   AppLocalizationsJa([String locale = 'ja']) : super(locale);
 
   @override
+  String get appTitle => 'フォグ・オブ・フレーバー';
+
+  @override
+  String errorLabel(String error) {
+    return 'エラー: $error';
+  }
+
+  @override
+  String get retry => '再試行';
+
+  @override
+  String get cancel => 'キャンセル';
+
+  @override
+  String get submit => '送信';
+
+  @override
+  String get skip => 'スキップ';
+
+  @override
+  String get delete => '削除';
+
+  @override
+  String levelLabel(int level) {
+    return 'LV. $level';
+  }
+
+  @override
+  String nextExp(int exp) {
+    return '次まで: $exp EXP';
+  }
+
+  @override
+  String get discoverTaste => 'あなたの「味」を見つけよう';
+
+  @override
+  String get googleSignIn => 'Googleでサインイン';
+
+  @override
+  String failedToSignIn(String error) {
+    return 'サインインに失敗しました: $error';
+  }
+
+  @override
+  String unexpectedError(String error) {
+    return '予期しないエラーが発生しました: $error';
+  }
+
+  @override
+  String signInFailed(String error) {
+    return 'サインイン失敗: $error';
+  }
+
+  @override
   String get questTitle => '冒険をデザイン';
 
   @override
@@ -104,9 +158,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String tilesClearedMsg(int count) {
     return '$count 個の新しいタイルをクリアしました。';
   }
-
-  @override
-  String get appTitle => 'フォグ・オブ・フレーバー';
 
   @override
   String get categoryWashoku => '和食';
@@ -225,13 +276,18 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
+  String visitRecordedExp(int exp) {
+    return '訪問を記録しました！ $exp EXPを獲得';
+  }
+
+  @override
   String get visitThisShop => 'このショップに訪問する';
 
   @override
   String get away => ' 離れています';
 
   @override
-  String get arrived => '到着しました！';
+  String get arrived => '到着！';
 
   @override
   String get enterShop => 'ショップに入る';
@@ -249,6 +305,119 @@ class AppLocalizationsJa extends AppLocalizations {
   String remainingTime(int minutes, int seconds) {
     return '残り $minutes分 $seconds秒';
   }
+
+  @override
+  String visitComplete(String shopName) {
+    return '訪問完了: $shopName';
+  }
+
+  @override
+  String get howWasExperience => 'いかがでしたか？';
+
+  @override
+  String get commentOptional => 'コメント（任意）';
+
+  @override
+  String get shareThoughts => '感想を共有しましょう...';
+
+  @override
+  String levelUp(int level) {
+    return 'レベルアップ！ 現在レベル $level';
+  }
+
+  @override
+  String unlockedAchievement(String name) {
+    return '🏆 実績解除: $name!';
+  }
+
+  @override
+  String get noVisitsYet => 'まだ訪問履歴がありません。';
+
+  @override
+  String get mapStyle => 'マップスタイル';
+
+  @override
+  String get selectMapStyle => 'マップスタイルを選択';
+
+  @override
+  String get deleteHistoryTitle => '履歴を削除しますか？';
+
+  @override
+  String get deleteHistoryConfirm => 'これにより、マップ上のすべての霧がリセットされます。この操作は取り消せません。';
+
+  @override
+  String get pathHistoryDeleted => '移動履歴を削除しました。';
+
+  @override
+  String get questMode => 'クエストモード';
+
+  @override
+  String get cancelQuest => 'クエストをキャンセル';
+
+  @override
+  String get noHiddenGems => 'このカテゴリーの隠れた名店は近くに見つかりませんでした。';
+
+  @override
+  String get chooseCuisineQuest => '料理クエストを選択';
+
+  @override
+  String get selectCategoryHint => 'カテゴリーを選択して、隠れた名店を見つけましょう';
+
+  @override
+  String get questActive => 'クエスト実施中';
+
+  @override
+  String get toDestination => '目的地まで';
+
+  @override
+  String get revealOnArrival => 'ショップの詳細は到着してからのお楽しみ！';
+
+  @override
+  String get noAchievementsYet => 'まだ実績がありません。';
+
+  @override
+  String get independentShop => '個人経営店';
+
+  @override
+  String hiddenGem(String name) {
+    return '隠れた名店: $name';
+  }
+
+  @override
+  String get monthJan => '1月';
+
+  @override
+  String get monthFeb => '2月';
+
+  @override
+  String get monthMar => '3月';
+
+  @override
+  String get monthApr => '4月';
+
+  @override
+  String get monthMay => '5月';
+
+  @override
+  String get monthJun => '6月';
+
+  @override
+  String get monthJul => '7月';
+
+  @override
+  String get monthAug => '8月';
+
+  @override
+  String get monthSep => '9月';
+
+  @override
+  String get monthOct => '10月';
+
+  @override
+  String get monthNov => '11月';
+
+  @override
+  String get monthDec => '12月';
 
   @override
   String get achNameFirstSteps => 'はじめの一歩';
@@ -303,4 +472,10 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get achievementTabTitle => '実績';
+
+  @override
+  String get deselectAll => '全てクリア';
+
+  @override
+  String get selectAll => '全て選択';
 }

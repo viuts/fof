@@ -25,10 +25,7 @@ void main() async {
   // We don't need to await this as it can happen in the background
   GoogleFonts.notoSansJp();
 
-  ApiService().init(
-    host: 'localhost',
-    port: 8080,
-  ); // Use 10.0.2.2 for Android emulator
+  ApiService().init();
   runApp(
     MultiProvider(
       providers: [

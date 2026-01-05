@@ -4,6 +4,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'dart:async';
 import '../widgets/google_sign_in_button.dart';
 import '../theme/app_theme.dart';
+import '../services/language_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -88,17 +89,19 @@ class _LoginScreenState extends State<LoginScreen> {
           _errorMessage = e.message;
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to sign in: ${e.message}')),
+          SnackBar(
+            content: Text(S.of(context).failedToSignIn(e.message ?? 'Unknown')),
+          ),
         );
       }
     } catch (e) {
       if (mounted) {
         setState(() {
-          _errorMessage = 'An unexpected error occurred: $e';
+          _errorMessage = S.of(context).unexpectedError(e.toString());
         });
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(S.of(context).errorLabel(e.toString()))),
+        );
       }
     } finally {
       if (mounted) {
@@ -121,9 +124,9 @@ class _LoginScreenState extends State<LoginScreen> {
       _handleGoogleUser(user);
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Sign in failed: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(S.of(context).signInFailed(e.toString()))),
+        );
       }
     }
   }
@@ -145,18 +148,21 @@ class _LoginScreenState extends State<LoginScreen> {
                 color: AppTheme.primaryColor,
               ),
               const SizedBox(height: AppTheme.spacingLg),
-              const Text(
-                'Fog of Flavor',
-                style: TextStyle(
+              Text(
+                S.of(context).appTitle,
+                style: const TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
                   color: AppTheme.textPrimary,
                 ),
               ),
               const SizedBox(height: AppTheme.spacingSm),
-              const Text(
-                'Discover your taste.',
-                style: TextStyle(fontSize: 16, color: AppTheme.textSecondary),
+              Text(
+                S.of(context).discoverTaste,
+                style: const TextStyle(
+                  fontSize: 16,
+                  color: AppTheme.textSecondary,
+                ),
               ),
               const SizedBox(height: 60),
 
@@ -174,7 +180,10 @@ class _LoginScreenState extends State<LoginScreen> {
               // Sign In Button
               _isLoading
                   ? const CircularProgressIndicator()
-                  : buildGoogleSignInButton(onPressed: _signInWithGoogle),
+                  : buildGoogleSignInButton(
+                      context,
+                      onPressed: _signInWithGoogle,
+                    ),
             ],
           ),
         ),

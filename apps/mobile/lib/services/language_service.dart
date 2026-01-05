@@ -65,6 +65,69 @@ class S {
   String get tooFarToEnter => _l10n.tooFarToEnter;
   String remainingTime(int minutes, int seconds) =>
       _l10n.remainingTime(minutes, seconds);
+  String visitRecordedExp(int exp) => _l10n.visitRecordedExp(exp);
+
+  // Common
+  String errorLabel(String error) => _l10n.errorLabel(error);
+  String get retry => _l10n.retry;
+  String get cancel => _l10n.cancel;
+  String get submit => _l10n.submit;
+  String get skip => _l10n.skip;
+  String get delete => _l10n.delete;
+  String levelLabel(int level) => _l10n.levelLabel(level);
+  String nextExp(int exp) => _l10n.nextExp(exp);
+
+  // Login Screen
+  String get discoverTaste => _l10n.discoverTaste;
+  String get googleSignIn => _l10n.googleSignIn;
+  String failedToSignIn(String error) => _l10n.failedToSignIn(error);
+  String unexpectedError(String error) => _l10n.unexpectedError(error);
+  String signInFailed(String error) => _l10n.signInFailed(error);
+
+  // Map Screen
+  String visitComplete(String shopName) => _l10n.visitComplete(shopName);
+  String get howWasExperience => _l10n.howWasExperience;
+  String get commentOptional => _l10n.commentOptional;
+  String get shareThoughts => _l10n.shareThoughts;
+  String levelUp(int level) => _l10n.levelUp(level);
+  String unlockedAchievement(String name) => _l10n.unlockedAchievement(name);
+
+  // Journal Screen
+  String get noVisitsYet => _l10n.noVisitsYet;
+  String get monthJan => _l10n.monthJan;
+  String get monthFeb => _l10n.monthFeb;
+  String get monthMar => _l10n.monthMar;
+  String get monthApr => _l10n.monthApr;
+  String get monthMay => _l10n.monthMay;
+  String get monthJun => _l10n.monthJun;
+  String get monthJul => _l10n.monthJul;
+  String get monthAug => _l10n.monthAug;
+  String get monthSep => _l10n.monthSep;
+  String get monthOct => _l10n.monthOct;
+  String get monthNov => _l10n.monthNov;
+  String get monthDec => _l10n.monthDec;
+
+  // Account Screen
+  String get mapStyle => _l10n.mapStyle;
+  String get selectMapStyle => _l10n.selectMapStyle;
+  String get deleteHistoryTitle => _l10n.deleteHistoryTitle;
+  String get deleteHistoryConfirm => _l10n.deleteHistoryConfirm;
+  String get pathHistoryDeleted => _l10n.pathHistoryDeleted;
+
+  // Quest Screen
+  String get questModeLabel => _l10n.questMode;
+  String get cancelQuestLabel => _l10n.cancelQuest;
+  String get noHiddenGems => _l10n.noHiddenGems;
+  String get chooseCuisineQuest => _l10n.chooseCuisineQuest;
+  String get selectCategoryHint => _l10n.selectCategoryHint;
+  String get questActiveLabel => _l10n.questActive;
+  String get toDestination => _l10n.toDestination;
+  String get revealOnArrival => _l10n.revealOnArrival;
+
+  // Achievements Screen
+  String get noAchievementsYet => _l10n.noAchievementsYet;
+  String get independentShop => _l10n.independentShop;
+  String hiddenGem(String name) => _l10n.hiddenGem(name);
 
   // Account Screen
   String get accountTitle => _l10n.accountTitle;
@@ -160,4 +223,6 @@ class S {
   }
 
   String get achCategoryAll => _l10n.achCategoryAll;
+  String get selectAll => _l10n.selectAll;
+  String get deselectAll => _l10n.deselectAll;
 }

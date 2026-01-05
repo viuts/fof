@@ -1,6 +1,9 @@
 package domain
 
 import (
+	"database/sql/driver"
+	"encoding/json"
+	"errors"
 	"time"
 
 	"github.com/google/uuid"
@@ -45,4 +48,22 @@ type Shop struct {
 	Reservable      bool    `gorm:"default:false"`
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
+}
+
+// Scan implements the Scanner interface.
+func (b *BusinessHours) Scan(value interface{}) error {
+	if value == nil {
+		*b = nil
+		return nil
+	}
+	bytes, ok := value.([]byte)
+	if !ok {
+		return errors.New("type assertion to []byte failed")
+	}
+	return json.Unmarshal(bytes, b)
+}
+
+// Value implements the driver Valuer interface.
+func (b BusinessHours) Value() (driver.Value, error) {
+	return json.Marshal(b)
 }

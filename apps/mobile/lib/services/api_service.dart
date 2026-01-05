@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:firebase_auth/firebase_auth.dart';
 import '../api/fof/v1/fof.pb.dart';
+import '../config/environment_config.dart';
 
 class ApiService {
   static final ApiService _instance = ApiService._internal();
@@ -10,9 +11,8 @@ class ApiService {
 
   late String _baseUrl;
 
-  void init({String host = 'localhost', int port = 8080}) {
-    // _baseUrl = 'http://$host:$port';
-    _baseUrl = 'https://fof-backend-urjmlwf4ka-uc.a.run.app';
+  void init() {
+    _baseUrl = EnvironmentConfig.apiUrl;
   }
 
   Future<Map<String, String>> _getHeaders() async {

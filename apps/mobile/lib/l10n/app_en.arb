@@ -1,4 +1,49 @@
 {
+    "appTitle": "Fog of Flavor",
+    "errorLabel": "Error: {error}",
+    "@errorLabel": {
+        "placeholders": {
+            "error": { "type": "String" }
+        }
+    },
+    "retry": "Retry",
+    "cancel": "Cancel",
+    "submit": "Submit",
+    "skip": "Skip",
+    "delete": "Delete",
+    "levelLabel": "LV. {level}",
+    "@levelLabel": {
+        "placeholders": {
+            "level": { "type": "int" }
+        }
+    },
+    "nextExp": "Next: {exp} EXP",
+    "@nextExp": {
+        "placeholders": {
+            "exp": { "type": "int" }
+        }
+    },
+    "discoverTaste": "Discover your taste.",
+    "googleSignIn": "Sign in with Google",
+    "failedToSignIn": "Failed to sign in: {error}",
+    "@failedToSignIn": {
+        "placeholders": {
+            "error": { "type": "String" }
+        }
+    },
+    "unexpectedError": "An unexpected error occurred: {error}",
+    "@unexpectedError": {
+        "placeholders": {
+            "error": { "type": "String" }
+        }
+    },
+    "signInFailed": "Sign in failed: {error}",
+    "@signInFailed": {
+        "placeholders": {
+            "error": { "type": "String" }
+        }
+    },
+
     "questTitle": "DESIGN YOUR\nADVENTURE",
     "questCraving": "WHAT ARE YOU CRAVING?",
     "questDistance": "HOW FAR?",
@@ -90,6 +135,14 @@
             }
         }
     },
+    "visitRecordedExp": "Visit recorded! Gained {exp} EXP",
+    "@visitRecordedExp": {
+        "placeholders": {
+            "exp": {
+                "type": "int"
+            }
+        }
+    },
     "visitThisShop": "Visit this shop",
     "away": "away",
     "arrived": "ARRIVED!",
@@ -104,6 +157,63 @@
             "seconds": { "type": "int" }
         }
     },
+    "visitComplete": "Visit Complete: {shopName}",
+    "@visitComplete": {
+        "placeholders": {
+            "shopName": { "type": "String" }
+        }
+    },
+    "howWasExperience": "How was your experience?",
+    "commentOptional": "Comment (optional)",
+    "shareThoughts": "Share your thoughts...",
+    "levelUp": "LEVEL UP! Now at Level {level}",
+    "@levelUp": {
+        "placeholders": {
+            "level": { "type": "int" }
+        }
+    },
+    "unlockedAchievement": "🏆 UNLOCKED: {name}!",
+    "@unlockedAchievement": {
+        "placeholders": {
+            "name": { "type": "String" }
+        }
+    },
+    "noVisitsYet": "No visits yet.",
+    "mapStyle": "Map Style",
+    "selectMapStyle": "Select Map Style",
+    "deleteHistoryTitle": "Delete History?",
+    "deleteHistoryConfirm": "This will reset all cleared fog on your map. This action cannot be undone.",
+    "pathHistoryDeleted": "Path history deleted.",
+    "questMode": "Quest Mode",
+    "cancelQuest": "Cancel Quest",
+    "noHiddenGems": "No hidden gems found in this category nearby.",
+    "chooseCuisineQuest": "Choose Your Cuisine Quest",
+    "selectCategoryHint": "Select a category to discover a hidden restaurant",
+    "questActive": "Quest Active",
+    "toDestination": "to destination",
+    "revealOnArrival": "Restaurant details will be revealed when you arrive",
+    "arrived": "ARRIVED!",
+    "noAchievementsYet": "No achievements yet.",
+    "independentShop": "Independent Shop",
+    "hiddenGem": "Hidden Gem: {name}",
+    "@hiddenGem": {
+        "placeholders": {
+            "name": { "type": "String" }
+        }
+    },
+    "monthJan": "JAN",
+    "monthFeb": "FEB",
+    "monthMar": "MAR",
+    "monthApr": "APR",
+    "monthMay": "MAY",
+    "monthJun": "JUN",
+    "monthJul": "JUL",
+    "monthAug": "AUG",
+    "monthSep": "SEP",
+    "monthOct": "OCT",
+    "monthNov": "NOV",
+    "monthDec": "DEC",
+
     "achNameFirstSteps": "First Steps",
     "achDescFirstSteps": "Visit your first shop.",
     "achNameRamenFan": "Ramen Fan",
@@ -121,5 +231,7 @@
     "achCategoryFoodie": "FOODIE",
     "achCategoryQuest": "QUEST",
     "achCategorySocial": "SOCIAL",
-    "achievementTabTitle": "Achievements"
+    "achievementTabTitle": "Achievements",
+    "deselectAll": "Clear All",
+    "selectAll": "Select All"
 }

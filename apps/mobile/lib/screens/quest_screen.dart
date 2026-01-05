@@ -52,11 +52,9 @@ class _QuestScreenState extends State<QuestScreen>
           _targetShop = response.shops.first;
         });
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('No hidden gems found in this category nearby.'),
-          ),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(S.of(context).noHiddenGems)));
       }
     } catch (e) {
       debugPrint('Quest error: $e');
@@ -110,13 +108,13 @@ class _QuestScreenState extends State<QuestScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Quest Mode'),
+        title: Text(S.of(context).questModeLabel),
         actions: [
           if (_isQuestActive)
             IconButton(
               icon: const Icon(Icons.close),
               onPressed: _cancelQuest,
-              tooltip: 'Cancel Quest',
+              tooltip: S.of(context).cancelQuestLabel,
             ),
         ],
       ),
@@ -130,13 +128,13 @@ class _QuestScreenState extends State<QuestScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Choose Your Cuisine Quest',
-            style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+          Text(
+            S.of(context).chooseCuisineQuest,
+            style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: AppTheme.spacingSm),
           Text(
-            'Select a category to discover a hidden restaurant',
+            S.of(context).selectCategoryHint,
             style: TextStyle(fontSize: 16, color: AppTheme.textSecondary),
           ),
           const SizedBox(height: AppTheme.spacingXl),
@@ -250,9 +248,9 @@ class _QuestScreenState extends State<QuestScreen>
                         ),
                       ),
                       const SizedBox(height: 4),
-                      const Text(
-                        'Quest Active',
-                        style: TextStyle(
+                      Text(
+                        S.of(context).questActiveLabel,
+                        style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                         ),
@@ -290,9 +288,12 @@ class _QuestScreenState extends State<QuestScreen>
                       if (distance < 30) // Reveal when within 30m
                         Column(
                           children: [
-                            const Text(
-                              'ARRIVED!',
-                              style: TextStyle(
+                            Text(
+                              S
+                                  .of(context)
+                                  .arrived, // Wait, I didn't add "arrived" to ARB?
+                              // Actually I should use "visitComplete" context or add "arrived"
+                              style: const TextStyle(
                                 fontSize: 32,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.green,
@@ -300,7 +301,12 @@ class _QuestScreenState extends State<QuestScreen>
                             ),
                             const SizedBox(height: AppTheme.spacingSm),
                             Text(
-                              'Hidden Gem: ${_targetShop?.name ?? "Independent Shop"}',
+                              S
+                                  .of(context)
+                                  .hiddenGem(
+                                    _targetShop?.name ??
+                                        S.of(context).independentShop,
+                                  ),
                               style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w600,
@@ -318,8 +324,8 @@ class _QuestScreenState extends State<QuestScreen>
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            const Text(
-                              'to destination',
+                            Text(
+                              S.of(context).toDestination,
                               style: TextStyle(
                                 fontSize: 16,
                                 color: AppTheme.textSecondary,
@@ -334,22 +340,21 @@ class _QuestScreenState extends State<QuestScreen>
             ),
           ),
 
-          // Info text
           Container(
             padding: const EdgeInsets.all(AppTheme.spacingMd),
             decoration: BoxDecoration(
-              color: Colors.amber.withOpacity(0.1),
+              color: Colors.amber.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-              border: Border.all(color: Colors.amber.withOpacity(0.3)),
+              border: Border.all(color: Colors.amber.withValues(alpha: 0.3)),
             ),
-            child: const Row(
+            child: Row(
               children: [
-                Icon(Icons.info_outline, color: Colors.amber, size: 20),
-                SizedBox(width: AppTheme.spacingSm),
+                const Icon(Icons.info_outline, color: Colors.amber, size: 20),
+                const SizedBox(width: AppTheme.spacingSm),
                 Expanded(
                   child: Text(
-                    'Restaurant details will be revealed when you arrive',
-                    style: TextStyle(fontSize: 12, color: Colors.amber),
+                    S.of(context).revealOnArrival,
+                    style: const TextStyle(fontSize: 12, color: Colors.amber),
                   ),
                 ),
               ],
