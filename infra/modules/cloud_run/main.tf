@@ -45,10 +45,21 @@ resource "google_cloud_run_service_iam_member" "deployers" {
 }
 
 # Grant Service Account User role to deployers on the service identity
-# This is tricky because usually this is granted on the deployer on the project level
-# or on the service account that the Cloud Run service runs AS.
 # Here we assume the Cloud Run service runs as the default compute service account
 # and the deployer needs "iam.serviceAccounts.actAs" on IT.
+
+data "google_compute_default_service_account" "default" {
+  project = var.project_id
+}
+
+resource "google_service_account_iam_member" "deployer_act_as" {
+  for_each = toset(var.deployer_service_accounts)
+
+  service_account_id = data.google_compute_default_service_account.default.name
+  role               = "roles/iam.serviceAccountUser"
+  member             = "serviceAccount:${each.value}"
+}
+
 
 output "service_url" {
   value = google_cloud_run_v2_service.default.uri
