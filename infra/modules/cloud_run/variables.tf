@@ -26,3 +26,9 @@ variable "allow_unauthenticated" {
   type        = bool
   default     = true
 }
+
+variable "deployer_service_accounts" {
+  description = "List of service account emails to grant deploy access"
+  type        = list(string)
+  default     = []
+}

@@ -44,6 +44,10 @@ module "backend_service" {
   # Initial placeholder image until CI/CD pushes the real one
   image_url             = "us-docker.pkg.dev/cloudrun/container/hello"
   allow_unauthenticated = true
+
+  deployer_service_accounts = [
+    "firebase-adminsdk-fbsvc@${var.project_id}.iam.gserviceaccount.com"
+  ]
 }
 
 module "artifact_registry" {
