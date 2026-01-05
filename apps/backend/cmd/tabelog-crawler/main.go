@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"regexp"
 	"strings"
 	"time"
 
@@ -25,9 +26,8 @@ type Job struct {
 }
 
 type Result struct {
-	URL      string
-	SubLinks []string
-	Error    error
+	URL   string
+	Error error
 }
 
 func main() {
@@ -103,171 +103,120 @@ func main() {
 
 		context.Route("**/*", routeHandler)
 
-		go worker(i+1, context, db, *category, jobs, results)
+		go worker(i+1, context, db, jobs, results)
 	}
 
 	baseURL := fmt.Sprintf("https://tabelog.com/%s/rstLst/%s/?SrtT=nod&Srt=D", *preference, *category)
 
-	// Manager Loop
-	queue := []string{baseURL}
-	visited := make(map[string]bool)
-	visited[baseURL] = true
+	// Manager Loop (Producer)
+	log.Printf("Starting producer with initial URL: %s", baseURL)
 
-	processingCount := 0
-
-	log.Printf("Starting crawler manager with initial URL: %s", baseURL)
-
-	for len(queue) > 0 || processingCount > 0 {
-		var currentURL string
-		var jobsCh chan Job
-
-		if len(queue) > 0 {
-			currentURL = queue[0]
-			jobsCh = jobs // Enable sending if queue has items
-		}
-
-		select {
-		case jobsCh <- Job{URL: currentURL}:
-			// Job sent successfully
-			queue = queue[1:]
-			processingCount++
-		case res := <-results:
-			processingCount--
-			if res.Error != nil {
-				log.Printf("Job failed for %s: %v", res.URL, res.Error)
-			}
-
-			if len(res.SubLinks) > 0 {
-				log.Printf("Manager: Received %d sub-links from %s", len(res.SubLinks), res.URL)
-				for _, link := range res.SubLinks {
-					if !visited[link] {
-						visited[link] = true
-						queue = append(queue, link)
-					}
-				}
-			}
-		}
+	producerPage, err := browser.NewPage(playwright.BrowserNewPageOptions{
+		Locale: playwright.String("ja-JP"),
+		ExtraHttpHeaders: map[string]string{
+			"Accept-Language": "ja-JP,ja;q=0.9",
+		},
+		UserAgent: playwright.String("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Producer"),
+	})
+	if err != nil {
+		log.Fatalf("could not create producer page: %v", err)
 	}
 
-	close(jobs)
+	currentPageURL := baseURL
+	go func() {
+		defer close(jobs)
+		for {
+			log.Printf("[Producer] Fetching page: %s", currentPageURL)
+			if _, err := producerPage.Goto(currentPageURL, playwright.PageGotoOptions{
+				WaitUntil: playwright.WaitUntilStateCommit,
+				Timeout:   playwright.Float(60000),
+			}); err != nil {
+				log.Printf("[Producer] Error going to page %s: %v", currentPageURL, err)
+				break
+			}
+
+			// Wait for results
+			if _, err := producerPage.WaitForSelector(".list-rst__rst-name-target, .c-pagination", playwright.PageWaitForSelectorOptions{
+				Timeout: playwright.Float(10000),
+			}); err != nil {
+				log.Printf("[Producer] Warning: selector not found on %s", currentPageURL)
+			}
+
+			// Handle language modal
+			modalClose := producerPage.Locator(".js-modal-close, .p-lang-modal__btn-ja").First()
+			if visible, _ := modalClose.IsVisible(); visible {
+				modalClose.Click()
+				time.Sleep(500 * time.Millisecond)
+			}
+
+			// Extract shop URLs
+			links, err := producerPage.Locator(".list-rst__rst-name-target").All()
+			if err != nil {
+				log.Printf("[Producer] Error getting links: %v", err)
+				break
+			}
+
+			foundCount := 0
+			for _, link := range links {
+				href, _ := link.GetAttribute("href")
+				if href != "" {
+					jobs <- Job{URL: href}
+					foundCount++
+				}
+			}
+			log.Printf("[Producer] Queued %d shops from %s", foundCount, currentPageURL)
+
+			// Find next page
+			nextPage := producerPage.Locator(".c-pagination__arrow--next").First()
+			if nextPage == nil {
+				break
+			}
+			isVisible, _ := nextPage.IsVisible()
+			if !isVisible {
+				break
+			}
+			nextURL, err := nextPage.GetAttribute("href")
+			if err != nil || nextURL == "" {
+				break
+			}
+			currentPageURL = nextURL
+			time.Sleep(1 * time.Second) // Anti-bot delay
+		}
+	}()
+
+	// Wait for workers to finish
+	for i := 0; i < WorkerCount; i++ {
+		<-results
+	}
+
 	log.Println("All jobs completed. Exiting.")
 }
 
-func worker(id int, ctx playwright.BrowserContext, db *gorm.DB, category string, jobs <-chan Job, results chan<- Result) {
+func worker(id int, ctx playwright.BrowserContext, db *gorm.DB, jobs <-chan Job, results chan<- Result) {
 	for job := range jobs {
 		log.Printf("[Worker %d] Processing: %s", id, job.URL)
-		links, err := processURL(ctx, db, job.URL, category)
-		results <- Result{
-			URL:      job.URL,
-			SubLinks: links,
-			Error:    err,
-		}
-	}
-}
-
-// processURL handles a single list page.
-// If results > 1200, it extracts sub-area links and returns them.
-// If results <= 1200, it crawls all shops using pagination and returns nil.
-func processURL(ctx playwright.BrowserContext, db *gorm.DB, url string, category string) ([]string, error) {
-	page, err := ctx.NewPage()
-	if err != nil {
-		return nil, fmt.Errorf("could not create page: %v", err)
-	}
-	defer page.Close()
-
-	if _, err = page.Goto(url, playwright.PageGotoOptions{
-		WaitUntil: playwright.WaitUntilStateCommit,
-		Timeout:   playwright.Float(60000),
-	}); err != nil {
-		return nil, err
-	}
-
-	// Wait for content
-	page.WaitForSelector(".c-page-count__num", playwright.PageWaitForSelectorOptions{Timeout: playwright.Float(10000)})
-
-	// 1. Check Total Count
-	totalCount, err := getTotalCount(page)
-	if err != nil {
-		log.Printf("Warning: could not get total count for %s: %v", url, err)
-		// If we can't get count, we might default to crawling?
-		// But let's assume it's small if not found, or handle error.
-		// For now, proceed to crawl if count fails (maybe it's 0 or small layout diff)
-		totalCount = 0
-	}
-
-	log.Printf("Total results for %s: %d", url, totalCount)
-
-	// 1200 limit (60 pages * 20 items)
-	if totalCount > 1200 {
-		log.Printf("Results exceed 1200. Extracting sub-areas...")
-
-		// Extract sub-area links
-		links, err := page.Locator(".c-link-arrow").All()
+		shop, err := crawlShopDetail(ctx, job.URL)
 		if err != nil {
-			return nil, fmt.Errorf("failed to get sub-area links: %v", err)
-		}
+			log.Printf("[Worker %d] Error crawling shop %s: %v", id, job.URL, err)
+		} else {
+			// Save to DB (Upsert)
+			result := db.Clauses(clause.OnConflict{
+				Columns:   []clause.Column{{Name: "source_url"}},
+				DoUpdates: clause.AssignmentColumns([]string{"name", "category", "lat", "lng", "geom", "address", "phone", "opening_hours", "image_urls", "rating", "reservable", "updated_at"}),
+			}).Create(shop)
 
-		var subAreaLinks []string
-		for _, link := range links {
-			href, err := link.GetAttribute("href")
-			if err == nil && href != "" {
-				// Basic filter to ensure we actally go deeper/relevant
-				// e.g. check if it contains "rstLst" and maybe avoid going back to parent?
-				// The hrefs are usually absolute.
-				if strings.Contains(href, "rstLst") && !strings.Contains(href, "http") {
-					// Handle relative URL if any (Tabelog usually uses absolute, but just in case)
-					href = "https://tabelog.com" + href
-				}
-				if strings.Contains(href, "/rstLst/") {
-					subAreaLinks = append(subAreaLinks, href)
-				}
+			if result.Error != nil {
+				log.Printf("[Worker %d] Error saving shop %s to DB: %v", id, shop.Name, result.Error)
+			} else {
+				log.Printf("[Worker %d] Saved/Updated shop: %s", id, shop.Name)
 			}
 		}
 
-		// If no sub-links found but count > 1200, we are stuck. we should crawl what we can?
-		if len(subAreaLinks) == 0 {
-			log.Printf("Warning: Count > 1200 but no sub-area links found. Crawling first 1200...")
-			// Fallthrough to pagination logic below
-		} else {
-			return subAreaLinks, nil // Return links to be queued
-		}
+		// results is used to signal worker completion in the main loop refactor
+		// Wait, I need a better way to signaling completion since workers process many jobs.
+		// I'll use a WaitGroup or just have workers signal 'nil' when done with the channel.
 	}
-
-	// === Pagination Logic (Crawling Shops) ===
-	currentPageURL := url
-
-	// We need to keep the page open or handle navigation loop.
-	// Since we are already on 'page' with 'url', we can start loop using 'page'.
-	// But the existing logic loops by 'Goto'. Let's reuse that structure but be careful with 'page' lifecycle.
-	// Actually, easier to close the current 'page' logic and run the dedicated loop logic,
-	// or just implement the loop here.
-
-	// Let's close the temp page used for count check and start fresh loop to be safe/clean
-	page.Close()
-
-	crawlPagination(ctx, db, currentPageURL, category)
-
-	return nil, nil
-}
-
-func getTotalCount(page playwright.Page) (int, error) {
-	// Select the last count element which usually holds the total
-	el := page.Locator(".c-page-count__num").Last()
-	if el == nil {
-		return 0, fmt.Errorf("count element not found")
-	}
-	text, err := el.InnerText()
-	if err != nil {
-		return 0, err
-	}
-	// text might be "7,080"
-	clean := strings.ReplaceAll(text, ",", "")
-	var count int
-	_, err = fmt.Sscanf(clean, "%d", &count)
-	if err != nil {
-		return 0, err
-	}
-	return count, nil
+	results <- Result{} // Signal one worker finished
 }
 
 func getShopCategory(cuisine string) fofv1.FoodCategory {
@@ -362,114 +311,7 @@ func mapSubCategoryToMajor(sub string) fofv1.FoodCategory {
 	return fofv1.FoodCategory_FOOD_CATEGORY_UNSPECIFIED
 }
 
-func crawlPagination(ctx playwright.BrowserContext, db *gorm.DB, startURL string, category string) {
-	page, err := ctx.NewPage()
-	if err != nil {
-		log.Printf("Failed to create page for pagination: %v", err)
-		return
-	}
-	defer page.Close()
-
-	currentPageURL := startURL
-
-	for {
-		log.Printf("Crawling page: %s", currentPageURL)
-		if _, err = page.Goto(currentPageURL, playwright.PageGotoOptions{
-			WaitUntil: playwright.WaitUntilStateCommit,
-			Timeout:   playwright.Float(60000),
-		}); err != nil {
-			log.Printf("could not goto page %s: %v", currentPageURL, err)
-			break
-		}
-
-		// Wait for pagination or results
-		if _, err := page.WaitForSelector(".list-rst__rst-name-target, .c-pagination", playwright.PageWaitForSelectorOptions{
-			Timeout: playwright.Float(10000),
-		}); err != nil {
-			log.Printf("Warning: search results not found within timeout for %s", currentPageURL)
-		}
-
-		// Handle language modal if any
-		modalClose := page.Locator(".js-modal-close, .p-lang-modal__btn-ja").First()
-		if visible, _ := modalClose.IsVisible(); visible {
-			modalClose.Click()
-			time.Sleep(500 * time.Millisecond)
-		}
-
-		// Get all restaurant links on the page
-		restaurantLinks, err := page.Locator(".list-rst__rst-name-target").All()
-		if err != nil {
-			log.Printf("could not get restaurant links: %v", err)
-			break
-		}
-
-		var shopURLs []string
-		for _, link := range restaurantLinks {
-			href, _ := link.GetAttribute("href")
-			if href != "" {
-				shopURLs = append(shopURLs, href)
-			}
-		}
-
-		log.Printf("Found %d shops on page", len(shopURLs))
-
-		for i, url := range shopURLs {
-			// loopStart := time.Now()
-			// log.Printf("[Loop] Starting shop %d/%d: %s", i+1, len(shopURLs), url)
-			shop, err := crawlShopDetail(ctx, url, category)
-			if err != nil {
-				log.Printf("Error crawling shop %s: %v", url, err)
-				continue
-			}
-
-			// Save to DB (Upsert)
-			// dbStart := time.Now()
-			result := db.Clauses(clause.OnConflict{
-				Columns:   []clause.Column{{Name: "source_url"}},
-				DoUpdates: clause.AssignmentColumns([]string{"name", "category", "lat", "lng", "geom", "address", "phone", "opening_hours", "image_urls", "rating", "reservable", "updated_at"}),
-			}).Create(shop)
-			// log.Printf("[Timing] DB Upsert: %v", time.Since(dbStart))
-			// log.Printf("Shop Detail: %v", shop)
-
-			if result.Error != nil {
-				log.Printf("Error saving shop to DB: %v", result.Error)
-			} else {
-				// log.Printf("Saved/Updated shop: %s", shop.Name)
-			}
-
-			// Simple progress log
-			if (i+1)%5 == 0 {
-				log.Printf("Processed %d/%d shops on this page", i+1, len(shopURLs))
-			}
-
-			// log.Printf("[Timing] Shop total: %v", time.Since(loopStart))
-		}
-
-		// Find next page
-		nextPage := page.Locator(".c-pagination__arrow--next").First()
-		if nextPage == nil {
-			log.Printf("No more pages found.")
-			break
-		}
-
-		isVisible, _ := nextPage.IsVisible()
-		if !isVisible {
-			log.Printf("Next page button not visible.")
-			break
-		}
-
-		nextURL, err := nextPage.GetAttribute("href")
-		if err != nil || nextURL == "" {
-			break
-		}
-		currentPageURL = nextURL
-
-		// Anti-bot measure
-		time.Sleep(500 * time.Millisecond)
-	}
-}
-
-func crawlShopDetail(ctx playwright.BrowserContext, url string, category string) (*domain.Shop, error) {
+func crawlShopDetail(ctx playwright.BrowserContext, url string) (*domain.Shop, error) {
 	// start := time.Now()
 	page, err := ctx.NewPage()
 	if err != nil {
@@ -481,7 +323,7 @@ func crawlShopDetail(ctx playwright.BrowserContext, url string, category string)
 	// navStart := time.Now()
 	if _, err := page.Goto(url, playwright.PageGotoOptions{
 		WaitUntil: playwright.WaitUntilStateLoad,
-		Timeout:   playwright.Float(10000),
+		Timeout:   playwright.Float(30000),
 	}); err != nil {
 		return nil, err
 	}
@@ -620,6 +462,25 @@ func crawlShopDetail(ctx playwright.BrowserContext, url string, category string)
 					}
 					break
 				}
+
+				if data["@type"].(string) == "FAQPage" {
+					if faq, ok := data["mainEntity"].([]interface{}); ok {
+						for _, f := range faq {
+							if faqMap, ok := f.(map[string]interface{}); ok {
+								if name, ok := faqMap["name"].(string); ok && name == "営業時間・定休日を教えてください" {
+									if answer, ok := faqMap["acceptedAnswer"].(map[string]interface{}); ok {
+										if text, ok := answer["text"].(string); ok {
+											parsedHours := parseOpeningHours(text)
+											if parsedHours != "" {
+												shop.OpeningHours = parsedHours
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
 			}
 		}
 	}
@@ -653,4 +514,83 @@ func crawlShopDetail(ctx playwright.BrowserContext, url string, category string)
 	shop.UpdatedAt = time.Now()
 
 	return &shop, nil
+}
+
+func parseOpeningHours(htmlContent string) string {
+	// 1. Strip HTML tags
+	reTags := regexp.MustCompile(`<[^>]*>`)
+	text := reTags.ReplaceAllString(htmlContent, "\n") // Replace with newline to preserve separation
+
+	// 2. Normalize whitespace and split by lines
+	text = strings.ReplaceAll(text, "　", " ") // Full-width space to normal space
+	lines := strings.Split(text, "\n")
+
+	// map[string][]string (Day -> Hours)
+	dayToHours := make(map[string][]string)
+	var orderedDays []string
+	var lastDay string
+
+	dayRe := regexp.MustCompile(`^\[(.*?)\]$`)
+	timeRe := regexp.MustCompile(`\d{1,2}:\d{2}`)
+
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if line == "" {
+			continue
+		}
+		if matches := dayRe.FindStringSubmatch(line); len(matches) > 1 {
+			lastDay = matches[1]
+			if _, exists := dayToHours[lastDay]; !exists {
+				orderedDays = append(orderedDays, lastDay)
+			}
+			continue
+		}
+		if lastDay != "" && timeRe.MatchString(line) {
+			dayToHours[lastDay] = append(dayToHours[lastDay], line)
+		}
+	}
+
+	if len(orderedDays) == 0 {
+		return ""
+	}
+
+	// Group days by identical hours
+	type group struct {
+		days  []string
+		hours []string
+	}
+	var groupedHours []group
+
+	for _, day := range orderedDays {
+		hours := dayToHours[day]
+		if len(hours) == 0 {
+			continue
+		}
+
+		found := false
+		for i, g := range groupedHours {
+			if strings.Join(g.hours, "|") == strings.Join(hours, "|") {
+				groupedHours[i].days = append(groupedHours[i].days, day)
+				found = true
+				break
+			}
+		}
+		if !found {
+			groupedHours = append(groupedHours, group{days: []string{day}, hours: hours})
+		}
+	}
+
+	// If all days have the same hours, just return the hours
+	if len(groupedHours) == 1 {
+		return strings.Join(groupedHours[0].hours, "\n")
+	}
+
+	// Format output
+	var result []string
+	for _, g := range groupedHours {
+		result = append(result, strings.Join(g.days, "・"))
+		result = append(result, strings.Join(g.hours, "\n"))
+	}
+
+	return strings.Join(result, "\n")
 }
