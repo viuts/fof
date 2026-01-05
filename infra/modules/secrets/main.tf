@@ -14,14 +14,14 @@ resource "google_secret_manager_secret" "secrets" {
   }
 }
 
-# Grant access to the App Hosting service account
+# Grant access to the Default Compute Service Account (Cloud Run runtime)
 resource "google_secret_manager_secret_iam_member" "accessor" {
   for_each = google_secret_manager_secret.secrets
 
   project   = var.project_id
   secret_id = each.value.secret_id
   role      = "roles/secretmanager.secretAccessor"
-  member    = "serviceAccount:firebase-app-hosting-compute@${var.project_id}.iam.gserviceaccount.com"
+  member    = "serviceAccount:${var.project_number}-compute@developer.gserviceaccount.com"
 }
 
 resource "google_secret_manager_secret_version" "database_url" {

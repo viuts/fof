@@ -27,12 +27,16 @@ provider "google" {
 #   deletion_protection = true
 # }
 
+data "google_project" "project" {
+}
+
 module "secrets" {
   source = "../../modules/secrets"
 
-  project_id   = var.project_id
-  environment  = "prod"
-  database_url = module.database.database_url
+  project_id     = var.project_id
+  project_number = data.google_project.project.number
+  environment    = "prod"
+  database_url   = module.database.database_url
 }
 
 module "backend_service" {
