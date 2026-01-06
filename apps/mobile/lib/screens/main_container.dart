@@ -6,7 +6,7 @@ import 'quest_selection_screen.dart';
 import 'map_screen.dart';
 import '../theme/app_theme.dart';
 import '../services/language_service.dart';
-import '../api/fof/v1/fof.pb.dart';
+import '../api/fof/v1/shop.pb.dart';
 
 class MainContainer extends StatefulWidget {
   const MainContainer({super.key});

@@ -98,7 +98,7 @@
     "categoryNikuryouri": "Meat",
     "categoryNabe": "Hot Pot",
     "categoryDon": "Rice Bowl",
-    "categoryMen": "Noodles",
+    "categoryMen": "Udon, Soba & Others",
     "categoryRamen": "Ramen",
     "categoryKonamono": "Flour-based",
     "categoryYoshoku": "Western",
@@ -233,5 +233,12 @@
     "achCategorySocial": "SOCIAL",
     "achievementTabTitle": "Achievements",
     "deselectAll": "Clear All",
-    "selectAll": "Select All"
+    "selectAll": "Select All",
+    "journalDate": "{day} {month}",
+    "@journalDate": {
+        "placeholders": {
+            "day": { "type": "String" },
+            "month": { "type": "String" }
+        }
+    }
 }

@@ -55,12 +55,21 @@ func main() {
 	seeds.SeedAchievements(db)
 
 	// Wiring
-	flavorRepo := repository.NewFlavorRepository(db)
+	userRepo := repository.NewUserRepository(db)
+	shopRepo := repository.NewShopRepository(db)
+	locationRepo := repository.NewLocationRepository(db)
+	visitRepo := repository.NewVisitRepository(db)
 	achievementRepo := repository.NewAchievementRepository(db)
 
-	achievementUC := usecase.NewAchievementUseCase(achievementRepo, flavorRepo)
-	flavorUC := usecase.NewFlavorUsecase(flavorRepo, achievementUC)
-	flavorHandler := handler.NewFlavorHandler(flavorUC)
+	achievementUC := usecase.NewAchievementUseCase(achievementRepo)
+	shopUC := usecase.NewShopUsecase(shopRepo)
+	locationUC := usecase.NewLocationUsecase(locationRepo)
+	visitUC := usecase.NewVisitUsecase(visitRepo, shopRepo, userRepo, locationRepo, achievementUC)
+
+	shopHandler := handler.NewShopHandler(shopUC, visitUC)
+	locationHandler := handler.NewLocationHandler(locationUC)
+	visitHandler := handler.NewVisitHandler(visitUC)
+	achievementHandler := handler.NewAchievementHandler(achievementUC)
 
 	// Unified Server setup
 	port := os.Getenv("PORT")
@@ -71,7 +80,10 @@ func main() {
 	defer stop()
 
 	grpcServer := grpc.NewServer()
-	fofv1.RegisterFlavorServiceServer(grpcServer, flavorHandler)
+	fofv1.RegisterShopServiceServer(grpcServer, shopHandler)
+	fofv1.RegisterLocationServiceServer(grpcServer, locationHandler)
+	fofv1.RegisterVisitServiceServer(grpcServer, visitHandler)
+	fofv1.RegisterAchievementServiceServer(grpcServer, achievementHandler)
 
 	mux := runtime.NewServeMux(
 		runtime.WithMarshalerOption(runtime.MIMEWildcard, &runtime.JSONPb{
@@ -84,8 +96,17 @@ func main() {
 			},
 		}),
 	)
-	if err := fofv1.RegisterFlavorServiceHandlerServer(ctx, mux, flavorHandler); err != nil {
-		log.Fatalf("failed to register gateway: %v", err)
+	if err := fofv1.RegisterShopServiceHandlerServer(ctx, mux, shopHandler); err != nil {
+		log.Fatalf("failed to register shop gateway: %v", err)
+	}
+	if err := fofv1.RegisterLocationServiceHandlerServer(ctx, mux, locationHandler); err != nil {
+		log.Fatalf("failed to register location gateway: %v", err)
+	}
+	if err := fofv1.RegisterVisitServiceHandlerServer(ctx, mux, visitHandler); err != nil {
+		log.Fatalf("failed to register visit gateway: %v", err)
+	}
+	if err := fofv1.RegisterAchievementServiceHandlerServer(ctx, mux, achievementHandler); err != nil {
+		log.Fatalf("failed to register achievement gateway: %v", err)
 	}
 
 	mixedHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -108,7 +129,7 @@ func main() {
 		log.Fatalf("error initializing firebase app: %v", err)
 	}
 	log.Println("Firebase app initialized")
-	authMiddleware := middleware.NewAuthMiddleware(firebaseApp, flavorRepo)
+	authMiddleware := middleware.NewAuthMiddleware(firebaseApp, userRepo)
 	authenticatedHandler := authMiddleware.Handle(mixedHandler)
 
 	// Add CORS middleware

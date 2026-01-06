@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
-import '../api/fof/v1/fof.pbenum.dart';
+import '../api/fof/v1/shop.pbenum.dart';
 
 class LanguageService extends ChangeNotifier {
   Locale _currentLocale = const Locale('ja');
@@ -225,4 +225,5 @@ class S {
   String get achCategoryAll => _l10n.achCategoryAll;
   String get selectAll => _l10n.selectAll;
   String get deselectAll => _l10n.deselectAll;
+  String journalDate(String day, String month) => _l10n.journalDate(day, month);
 }

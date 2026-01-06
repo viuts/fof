@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart' as latlong2;
 import 'package:geolocator/geolocator.dart';
-import '../api/fof/v1/fof.pb.dart';
+import '../api/fof/v1/shop.pb.dart';
 import '../api/fof/v1/shop_extensions.dart';
 import '../theme/app_theme.dart';
 import '../constants/category_colors.dart';

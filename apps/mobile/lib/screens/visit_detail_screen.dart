@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
-import '../api/fof/v1/fof.pb.dart';
+import '../api/fof/v1/shop.pb.dart';
+import '../api/fof/v1/visit.pb.dart';
 import '../api/fof/v1/shop_extensions.dart';
 import '../constants/category_colors.dart';
 import 'package:intl/intl.dart';

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/language_service.dart';
 import '../services/api_service.dart';
 import '../services/location_service.dart';
-import '../api/fof/v1/fof.pb.dart';
+import '../api/fof/v1/shop.pb.dart';
 import '../api/fof/v1/shop_extensions.dart';
 import '../constants/category_colors.dart';
 import 'dart:math';

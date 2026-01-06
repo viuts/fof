@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../services/api_service.dart';
-import '../api/fof/v1/fof.pb.dart';
+import '../api/fof/v1/achievement.pb.dart';
 import '../l10n/app_localizations.dart';
 import '../utils/achievement_localization.dart';
 import '../services/language_service.dart';

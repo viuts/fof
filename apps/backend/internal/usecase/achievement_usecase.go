@@ -18,13 +18,11 @@ type AchievementUseCase interface {
 
 type achievementUseCase struct {
 	achievementRepo repository.AchievementRepository
-	flavorRepo      repository.FlavorRepository
 }
 
-func NewAchievementUseCase(ar repository.AchievementRepository, fr repository.FlavorRepository) AchievementUseCase {
+func NewAchievementUseCase(ar repository.AchievementRepository) AchievementUseCase {
 	return &achievementUseCase{
 		achievementRepo: ar,
-		flavorRepo:      fr,
 	}
 }
 

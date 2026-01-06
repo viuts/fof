@@ -1,0 +1,70 @@
+syntax = "proto3";
+package fof.v1;
+
+import "google/api/annotations.proto";
+
+option go_package = "github.com/viuts/fof/api/proto/v1;fofv1";
+
+service ShopService {
+  // Get nearby unvisited indie shops (For Quest/Explore mode)
+  rpc GetNearbyShops(GetNearbyShopsRequest) returns (GetNearbyShopsResponse) {
+    option (google.api.http) = {
+      get: "/v1/shops/nearby"
+    };
+  }
+}
+
+message Shop {
+  string id = 1;
+  string name = 2;
+  double lat = 3;
+  double lng = 4;
+  string category = 5;
+  bool is_visited = 6;
+  bool is_chain = 7;
+  string address = 8;
+  string phone = 9;
+  string opening_hours = 10;
+  repeated string image_urls = 11;
+  double rating = 12;
+  string source_url = 13;
+  double clearance_radius = 14;
+  FoodCategory food_category = 15;
+  bool reservable = 16;
+}
+
+enum FoodCategory {
+  FOOD_CATEGORY_UNSPECIFIED = 0;
+  FOOD_CATEGORY_WASHOKU = 1;
+  FOOD_CATEGORY_SUSHI = 2;
+  FOOD_CATEGORY_AGEMONO = 3;
+  FOOD_CATEGORY_YAKITORI = 4;
+  FOOD_CATEGORY_YAKINIKU = 5;
+  FOOD_CATEGORY_NIKURYOURI = 6;
+  FOOD_CATEGORY_NABE = 7;
+  FOOD_CATEGORY_DON = 8;
+  FOOD_CATEGORY_MEN = 9;
+  FOOD_CATEGORY_RAMEN = 10;
+  FOOD_CATEGORY_KONAMONO = 11;
+  FOOD_CATEGORY_YOSHOKU = 12;
+  FOOD_CATEGORY_EUROPEAN = 13;
+  FOOD_CATEGORY_CHINESE = 14;
+  FOOD_CATEGORY_KOREAN = 15;
+  FOOD_CATEGORY_ETHNIC = 16;
+  FOOD_CATEGORY_CURRY = 17;
+  FOOD_CATEGORY_IZAKAYA = 18;
+  FOOD_CATEGORY_BAR = 19;
+  FOOD_CATEGORY_CAFE = 20;
+  FOOD_CATEGORY_SWEETS = 21;
+}
+
+message GetNearbyShopsRequest {
+  double lat = 1;
+  double lng = 2;
+  double radius_meters = 3;
+  bool exclusive_independent = 4; // Filter for indie shops only
+}
+
+message GetNearbyShopsResponse {
+  repeated Shop shops = 1;
+}

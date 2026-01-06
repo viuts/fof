@@ -16,10 +16,10 @@ const ContextKeyUserID ContextKey = "userID"
 
 type AuthMiddleware struct {
 	app  *firebase.App
-	repo repository.FlavorRepository
+	repo repository.UserRepository
 }
 
-func NewAuthMiddleware(app *firebase.App, repo repository.FlavorRepository) *AuthMiddleware {
+func NewAuthMiddleware(app *firebase.App, repo repository.UserRepository) *AuthMiddleware {
 	return &AuthMiddleware{
 		app:  app,
 		repo: repo,

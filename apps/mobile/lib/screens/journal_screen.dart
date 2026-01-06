@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../services/api_service.dart';
-import '../api/fof/v1/fof.pb.dart';
+import '../api/fof/v1/shop.pb.dart';
+import '../api/fof/v1/visit.pb.dart';
 import '../constants/category_colors.dart';
 import '../services/language_service.dart';
 import '../api/fof/v1/shop_extensions.dart';
@@ -164,38 +165,59 @@ class _JournalScreenState extends State<JournalScreen> {
   }) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        height: 72,
-        decoration: BoxDecoration(
-          border: isSelected
-              ? Border(right: BorderSide(color: activeColor, width: 3))
-              : null,
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              icon,
-              color: isSelected ? activeColor : AppTheme.textSecondaryLight,
-              size: 24,
-            ),
-            const SizedBox(height: 4),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: Text(
-                label,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 9,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+      child: Stack(
+        children: [
+          Container(
+            height: 72,
+            width: double.infinity,
+            color: Colors.transparent,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  icon,
                   color: isSelected ? activeColor : AppTheme.textSecondaryLight,
+                  size: 24,
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+                const SizedBox(height: 4),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: Text(
+                    label,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 9,
+                      fontWeight: isSelected
+                          ? FontWeight.bold
+                          : FontWeight.w500,
+                      color: isSelected
+                          ? activeColor
+                          : AppTheme.textSecondaryLight,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (isSelected)
+            Positioned(
+              right: 0,
+              top: 12,
+              bottom: 12,
+              width: 3.5,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: activeColor,
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(4),
+                    bottomLeft: Radius.circular(4),
+                  ),
+                ),
               ),
             ),
-          ],
-        ),
+        ],
       ),
     );
   }
@@ -241,11 +263,13 @@ class _JournalScreenState extends State<JournalScreen> {
   }
 
   Widget _buildTimelineItem(VisitedShop visit, bool isLast) {
+    final s = S.of(context);
     final visitedAt = DateTime.parse(visit.visitedAt).toLocal();
     final timeStr =
         '${visitedAt.hour.toString().padLeft(2, '0')}:${visitedAt.minute.toString().padLeft(2, '0')}';
-    final dateStr =
-        '${visitedAt.day.toString().padLeft(2, '0')} ${_getMonthName(context, visitedAt.month)}';
+    final monthStr = _getMonthName(context, visitedAt.month);
+    final dayStr = visitedAt.day.toString().padLeft(2, '0');
+    final dateStr = s.journalDate(dayStr, monthStr);
 
     return IntrinsicHeight(
       child: Row(

@@ -184,7 +184,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get categoryDon => 'Rice Bowl';
 
   @override
-  String get categoryMen => 'Noodles';
+  String get categoryMen => 'Udon, Soba & Others';
 
   @override
   String get categoryRamen => 'Ramen';
@@ -484,4 +484,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get selectAll => 'Select All';
+
+  @override
+  String journalDate(String day, String month) {
+    return '$day $month';
+  }
 }

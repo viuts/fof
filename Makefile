@@ -24,10 +24,16 @@ backend:
 	@cd apps/backend && go run cmd/server/main.go
 
 ## mobile: Run the Flutter mobile application
-mobile:
-	@cd apps/mobile && flutter run
+mobile-local:
+	@cd apps/mobile && flutter run --dart-define=ENV=local
+
+mobile-dev:
+	@cd apps/mobile && flutter run --dart-define=ENV=dev
 
 mobile-web:
+	@cd apps/mobile && flutter run -d chrome --web-port 65282
+
+mobile-web-dev:
 	@cd apps/mobile && flutter run -d chrome --web-port 65282
 
 ## gen-db: Generate GORM Gen code

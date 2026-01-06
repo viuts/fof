@@ -1,7 +1,11 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:firebase_auth/firebase_auth.dart';
-import '../api/fof/v1/fof.pb.dart';
+import '../api/fof/v1/common.pb.dart';
+import '../api/fof/v1/shop.pb.dart';
+import '../api/fof/v1/location.pb.dart';
+import '../api/fof/v1/visit.pb.dart';
+import '../api/fof/v1/achievement.pb.dart';
 import '../config/environment_config.dart';
 
 class ApiService {

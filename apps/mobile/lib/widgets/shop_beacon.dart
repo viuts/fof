@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../api/fof/v1/fof.pb.dart';
+import '../api/fof/v1/shop.pb.dart';
 import '../api/fof/v1/shop_extensions.dart';
 import '../constants/category_colors.dart';
 

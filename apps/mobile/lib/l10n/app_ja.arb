@@ -98,7 +98,7 @@
     "categoryNikuryouri": "肉料理",
     "categoryNabe": "鍋",
     "categoryDon": "丼",
-    "categoryMen": "麺",
+    "categoryMen": "うどん・そば他",
     "categoryRamen": "ラーメン",
     "categoryKonamono": "粉もの",
     "categoryYoshoku": "洋食",
@@ -233,5 +233,12 @@
     "achCategorySocial": "社交",
     "achievementTabTitle": "実績",
     "deselectAll": "全てクリア",
-    "selectAll": "全て選択"
+    "selectAll": "全て選択",
+    "journalDate": "{month}{day}日",
+    "@journalDate": {
+        "placeholders": {
+            "day": { "type": "String" },
+            "month": { "type": "String" }
+        }
+    }
 }

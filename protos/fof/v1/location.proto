@@ -1,0 +1,41 @@
+syntax = "proto3";
+package fof.v1;
+
+import "google/api/annotations.proto";
+import "fof/v1/common.proto";
+
+option go_package = "github.com/viuts/fof/api/proto/v1;fofv1";
+
+service LocationService {
+  // Clear fog on the map (Send current location path for batching)
+  rpc UpdateLocation(UpdateLocationRequest) returns (UpdateLocationResponse) {
+    option (google.api.http) = {
+      post: "/v1/location"
+      body: "*"
+    };
+  }
+
+  // Get the cleared area as GeoJSON for the current user
+  rpc GetClearedArea(GetClearedAreaRequest) returns (GetClearedAreaResponse) {
+    option (google.api.http) = {
+      get: "/v1/location/cleared"
+    };
+  }
+}
+
+message GetClearedAreaRequest {
+}
+
+message GetClearedAreaResponse {
+  string cleared_area_geojson = 1;
+}
+
+message UpdateLocationRequest {
+  repeated LatLng path = 1;
+  double accuracy = 2;
+}
+
+message UpdateLocationResponse {
+  bool newly_cleared = 1; // True if new area was unlocked
+  string cleared_area_geojson = 2; 
+}

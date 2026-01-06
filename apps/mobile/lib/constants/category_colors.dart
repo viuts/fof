@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../api/fof/v1/fof.pbenum.dart';
+import '../api/fof/v1/shop.pbenum.dart';
 import '../services/language_service.dart';
 
 /// Category constants and color mappings for shop beacons
@@ -97,8 +97,8 @@ class ShopCategory {
     FoodCategory.FOOD_CATEGORY_NIKURYOURI,
     FoodCategory.FOOD_CATEGORY_NABE,
     FoodCategory.FOOD_CATEGORY_DON,
-    FoodCategory.FOOD_CATEGORY_MEN,
     FoodCategory.FOOD_CATEGORY_RAMEN,
+    FoodCategory.FOOD_CATEGORY_MEN,
     FoodCategory.FOOD_CATEGORY_KONAMONO,
     FoodCategory.FOOD_CATEGORY_YOSHOKU,
     FoodCategory.FOOD_CATEGORY_EUROPEAN,
@@ -133,8 +133,8 @@ class ShopCategory {
       CategoryGroup(
         label: s.groupNoodles,
         categories: [
-          FoodCategory.FOOD_CATEGORY_MEN,
           FoodCategory.FOOD_CATEGORY_RAMEN,
+          FoodCategory.FOOD_CATEGORY_MEN,
         ],
       ),
       CategoryGroup(

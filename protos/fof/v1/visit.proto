@@ -1,0 +1,54 @@
+syntax = "proto3";
+package fof.v1;
+
+import "google/api/annotations.proto";
+import "fof/v1/shop.proto";
+import "fof/v1/achievement.proto";
+
+option go_package = "github.com/viuts/fof/api/proto/v1;fofv1";
+
+service VisitService {
+  // Get list of visited shops for highlighting
+  rpc GetVisitedShops(GetVisitedShopsRequest) returns (GetVisitedShopsResponse) {
+    option (google.api.http) = {
+      get: "/v1/shops/visited"
+    };
+  }
+
+  // Manually register a visit to a shop
+  rpc CreateVisit(CreateVisitRequest) returns (CreateVisitResponse) {
+    option (google.api.http) = {
+      post: "/v1/visits"
+      body: "*"
+    };
+  }
+}
+
+message CreateVisitRequest {
+  string shop_id = 1;
+  int32 rating = 2;
+  string comment = 3;
+}
+
+message CreateVisitResponse {
+  bool success = 1;
+  string cleared_area_geojson = 2;
+  int32 exp_gained = 3;
+  int32 current_exp = 4;
+  int32 current_level = 5;
+  repeated Achievement unlocked_achievements = 6;
+}
+
+message GetVisitedShopsRequest {
+}
+
+message GetVisitedShopsResponse {
+  repeated VisitedShop visited_shops = 1;
+}
+
+message VisitedShop {
+  Shop shop = 1;
+  string visited_at = 2; // ISO 8601 string
+  int32 rating = 3;
+  string comment = 4;
+}

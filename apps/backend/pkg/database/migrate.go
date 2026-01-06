@@ -22,6 +22,7 @@ func AutoMigrate(db *gorm.DB) error {
 		&domain.Visit{},
 		&domain.UserFog{},
 		&domain.Achievement{},
+		&domain.UserAchievement{},
 	); err != nil {
 		return fmt.Errorf("failed to run auto migrations: %w", err)
 	}

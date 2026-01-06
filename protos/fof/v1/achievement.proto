@@ -1,0 +1,39 @@
+syntax = "proto3";
+package fof.v1;
+
+import "google/api/annotations.proto";
+
+option go_package = "github.com/viuts/fof/api/proto/v1;fofv1";
+
+service AchievementService {
+  // Get all achievements and user progress
+  rpc GetAchievements(GetAchievementsRequest) returns (GetAchievementsResponse) {
+    option (google.api.http) = {
+      get: "/v1/achievements"
+    };
+  }
+}
+
+message Achievement {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  int32 exp_reward = 4;
+  string title_reward = 5;
+  string category = 6;
+}
+
+message GetAchievementsRequest {
+}
+
+message GetAchievementsResponse {
+  repeated UserAchievementStatus achievements = 1;
+}
+
+message UserAchievementStatus {
+  Achievement achievement = 1;
+  bool is_unlocked = 2;
+  int32 current_value = 3; // Current progress count
+  int32 target_value = 4;
+  string unlocked_at = 5; // ISO string, empty if locked
+}

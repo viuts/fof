@@ -1,8 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import '../api/fof/v1/fof.pb.dart';
-import '../api/fof/v1/fof.pbenum.dart';
+import '../api/fof/v1/shop.pb.dart';
 import '../constants/category_colors.dart';
 import '../theme/app_theme.dart';
 import '../services/api_service.dart';

@@ -9,7 +9,9 @@ import 'package:geolocator/geolocator.dart';
 import '../services/api_service.dart';
 import '../services/location_service.dart';
 import '../services/language_service.dart';
-import '../api/fof/v1/fof.pb.dart';
+import '../api/fof/v1/shop.pb.dart';
+import '../api/fof/v1/common.pb.dart';
+import '../api/fof/v1/visit.pb.dart';
 import '../api/fof/v1/shop_extensions.dart';
 import '../widgets/fog_layer.dart';
 import '../widgets/shop_beacon.dart';
@@ -126,7 +128,6 @@ class MapScreenState extends State<MapScreen>
     try {
       final prefs = await SharedPreferences.getInstance();
       final hidden = prefs.getStringList('hidden_categories');
-      debugPrint('MapScreen: Loaded filters: $hidden');
       if (hidden != null && mounted) {
         setState(() {
           _hiddenCategoriesBacking = hidden
@@ -150,7 +151,6 @@ class MapScreenState extends State<MapScreen>
       final prefs = await SharedPreferences.getInstance();
       final list = _hiddenCategories.map((e) => e.name).toList();
       await prefs.setStringList('hidden_categories', list);
-      debugPrint('MapScreen: Saved filters: $list');
     } catch (e) {
       debugPrint('Error saving filters: $e');
     }

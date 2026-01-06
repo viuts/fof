@@ -1,0 +1,9 @@
+syntax = "proto3";
+package fof.v1;
+
+option go_package = "github.com/viuts/fof/api/proto/v1;fofv1";
+
+message LatLng {
+  double lat = 1;
+  double lng = 2;
+}

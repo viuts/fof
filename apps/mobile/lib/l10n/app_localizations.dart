@@ -419,7 +419,7 @@ abstract class AppLocalizations {
   /// No description provided for @categoryMen.
   ///
   /// In en, this message translates to:
-  /// **'Noodles'**
+  /// **'Udon, Soba & Others'**
   String get categoryMen;
 
   /// No description provided for @categoryRamen.
@@ -979,6 +979,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Select All'**
   String get selectAll;
+
+  /// No description provided for @journalDate.
+  ///
+  /// In en, this message translates to:
+  /// **'{day} {month}'**
+  String journalDate(String day, String month);
 }
 
 class _AppLocalizationsDelegate

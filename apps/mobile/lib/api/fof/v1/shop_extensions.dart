@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'fof.pb.dart';
+import 'shop.pb.dart';
 import '../../../constants/category_colors.dart';
 
 extension ShopExtension on Shop {

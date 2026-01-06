@@ -1,6 +1,6 @@
 //
 //  Generated code. Do not modify.
-//  source: fof/v1/fof.proto
+//  source: fof/v1/shop.proto
 //
 // @dart = 2.12
 
