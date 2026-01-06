@@ -34,11 +34,10 @@ func newShop(db *gorm.DB, opts ...gen.DOOption) shop {
 	_shop.Lat = field.NewFloat64(tableName, "lat")
 	_shop.Lng = field.NewFloat64(tableName, "lng")
 	_shop.IsChain = field.NewBool(tableName, "is_chain")
-	_shop.SourceID = field.NewString(tableName, "source_id")
 	_shop.Geom = field.NewString(tableName, "geom")
 	_shop.Address = field.NewString(tableName, "address")
 	_shop.Phone = field.NewString(tableName, "phone")
-	_shop.OpeningHours = field.NewString(tableName, "opening_hours")
+	_shop.OpeningHours = field.NewField(tableName, "opening_hours")
 	_shop.ImageURLs = field.NewField(tableName, "image_urls")
 	_shop.Rating = field.NewFloat64(tableName, "rating")
 	_shop.SourceURL = field.NewString(tableName, "source_url")
@@ -62,11 +61,10 @@ type shop struct {
 	Lat             field.Float64
 	Lng             field.Float64
 	IsChain         field.Bool
-	SourceID        field.String
 	Geom            field.String
 	Address         field.String
 	Phone           field.String
-	OpeningHours    field.String
+	OpeningHours    field.Field
 	ImageURLs       field.Field
 	Rating          field.Float64
 	SourceURL       field.String
@@ -96,11 +94,10 @@ func (s *shop) updateTableName(table string) *shop {
 	s.Lat = field.NewFloat64(table, "lat")
 	s.Lng = field.NewFloat64(table, "lng")
 	s.IsChain = field.NewBool(table, "is_chain")
-	s.SourceID = field.NewString(table, "source_id")
 	s.Geom = field.NewString(table, "geom")
 	s.Address = field.NewString(table, "address")
 	s.Phone = field.NewString(table, "phone")
-	s.OpeningHours = field.NewString(table, "opening_hours")
+	s.OpeningHours = field.NewField(table, "opening_hours")
 	s.ImageURLs = field.NewField(table, "image_urls")
 	s.Rating = field.NewFloat64(table, "rating")
 	s.SourceURL = field.NewString(table, "source_url")
@@ -124,14 +121,13 @@ func (s *shop) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (s *shop) fillFieldMap() {
-	s.fieldMap = make(map[string]field.Expr, 18)
+	s.fieldMap = make(map[string]field.Expr, 17)
 	s.fieldMap["id"] = s.ID
 	s.fieldMap["name"] = s.Name
 	s.fieldMap["category"] = s.Category
 	s.fieldMap["lat"] = s.Lat
 	s.fieldMap["lng"] = s.Lng
 	s.fieldMap["is_chain"] = s.IsChain
-	s.fieldMap["source_id"] = s.SourceID
 	s.fieldMap["geom"] = s.Geom
 	s.fieldMap["address"] = s.Address
 	s.fieldMap["phone"] = s.Phone

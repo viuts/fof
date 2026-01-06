@@ -12,6 +12,8 @@ import '../services/language_service.dart';
 import '../api/fof/v1/shop.pb.dart';
 import '../api/fof/v1/common.pb.dart';
 import '../api/fof/v1/visit.pb.dart';
+import '../api/fof/v1/location.pb.dart';
+import '../api/fof/v1/user.pb.dart';
 import '../api/fof/v1/shop_extensions.dart';
 import '../widgets/fog_layer.dart';
 import '../widgets/shop_beacon.dart';
@@ -46,7 +48,9 @@ class MapScreenState extends State<MapScreen>
 
   Timer? _shopUpdateTimer;
   Timer? _locationBatchTimer;
+  bool _isMapReady = false;
   bool _hasCentered = false;
+  bool _hasFetchedNearbyShops = false;
   int _virtualStepCount = 0;
 
   // Shop Entry Feature
@@ -70,9 +74,10 @@ class MapScreenState extends State<MapScreen>
     super.initState();
     _loadFilters();
     _startLocationService();
+    _loadInitialData();
     _shopUpdateTimer = Timer.periodic(
       const Duration(seconds: 30),
-      (_) => _loadShops(),
+      (_) => _fetchNearbyShops(),
     );
     _locationBatchTimer = Timer.periodic(
       const Duration(seconds: 10),
@@ -104,22 +109,25 @@ class MapScreenState extends State<MapScreen>
             });
           }
 
-          if (!_hasCentered) {
+          if (!_hasCentered && _isMapReady) {
             _hasCentered = true;
             _mapController.move(newLoc, 15.0);
           }
+
+          if (!_hasFetchedNearbyShops) {
+            _hasFetchedNearbyShops = true;
+            _fetchNearbyShops();
+          }
         },
       );
-      if (mounted) {
-        _loadInitialData();
-      }
+      // location service started
     } catch (e) {
       debugPrint('Error starting location service: $e');
     }
   }
 
   void recenter() {
-    if (_currentLocation != null) {
+    if (_currentLocation != null && _isMapReady) {
       _mapController.move(_currentLocation!, 15.0);
     }
   }
@@ -158,15 +166,36 @@ class MapScreenState extends State<MapScreen>
 
   Future<void> _loadInitialData() async {
     try {
-      final response = await ApiService().getClearedArea();
+      final futures = <Future>[
+        ApiService().getClearedArea(),
+        _fetchVisitedShops(updateState: false),
+        _fetchUserProfile(updateState: false),
+      ];
+
+      final results = await Future.wait(futures);
+
       if (!mounted) return;
+
+      final clearedAreaResponse = results[0] as GetClearedAreaResponse;
+      final visitedResponse = results[1] as GetVisitedShopsResponse;
+      final profileResponse = results[2] as GetProfileResponse;
+
       setState(() {
-        _clearedAreaGeojson = response.clearedAreaGeojson;
+        _clearedAreaGeojson = clearedAreaResponse.clearedAreaGeojson;
+        _visitedShops.clear();
+        _visitedShops.addAll(visitedResponse.visitedShops.map((v) => v.shop));
+
+        if (profileResponse.hasUser()) {
+          _currentLevel = profileResponse.user.level;
+          _currentExp = profileResponse.user.exp;
+        }
       });
-      _loadShops();
+
+      // If we didn't fetch nearby shops yet (no location), let the location service callback handle it or the timer
     } catch (e) {
       debugPrint('Failed to load initial data: $e');
-      _loadShops();
+      // Fallback: try loading singly if batch failed, though unlikely
+      await _fetchShops();
     }
   }
 
@@ -192,31 +221,72 @@ class MapScreenState extends State<MapScreen>
     }
   }
 
-  Future<void> _loadShops() async {
-    if (_currentLocation == null) return;
+  // Renamed from _loadShops to be more generic if needed, or just use specific methods
+  Future<void> _fetchShops() async {
+    await _fetchNearbyShops();
+    await _fetchVisitedShops();
+    await _fetchUserProfile();
+  }
+
+  Future<GetNearbyShopsResponse?> _fetchNearbyShops({
+    bool updateState = true,
+  }) async {
+    if (_currentLocation == null) return null;
     try {
-      final results = await Future.wait([
-        ApiService().getNearbyShops(
-          _currentLocation!.latitude,
-          _currentLocation!.longitude,
-          1000.0, // 1km radius
-        ),
-        ApiService().getVisitedShops(),
-      ]);
+      final response = await ApiService().getNearbyShops(
+        _currentLocation!.latitude,
+        _currentLocation!.longitude,
+        1000.0, // 1km radius
+      );
 
-      final nearby = results[0] as GetNearbyShopsResponse;
-      final visited = results[1] as GetVisitedShopsResponse;
-
-      if (!mounted) return;
-
-      setState(() {
-        _nearbyShops.clear();
-        _nearbyShops.addAll(nearby.shops);
-        _visitedShops.clear();
-        _visitedShops.addAll(visited.visitedShops.map((v) => v.shop));
-      });
+      if (updateState && mounted) {
+        setState(() {
+          _nearbyShops.clear();
+          _nearbyShops.addAll(response.shops);
+        });
+      }
+      return response;
     } catch (e) {
-      debugPrint('Failed to load shops: $e');
+      debugPrint('Failed to load nearby shops: $e');
+      return null;
+    }
+  }
+
+  Future<GetVisitedShopsResponse?> _fetchVisitedShops({
+    bool updateState = true,
+  }) async {
+    try {
+      final response = await ApiService().getVisitedShops();
+
+      if (updateState && mounted) {
+        setState(() {
+          _visitedShops.clear();
+          _visitedShops.addAll(response.visitedShops.map((v) => v.shop));
+        });
+      }
+      return response;
+    } catch (e) {
+      debugPrint('Failed to load visited shops: $e');
+      return null;
+    }
+  }
+
+  Future<GetProfileResponse?> _fetchUserProfile({
+    bool updateState = true,
+  }) async {
+    try {
+      final response = await ApiService().getProfile();
+
+      if (updateState && mounted && response.hasUser()) {
+        setState(() {
+          _currentLevel = response.user.level;
+          _currentExp = response.user.exp;
+        });
+      }
+      return response;
+    } catch (e) {
+      debugPrint('Failed to load user profile: $e');
+      return null;
     }
   }
 
@@ -517,10 +587,12 @@ class MapScreenState extends State<MapScreen>
     }
 
     // Recenter map
-    _mapController.move(
-      latlong2.LatLng(newLat, newLng),
-      _mapController.camera.zoom,
-    );
+    if (_isMapReady) {
+      _mapController.move(
+        latlong2.LatLng(newLat, newLng),
+        _mapController.camera.zoom,
+      );
+    }
   }
 
   Widget _buildVirtualDPad() {
@@ -591,6 +663,7 @@ class MapScreenState extends State<MapScreen>
     setState(() {
       _isEntering = true;
       _enteringShop = shop;
+      _selectedShop = null; // Close the detail card
       _remainingSeconds = 10 * 1; // 10 minutes
     });
 
@@ -729,7 +802,8 @@ class MapScreenState extends State<MapScreen>
           _clearedAreaGeojson = response.clearedAreaGeojson;
           _currentLevel = response.currentLevel;
           _currentExp = response.currentExp;
-          _loadShops();
+          _fetchNearbyShops();
+          _fetchVisitedShops();
           _enteringShop = null;
         });
 
@@ -846,6 +920,16 @@ class MapScreenState extends State<MapScreen>
                 interactionOptions: const InteractionOptions(
                   flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
                 ),
+                onMapReady: () {
+                  setState(() {
+                    _isMapReady = true;
+                  });
+                  // If we already have a location but haven't centered yet, do it now
+                  if (_currentLocation != null && !_hasCentered) {
+                    _hasCentered = true;
+                    _mapController.move(_currentLocation!, 15.0);
+                  }
+                },
               ),
               children: [
                 TileLayer(
@@ -1089,7 +1173,8 @@ class MapScreenState extends State<MapScreen>
   }
 
   Widget _buildBlastLayer({double radiusInMeters = 250.0}) {
-    if (_blastCenterLocation == null) return const SizedBox.shrink();
+    if (_blastCenterLocation == null || !_isMapReady)
+      return const SizedBox.shrink();
 
     return IgnorePointer(
       child: CustomPaint(

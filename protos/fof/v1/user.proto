@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package fof.v1;
+
+import "google/api/annotations.proto";
+
+option go_package = "github.com/viuts/fof/protos/fof/v1;fofv1";
+
+service UserService {
+  rpc GetProfile(GetProfileRequest) returns (GetProfileResponse) {
+    option (google.api.http) = {
+      get: "/v1/users/profile"
+    };
+  }
+}
+
+message GetProfileRequest {}
+
+message GetProfileResponse {
+  User user = 1;
+}
+
+message User {
+  string id = 1;
+  string username = 2;
+  string email = 3;
+  int32 level = 4;
+  int32 exp = 5;
+  string display_name = 6;
+  string profile_image = 7;
+}

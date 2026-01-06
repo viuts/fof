@@ -185,7 +185,7 @@ abstract class AppLocalizations {
   /// No description provided for @questTitle.
   ///
   /// In en, this message translates to:
-  /// **'DESIGN YOUR\nADVENTURE'**
+  /// **'START YOUR\nADVENTURE'**
   String get questTitle;
 
   /// No description provided for @questCraving.
@@ -721,6 +721,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Path history deleted.'**
   String get pathHistoryDeleted;
+
+  /// No description provided for @openingHours.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening Hours'**
+  String get openingHours;
+
+  /// No description provided for @openStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get openStatus;
+
+  /// No description provided for @closedStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed'**
+  String get closedStatus;
+
+  /// No description provided for @closedToEnter.
+  ///
+  /// In en, this message translates to:
+  /// **'Outside of working hours'**
+  String get closedToEnter;
+
+  /// No description provided for @hoursUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown'**
+  String get hoursUnknown;
 
   /// No description provided for @questMode.
   ///

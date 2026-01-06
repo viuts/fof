@@ -150,6 +150,11 @@ class S {
   String get questHint => _l10n.questHint;
   String get questButton => _l10n.questButton;
   String get selectCuisine => _l10n.selectCuisine;
+  String get openingHours => _l10n.openingHours;
+  String get openStatus => _l10n.openStatus;
+  String get closedStatus => _l10n.closedStatus;
+  String get closedToEnter => _l10n.closedToEnter;
+  String get hoursUnknown => _l10n.hoursUnknown;
 
   String get errorLocationUnavailable => _l10n.errorLocationUnavailable;
   String get errorNoShopsFound => _l10n.errorNoShopsFound;

@@ -44,7 +44,7 @@
         }
     },
 
-    "questTitle": "DESIGN YOUR\nADVENTURE",
+    "questTitle": "START YOUR\nADVENTURE",
     "questCraving": "WHAT ARE YOU CRAVING?",
     "questDistance": "HOW FAR?",
     "questSpecific": "ANYTHING SPECIFIC?",
@@ -184,6 +184,11 @@
     "deleteHistoryTitle": "Delete History?",
     "deleteHistoryConfirm": "This will reset all cleared fog on your map. This action cannot be undone.",
     "pathHistoryDeleted": "Path history deleted.",
+    "openingHours": "Opening Hours",
+    "openStatus": "Open",
+    "closedStatus": "Closed",
+    "closedToEnter": "Outside of working hours",
+    "hoursUnknown": "Unknown",
     "questMode": "Quest Mode",
     "cancelQuest": "Cancel Quest",
     "noHiddenGems": "No hidden gems found in this category nearby.",
@@ -213,7 +218,6 @@
     "monthOct": "OCT",
     "monthNov": "NOV",
     "monthDec": "DEC",
-
     "achNameFirstSteps": "First Steps",
     "achDescFirstSteps": "Visit your first shop.",
     "achNameRamenFan": "Ramen Fan",

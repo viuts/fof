@@ -63,7 +63,7 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String get questTitle => '冒険をデザイン';
+  String get questTitle => '冒険を始めよう';
 
   @override
   String get questCraving => '何を食べたい？';
@@ -247,13 +247,13 @@ class AppLocalizationsJa extends AppLocalizations {
   String get errorLocationUnavailable => '位置情報が利用できません';
 
   @override
-  String get errorNoShopsFound => '条件に一致するショップが見つかりませんでした';
+  String get errorNoShopsFound => '条件に一致するお店が見つかりませんでした';
 
   @override
   String get close => '閉じる';
 
   @override
-  String get exploreAreaMsg => 'この地域を探索してください。ショップの詳細を確認するには、フォグをクリアする必要があります。';
+  String get exploreAreaMsg => 'この地域を探索してください。お店の詳細を確認するには、フォグをクリアする必要があります。';
 
   @override
   String get locationLabel => '場所';
@@ -281,7 +281,7 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String get visitThisShop => 'このショップに訪問する';
+  String get visitThisShop => 'このお店に訪問する';
 
   @override
   String get away => ' 離れています';
@@ -290,7 +290,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get arrived => '到着！';
 
   @override
-  String get enterShop => 'ショップに入る';
+  String get enterShop => '入店';
 
   @override
   String get entering => '入店中...';
@@ -349,6 +349,21 @@ class AppLocalizationsJa extends AppLocalizations {
   String get pathHistoryDeleted => '移動履歴を削除しました。';
 
   @override
+  String get openingHours => '営業時間';
+
+  @override
+  String get openStatus => '営業中';
+
+  @override
+  String get closedStatus => '営業時間外';
+
+  @override
+  String get closedToEnter => '現在は営業時間外です';
+
+  @override
+  String get hoursUnknown => '不明';
+
+  @override
   String get questMode => 'クエストモード';
 
   @override
@@ -370,7 +385,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get toDestination => '目的地まで';
 
   @override
-  String get revealOnArrival => 'ショップの詳細は到着してからのお楽しみ！';
+  String get revealOnArrival => 'お店の詳細は到着してからのお楽しみ！';
 
   @override
   String get noAchievementsYet => 'まだ実績がありません。';
@@ -423,7 +438,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get achNameFirstSteps => 'はじめの一歩';
 
   @override
-  String get achDescFirstSteps => '初めてショップを訪問する。';
+  String get achDescFirstSteps => '初めてお店を訪問する。';
 
   @override
   String get achNameRamenFan => 'ラーメンファン';
@@ -453,7 +468,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get achNameNightOwl => 'ミッドナイト・スナック';
 
   @override
-  String get achDescNightOwl => '午前0時から午前4時の間にショップを訪問する。';
+  String get achDescNightOwl => '午前0時から午前4時の間にお店を訪問する。';
 
   @override
   String get achCategoryAll => 'すべて';

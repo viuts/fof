@@ -38,12 +38,14 @@ func (r *userRepository) GetOrCreateUser(ctx context.Context, firebaseUID, email
 	username = fmt.Sprintf("%s_%s", username, uuid.New().String()[:8])
 
 	err := r.db.WithContext(ctx).Where(domain.User{FirebaseUID: firebaseUID}).Attrs(domain.User{
-		Email:     email,
-		Username:  username,
-		Level:     1,
-		Exp:       0,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
+		Email:        email,
+		Username:     username,
+		DisplayName:  "", // Will be updated by middleware sync
+		ProfileImage: "", // Will be updated by middleware sync
+		Level:        1,
+		Exp:          0,
+		CreatedAt:    time.Now(),
+		UpdatedAt:    time.Now(),
 	}).FirstOrCreate(&user).Error
 
 	if err != nil {

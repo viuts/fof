@@ -70,6 +70,7 @@ func main() {
 	locationHandler := handler.NewLocationHandler(locationUC)
 	visitHandler := handler.NewVisitHandler(visitUC)
 	achievementHandler := handler.NewAchievementHandler(achievementUC)
+	userHandler := handler.NewUserHandler(userRepo)
 
 	// Unified Server setup
 	port := os.Getenv("PORT")
@@ -84,6 +85,7 @@ func main() {
 	fofv1.RegisterLocationServiceServer(grpcServer, locationHandler)
 	fofv1.RegisterVisitServiceServer(grpcServer, visitHandler)
 	fofv1.RegisterAchievementServiceServer(grpcServer, achievementHandler)
+	fofv1.RegisterUserServiceServer(grpcServer, userHandler)
 
 	mux := runtime.NewServeMux(
 		runtime.WithMarshalerOption(runtime.MIMEWildcard, &runtime.JSONPb{
@@ -107,6 +109,9 @@ func main() {
 	}
 	if err := fofv1.RegisterAchievementServiceHandlerServer(ctx, mux, achievementHandler); err != nil {
 		log.Fatalf("failed to register achievement gateway: %v", err)
+	}
+	if err := fofv1.RegisterUserServiceHandlerServer(ctx, mux, userHandler); err != nil {
+		log.Fatalf("failed to register user gateway: %v", err)
 	}
 
 	mixedHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

@@ -276,6 +276,17 @@ class ShopDetailCard extends StatelessWidget {
                       ? shop.address
                       : '${shop.lat.toStringAsFixed(4)}, ${shop.lng.toStringAsFixed(4)}',
                 ),
+                const SizedBox(height: 12),
+                _buildDetailRow(
+                  Icons.access_time_outlined,
+                  S.of(context).openingHours,
+                  shop.todaysOpeningHours.isNotEmpty
+                      ? shop.todaysOpeningHours
+                      : S.of(context).hoursUnknown,
+                  color: shop.isOpen && shop.todaysOpeningHours.isNotEmpty
+                      ? Colors.green.shade600
+                      : Colors.red.shade600,
+                ),
                 if (shop.isVisited) ...[
                   const SizedBox(height: 12),
                   _buildDetailRow(
@@ -290,11 +301,25 @@ class ShopDetailCard extends StatelessWidget {
                   Builder(
                     builder: (context) {
                       final canEnter = distanceToShop <= 25;
+                      final isOpen = shop.isOpen;
 
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          if (!canEnter)
+                          if (!isOpen)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 8),
+                              child: Text(
+                                S.of(context).closedToEnter,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  color: Colors.red,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          if (isOpen && !canEnter)
                             Padding(
                               padding: const EdgeInsets.only(bottom: 8),
                               child: Text(
@@ -308,16 +333,16 @@ class ShopDetailCard extends StatelessWidget {
                               ),
                             ),
                           ElevatedButton(
-                            onPressed: canEnter
+                            onPressed: (canEnter && isOpen)
                                 ? () => onEnterShop(shop)
                                 : null,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: canEnter
+                              backgroundColor: (canEnter && isOpen)
                                   ? Colors.green.shade600
                                   : Colors.grey.shade300,
                               foregroundColor: Colors.white,
                               padding: const EdgeInsets.symmetric(vertical: 14),
-                              elevation: canEnter ? 2 : 0,
+                              elevation: (canEnter && isOpen) ? 2 : 0,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),

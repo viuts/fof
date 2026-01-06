@@ -6,6 +6,7 @@ import '../api/fof/v1/shop.pb.dart';
 import '../api/fof/v1/location.pb.dart';
 import '../api/fof/v1/visit.pb.dart';
 import '../api/fof/v1/achievement.pb.dart';
+import '../api/fof/v1/user.pb.dart';
 import '../config/environment_config.dart';
 
 class ApiService {
@@ -148,6 +149,20 @@ class ApiService {
         ..mergeFromProto3Json(jsonDecode(response.body));
     } else {
       throw Exception('Failed to get achievements: ${response.statusCode}');
+    }
+  }
+
+  Future<GetProfileResponse> getProfile() async {
+    final response = await http.get(
+      Uri.parse('$_baseUrl/v1/users/profile'),
+      headers: await _getHeaders(),
+    );
+
+    if (response.statusCode == 200) {
+      return GetProfileResponse()
+        ..mergeFromProto3Json(jsonDecode(response.body));
+    } else {
+      throw Exception('Failed to get profile: ${response.statusCode}');
     }
   }
 }

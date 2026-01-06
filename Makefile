@@ -34,7 +34,7 @@ mobile-web:
 	@cd apps/mobile && flutter run -d chrome --web-port 65282
 
 mobile-web-dev:
-	@cd apps/mobile && flutter run -d chrome --web-port 65282
+	@cd apps/mobile && flutter run -d chrome --web-port 65282 --dart-define=ENV=dev
 
 ## gen-db: Generate GORM Gen code
 gen-db:

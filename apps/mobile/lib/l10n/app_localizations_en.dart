@@ -63,7 +63,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get questTitle => 'DESIGN YOUR\nADVENTURE';
+  String get questTitle => 'START YOUR\nADVENTURE';
 
   @override
   String get questCraving => 'WHAT ARE YOU CRAVING?';
@@ -349,6 +349,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pathHistoryDeleted => 'Path history deleted.';
+
+  @override
+  String get openingHours => 'Opening Hours';
+
+  @override
+  String get openStatus => 'Open';
+
+  @override
+  String get closedStatus => 'Closed';
+
+  @override
+  String get closedToEnter => 'Outside of working hours';
+
+  @override
+  String get hoursUnknown => 'Unknown';
 
   @override
   String get questMode => 'Quest Mode';

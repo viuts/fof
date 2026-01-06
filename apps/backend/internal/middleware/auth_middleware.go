@@ -76,6 +76,26 @@ func (m *AuthMiddleware) Handle(next http.Handler) http.Handler {
 			return
 		}
 
+		// Update profile if changed
+		name, _ := parsedToken.Claims["name"].(string)
+		picture, _ := parsedToken.Claims["picture"].(string)
+
+		changed := false
+		if name != "" && user.DisplayName != name {
+			user.DisplayName = name
+			changed = true
+		}
+		if picture != "" && user.ProfileImage != picture {
+			user.ProfileImage = picture
+			changed = true
+		}
+
+		if changed {
+			if err := m.repo.Save(r.Context(), user); err != nil {
+				log.Printf("error saving user profile: %v", err)
+			}
+		}
+
 		// Set UserID in context
 		ctx := context.WithValue(r.Context(), ContextKeyUserID, user.ID.String())
 		next.ServeHTTP(w, r.WithContext(ctx))

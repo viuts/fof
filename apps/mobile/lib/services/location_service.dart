@@ -15,9 +15,10 @@ class LocationService {
   StreamSubscription<Position>? _positionSubscription;
   final _positionController = StreamController<Position>.broadcast();
   Stream<Position> get positionStream => _positionController.stream;
-  
+
   // Compass Support
-  Stream<double?> get headingStream => FlutterCompass.events!.map((event) => event.heading);
+  Stream<double?> get headingStream =>
+      FlutterCompass.events!.map((event) => event.heading);
   bool _isFrozen = false;
   Position? _currentPosition;
   final List<Position> _currentPath = [];
@@ -39,11 +40,11 @@ class LocationService {
       altitudeAccuracy: 0.0,
       headingAccuracy: 0.0,
     );
-    
+
     _currentPosition = newPosition;
     _currentPath.add(newPosition);
     _savePath();
-    
+
     for (final listener in _updateListeners) {
       listener(lat, lng);
     }
@@ -58,18 +59,22 @@ class LocationService {
       if (cachedPathJson != null) {
         final List<dynamic> decoded = jsonDecode(cachedPathJson);
         _currentPath.clear();
-        _currentPath.addAll(decoded.map((p) => Position(
-          latitude: p['lat'],
-          longitude: p['lng'],
-          timestamp: DateTime.fromMillisecondsSinceEpoch(p['t']),
-          accuracy: p['a'] ?? 0.0,
-          altitude: p['alt'] ?? 0.0,
-          heading: p['h'] ?? 0.0,
-          speed: p['s'] ?? 0.0,
-          speedAccuracy: p['sa'] ?? 0.0,
-          altitudeAccuracy: 0.0,
-          headingAccuracy: 0.0,
-        )));
+        _currentPath.addAll(
+          decoded.map(
+            (p) => Position(
+              latitude: p['lat'],
+              longitude: p['lng'],
+              timestamp: DateTime.fromMillisecondsSinceEpoch(p['t']),
+              accuracy: p['a'] ?? 0.0,
+              altitude: p['alt'] ?? 0.0,
+              heading: p['h'] ?? 0.0,
+              speed: p['s'] ?? 0.0,
+              speedAccuracy: p['sa'] ?? 0.0,
+              altitudeAccuracy: 0.0,
+              headingAccuracy: 0.0,
+            ),
+          ),
+        );
       }
     } catch (e) {
       debugPrint('Error loading cached path: $e');
@@ -80,16 +85,22 @@ class LocationService {
   Future<void> _savePath() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final String encoded = jsonEncode(_currentPath.map((p) => {
-        'lat': p.latitude,
-        'lng': p.longitude,
-        't': p.timestamp.millisecondsSinceEpoch,
-        'a': p.accuracy,
-        'alt': p.altitude,
-        'h': p.heading,
-        's': p.speed,
-        'sa': p.speedAccuracy,
-      }).toList());
+      final String encoded = jsonEncode(
+        _currentPath
+            .map(
+              (p) => {
+                'lat': p.latitude,
+                'lng': p.longitude,
+                't': p.timestamp.millisecondsSinceEpoch,
+                'a': p.accuracy,
+                'alt': p.altitude,
+                'h': p.heading,
+                's': p.speed,
+                'sa': p.speedAccuracy,
+              },
+            )
+            .toList(),
+      );
       await prefs.setString(_pathCacheKey, encoded);
     } catch (e) {
       debugPrint('Error saving path: $e');
@@ -131,9 +142,9 @@ class LocationService {
   }) async {
     _updateListeners.add(onLocationUpdate);
     if (_isFrozen) return;
-    
+
     await loadCachedPath(); // Ensure existing cache is loaded
-    
+
     // Set initial position from cache if available
     if (_currentPath.isNotEmpty) {
       final lastPos = _currentPath.last;
@@ -196,48 +207,31 @@ class LocationService {
 
     // Start position stream
     try {
-      _positionSubscription = Geolocator.getPositionStream(
-        locationSettings: locationSettings,
-      ).listen(
-        (Position position) {
-          _currentPosition = position;
-          _currentPath.add(position);
-          _savePath(); // Persist immediately
-          for (final listener in _updateListeners) {
-            listener(position.latitude, position.longitude);
-          }
-          _positionController.add(position);
-        },
-        onError: (e) {
-          debugPrint('Position stream error: $e');
-        },
-      );
+      _positionSubscription =
+          Geolocator.getPositionStream(
+            locationSettings: locationSettings,
+          ).listen(
+            (Position position) {
+              _currentPosition = position;
+              _currentPath.add(position);
+              _savePath(); // Persist immediately
+              for (final listener in _updateListeners) {
+                listener(position.latitude, position.longitude);
+              }
+              _positionController.add(position);
+            },
+            onError: (e) {
+              debugPrint('Position stream error: $e');
+            },
+          );
     } catch (e) {
       debugPrint('Failed to start position stream: $e');
-    }
-
-    // Get initial position
-    try {
-      // Try current position with a more generous timeout
-      final position = await Geolocator.getCurrentPosition(
-        locationSettings: locationSettings,
-      ).timeout(const Duration(seconds: 15));
-      
-      _currentPosition = position;
-      _currentPath.add(position);
-      _savePath();
-      for (final listener in _updateListeners) {
-        listener(position.latitude, position.longitude);
-      }
-      _positionController.add(position);
-    } catch (e) {
-      debugPrint('LocationService: Initial position fetch timed out or failed ($e). Waiting for stream...');
     }
   }
 
   /// Get current position
   Position? get currentPosition => _currentPosition;
-  
+
   /// Stop location tracking
   void stopTracking() {
     _positionSubscription?.cancel();
