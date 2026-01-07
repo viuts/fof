@@ -104,7 +104,7 @@ type Shop struct {
 	ImageURLs       pq.StringArray `gorm:"type:text[];column:image_urls"`
 	Rating          float64
 	SourceURL       string  `gorm:"uniqueIndex;column:source_url"`
-	ClearanceRadius float64 `gorm:"column:clearance_radius;->"` // Read-only (Generated)
+	ClearanceRadius float64 `gorm:"column:clearance_radius;type:double precision;->"` // Read-only (Generated)
 	Reservable      bool    `gorm:"default:false"`
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
