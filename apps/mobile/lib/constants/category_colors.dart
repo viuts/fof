@@ -190,8 +190,6 @@ class ShopStyle {
 
   // Fog clearing radii (in meters)
   static const double pathClearingRadius = 10.0; // 5-10m per PRD
-  static const double indieShopDiningBlastRadius = 250.0; // 250 per PRD
-  static const double chainShopDiningBlastRadius = 20.0; // 90% less per PRD
 
   // Marker badge for chains
   static const Color chainBadgeColor = Color(0xFF424242);
@@ -199,15 +197,5 @@ class ShopStyle {
   /// Get marker size based on whether shop is a chain
   static double getMarkerSize(bool isChain) {
     return isChain ? chainShopMarkerSize : indieShopMarkerSize;
-  }
-
-  /// Get marker opacity based on whether shop is a chain
-  static double getMarkerOpacity(bool isChain) {
-    return isChain ? chainShopOpacity : indieShopOpacity;
-  }
-
-  /// Get fog clearing radius based on whether shop is a chain
-  static double getClearingRadius(bool isChain) {
-    return isChain ? chainShopDiningBlastRadius : indieShopDiningBlastRadius;
   }
 }

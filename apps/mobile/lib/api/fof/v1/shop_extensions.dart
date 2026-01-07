@@ -172,14 +172,6 @@ extension ShopExtension on Shop {
   /// Get marker size based on whether this is a chain
   double get markerSize => ShopStyle.getMarkerSize(isChain);
 
-  /// Get marker opacity based on whether this is a chain
-  double get markerOpacity => ShopStyle.getMarkerOpacity(isChain);
-
-  /// Get clearance radius, defaulting to style guide if not set in proto
-  double get effectiveClearanceRadius => clearanceRadius > 0
-      ? clearanceRadius
-      : ShopStyle.getClearingRadius(isChain);
-
   /// Opening hours logic
   ParsedOpeningHours get parsedOpeningHours =>
       ParsedOpeningHours.fromJsonString(openingHours);

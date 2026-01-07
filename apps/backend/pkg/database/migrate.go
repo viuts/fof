@@ -42,6 +42,28 @@ func AutoMigrate(db *gorm.DB) error {
 		log.Printf("Warning: failed to add unique constraint on source_url: %v", err)
 	}
 
+	// Migrate ClearanceRadius to Computed Column
+	// 1. Drop existing column (if exists and is not generated, or just recreate)
+	if err := db.Exec("ALTER TABLE shops DROP COLUMN IF EXISTS clearance_radius").Error; err != nil {
+		log.Printf("Warning: failed to drop clearance_radius: %v", err)
+	}
+	// 2. Add as generated column
+	// Priority: >3.5 or <2.5 -> 500m
+	//           Independent -> 250m
+	//           Default -> 100m
+	query := `
+		ALTER TABLE shops ADD COLUMN clearance_radius double precision GENERATED ALWAYS AS (
+			CASE
+				WHEN rating > 3.5 OR rating < 2.5 THEN 500
+				WHEN is_chain = false THEN 250
+				ELSE 100
+			END
+		) STORED
+	`
+	if err := db.Exec(query).Error; err != nil {
+		log.Printf("Warning: failed to add generated clearance_radius: %v", err)
+	}
+
 	log.Println("Auto migrations completed successfully")
 	return nil
 }
@@ -55,6 +77,8 @@ func DropTables(db *gorm.DB) error {
 		&domain.Shop{},
 		&domain.Visit{},
 		&domain.UserFog{},
+		&domain.Achievement{},
+		&domain.UserAchievement{},
 	); err != nil {
 		return fmt.Errorf("failed to drop tables: %w", err)
 	}

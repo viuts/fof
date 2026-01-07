@@ -65,6 +65,7 @@ class MapScreenState extends State<MapScreen>
   // Blast Animation
   late AnimationController _blastController;
   latlong2.LatLng? _blastCenterLocation;
+  double? _blastRadius;
 
   // Filter State
   Set<FoodCategory>? _hiddenCategoriesBacking;
@@ -780,6 +781,9 @@ class MapScreenState extends State<MapScreen>
       final validShop = shop;
       setState(() {
         _blastCenterLocation = latlong2.LatLng(validShop.lat, validShop.lng);
+        _blastRadius = validShop.clearanceRadius > 0
+            ? validShop.clearanceRadius
+            : 100.0;
       });
       _blastController.reset();
       _blastController.forward();
@@ -1092,7 +1096,7 @@ class MapScreenState extends State<MapScreen>
           center: _blastCenterLocation!,
           progress: _blastController.value,
           camera: _mapController.camera,
-          radiusInMeters: radiusInMeters,
+          radiusInMeters: _blastRadius ?? radiusInMeters,
         ),
         size: Size.infinite,
       ),
