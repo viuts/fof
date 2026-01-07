@@ -56,6 +56,7 @@ class MapScreenState extends State<MapScreen>
 
   // Shop Entry Feature
   bool _isEntering = false;
+  bool _isSubmittingVisit = false;
   Shop? _enteringShop;
   Timer? _countdownTimer;
   int _remainingSeconds = 0;
@@ -299,7 +300,63 @@ class MapScreenState extends State<MapScreen>
   }
 
   Widget _buildEnteringOverlay() {
-    if (!_isEntering || _enteringShop == null) return const SizedBox.shrink();
+    if (_enteringShop == null || (!_isEntering && !_isSubmittingVisit)) {
+      return const SizedBox.shrink();
+    }
+
+    if (_isSubmittingVisit) {
+      return Positioned(
+        top: MediaQuery.of(context).padding.top + 16,
+        left: 16,
+        right: 16,
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.1),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              const SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      S.of(context).verificationInProgress,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.textPrimaryLight,
+                      ),
+                    ),
+                    Text(
+                      _enteringShop!.name,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 
     final minutes = _remainingSeconds ~/ 60;
     final seconds = _remainingSeconds % 60;
@@ -690,12 +747,12 @@ class MapScreenState extends State<MapScreen>
   void _onVisitCountdownFinished() {
     if (_enteringShop == null) return;
 
-    _submitVisit(_enteringShop!.id, 5, '');
-
     setState(() {
-      _isEntering = false;
-      _enteringShop = null;
+      _isSubmittingVisit = true;
+      _isEntering = false; // Stop the countdown UI, show loading UI
     });
+
+    _submitVisit(_enteringShop!.id, 5, '');
   }
 
   Future<void> _submitVisit(String shopId, int rating, String comment) async {
@@ -709,7 +766,9 @@ class MapScreenState extends State<MapScreen>
           _currentExp = response.currentExp;
           _fetchNearbyShops();
           _fetchVisitedShops();
+          _fetchVisitedShops();
           _enteringShop = null;
+          _isSubmittingVisit = false;
         });
 
         // Show reward feedback
