@@ -10,7 +10,9 @@ import (
 
 type VisitRepository interface {
 	GetByUserID(ctx context.Context, userID uuid.UUID) ([]domain.Visit, error)
+	GetByUserIDAndShopID(ctx context.Context, userID uuid.UUID, shopID uuid.UUID) (*domain.Visit, error)
 	CreateWithTx(ctx context.Context, tx *gorm.DB, visit *domain.Visit) error
+	Save(ctx context.Context, visit *domain.Visit) error
 	GetDB() *gorm.DB
 }
 
@@ -31,8 +33,23 @@ func (r *visitRepository) GetByUserID(ctx context.Context, userID uuid.UUID) ([]
 	return visits, err
 }
 
+func (r *visitRepository) GetByUserIDAndShopID(ctx context.Context, userID uuid.UUID, shopID uuid.UUID) (*domain.Visit, error) {
+	var visit domain.Visit
+	err := r.db.WithContext(ctx).
+		Where("user_id = ? AND shop_id = ?", userID, shopID).
+		First(&visit).Error
+	if err != nil {
+		return nil, err
+	}
+	return &visit, nil
+}
+
 func (r *visitRepository) CreateWithTx(ctx context.Context, tx *gorm.DB, visit *domain.Visit) error {
 	return tx.WithContext(ctx).Create(visit).Error
+}
+
+func (r *visitRepository) Save(ctx context.Context, visit *domain.Visit) error {
+	return r.db.WithContext(ctx).Save(visit).Error
 }
 
 func (r *visitRepository) GetDB() *gorm.DB {

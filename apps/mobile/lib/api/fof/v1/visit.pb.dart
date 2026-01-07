@@ -16,6 +16,142 @@ import 'package:protobuf/protobuf.dart' as $pb;
 import 'achievement.pb.dart' as $0;
 import 'shop.pb.dart' as $2;
 
+class UpdateVisitRequest extends $pb.GeneratedMessage {
+  factory UpdateVisitRequest({
+    $core.String? shopId,
+    $core.int? rating,
+    $core.String? comment,
+    $core.Iterable<$core.String>? imageUrls,
+  }) {
+    final $result = create();
+    if (shopId != null) {
+      $result.shopId = shopId;
+    }
+    if (rating != null) {
+      $result.rating = rating;
+    }
+    if (comment != null) {
+      $result.comment = comment;
+    }
+    if (imageUrls != null) {
+      $result.imageUrls.addAll(imageUrls);
+    }
+    return $result;
+  }
+  UpdateVisitRequest._() : super();
+  factory UpdateVisitRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory UpdateVisitRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'UpdateVisitRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'fof.v1'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'shopId')
+    ..a<$core.int>(2, _omitFieldNames ? '' : 'rating', $pb.PbFieldType.O3)
+    ..aOS(3, _omitFieldNames ? '' : 'comment')
+    ..pPS(4, _omitFieldNames ? '' : 'imageUrls')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  UpdateVisitRequest clone() => UpdateVisitRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  UpdateVisitRequest copyWith(void Function(UpdateVisitRequest) updates) => super.copyWith((message) => updates(message as UpdateVisitRequest)) as UpdateVisitRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static UpdateVisitRequest create() => UpdateVisitRequest._();
+  UpdateVisitRequest createEmptyInstance() => create();
+  static $pb.PbList<UpdateVisitRequest> createRepeated() => $pb.PbList<UpdateVisitRequest>();
+  @$core.pragma('dart2js:noInline')
+  static UpdateVisitRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<UpdateVisitRequest>(create);
+  static UpdateVisitRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get shopId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set shopId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasShopId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearShopId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.int get rating => $_getIZ(1);
+  @$pb.TagNumber(2)
+  set rating($core.int v) { $_setSignedInt32(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasRating() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearRating() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get comment => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set comment($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasComment() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearComment() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.List<$core.String> get imageUrls => $_getList(3);
+}
+
+class UpdateVisitResponse extends $pb.GeneratedMessage {
+  factory UpdateVisitResponse({
+    $core.bool? success,
+  }) {
+    final $result = create();
+    if (success != null) {
+      $result.success = success;
+    }
+    return $result;
+  }
+  UpdateVisitResponse._() : super();
+  factory UpdateVisitResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory UpdateVisitResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'UpdateVisitResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'fof.v1'), createEmptyInstance: create)
+    ..aOB(1, _omitFieldNames ? '' : 'success')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  UpdateVisitResponse clone() => UpdateVisitResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  UpdateVisitResponse copyWith(void Function(UpdateVisitResponse) updates) => super.copyWith((message) => updates(message as UpdateVisitResponse)) as UpdateVisitResponse;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static UpdateVisitResponse create() => UpdateVisitResponse._();
+  UpdateVisitResponse createEmptyInstance() => create();
+  static $pb.PbList<UpdateVisitResponse> createRepeated() => $pb.PbList<UpdateVisitResponse>();
+  @$core.pragma('dart2js:noInline')
+  static UpdateVisitResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<UpdateVisitResponse>(create);
+  static UpdateVisitResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.bool get success => $_getBF(0);
+  @$pb.TagNumber(1)
+  set success($core.bool v) { $_setBool(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasSuccess() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearSuccess() => clearField(1);
+}
+
 class CreateVisitRequest extends $pb.GeneratedMessage {
   factory CreateVisitRequest({
     $core.String? shopId,
@@ -290,6 +426,7 @@ class VisitedShop extends $pb.GeneratedMessage {
     $core.String? visitedAt,
     $core.int? rating,
     $core.String? comment,
+    $core.Iterable<$core.String>? imageUrls,
   }) {
     final $result = create();
     if (shop != null) {
@@ -304,6 +441,9 @@ class VisitedShop extends $pb.GeneratedMessage {
     if (comment != null) {
       $result.comment = comment;
     }
+    if (imageUrls != null) {
+      $result.imageUrls.addAll(imageUrls);
+    }
     return $result;
   }
   VisitedShop._() : super();
@@ -315,6 +455,7 @@ class VisitedShop extends $pb.GeneratedMessage {
     ..aOS(2, _omitFieldNames ? '' : 'visitedAt')
     ..a<$core.int>(3, _omitFieldNames ? '' : 'rating', $pb.PbFieldType.O3)
     ..aOS(4, _omitFieldNames ? '' : 'comment')
+    ..pPS(5, _omitFieldNames ? '' : 'imageUrls')
     ..hasRequiredFields = false
   ;
 
@@ -376,6 +517,9 @@ class VisitedShop extends $pb.GeneratedMessage {
   $core.bool hasComment() => $_has(3);
   @$pb.TagNumber(4)
   void clearComment() => clearField(4);
+
+  @$pb.TagNumber(5)
+  $core.List<$core.String> get imageUrls => $_getList(4);
 }
 
 

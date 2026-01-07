@@ -85,12 +85,15 @@ class S {
   String signInFailed(String error) => _l10n.signInFailed(error);
 
   // Map Screen
-  String visitComplete(String shopName) => _l10n.visitComplete(shopName);
   String get howWasExperience => _l10n.howWasExperience;
   String get commentOptional => _l10n.commentOptional;
   String get shareThoughts => _l10n.shareThoughts;
   String levelUp(int level) => _l10n.levelUp(level);
   String unlockedAchievement(String name) => _l10n.unlockedAchievement(name);
+  String get visitReviewTitle => _l10n.visitReviewTitle;
+  String get visitedOn => _l10n.visitedOn;
+  String get yourReview => _l10n.yourReview;
+  String get noCommentProvided => _l10n.noCommentProvided;
 
   // Journal Screen
   String get noVisitsYet => _l10n.noVisitsYet;
@@ -149,6 +152,12 @@ class S {
   String get questSpecific => _l10n.questSpecific;
   String get questHint => _l10n.questHint;
   String get questButton => _l10n.questButton;
+  String get questRating => _l10n.questRating;
+  String get questOpenNow => _l10n.questOpenNow;
+  String get questRatingExcellent => _l10n.questRatingExcellent;
+  String get questRatingAverage => _l10n.questRatingAverage;
+  String get questRatingMixed => _l10n.questRatingMixed;
+  String get visitComplete => _l10n.visitComplete;
   String get selectCuisine => _l10n.selectCuisine;
   String get openingHours => _l10n.openingHours;
   String get openStatus => _l10n.openStatus;
@@ -231,4 +240,13 @@ class S {
   String get selectAll => _l10n.selectAll;
   String get deselectAll => _l10n.deselectAll;
   String journalDate(String day, String month) => _l10n.journalDate(day, month);
+
+  // Profile
+  String get editProfile => _l10n.editProfile;
+  String get changeName => _l10n.changeName;
+  String get changePhoto => _l10n.changePhoto;
+  String get displayName => _l10n.displayName;
+  String get editReview => _l10n.editReview;
+  String get save => _l10n.save;
+  String get addPhoto => _l10n.addPhoto;
 }

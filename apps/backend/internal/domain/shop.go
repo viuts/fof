@@ -4,11 +4,71 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"errors"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/lib/pq"
 )
+
+// Helper to check opening hours
+func (b BusinessHours) IsOpen(t time.Time) bool {
+	// 0=Sun, 1=Mon...
+	days := []BusinessDay{
+		BusinessDaySunday,
+		BusinessDayMonday,
+		BusinessDayTuesday,
+		BusinessDayWednesday,
+		BusinessDayThursday,
+		BusinessDayFriday,
+		BusinessDaySaturday,
+	}
+
+	checkTime := func(day BusinessDay, h int, isPreviousDay bool) bool {
+		intervals, ok := b[day]
+		if !ok {
+			return false
+		}
+		for _, interval := range intervals {
+			openH, _ := strconv.Atoi(strings.Split(interval.Open, ":")[0])
+			closeH, _ := strconv.Atoi(strings.Split(interval.Close, ":")[0])
+
+			if closeH < openH {
+				// Crosses midnight (e.g. 18:00 - 02:00)
+				if isPreviousDay {
+					// We are the "next day", so we check if hour < closeH
+					if h < closeH {
+						return true
+					}
+				} else {
+					// Same day, check if hour >= openH
+					if h >= openH {
+						return true
+					}
+				}
+			} else if !isPreviousDay {
+				// Normal range, only check if not looking at previous day
+				if h >= openH && h < closeH {
+					return true
+				}
+			}
+		}
+		return false
+	}
+
+	dayIndex := int(t.Weekday())
+	hour := t.Hour()
+
+	// Check today
+	if checkTime(days[dayIndex], hour, false) {
+		return true
+	}
+
+	// Check yesterday (for late night hours ending today)
+	prevDayIndex := (dayIndex - 1 + 7) % 7
+	return checkTime(days[prevDayIndex], hour, true)
+}
 
 type BusinessDay string
 

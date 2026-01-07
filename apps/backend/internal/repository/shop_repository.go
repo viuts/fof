@@ -10,6 +10,7 @@ import (
 
 type ShopRepository interface {
 	GetNearbyShops(ctx context.Context, lat, lng, radius float64, onlyIndie bool) ([]domain.Shop, error)
+	SearchQuestShops(ctx context.Context, lat, lng, radius float64, categories []string, keyword string, minRating, maxRating float64) ([]domain.Shop, error)
 	GetByID(ctx context.Context, shopID uuid.UUID) (*domain.Shop, error)
 }
 
@@ -26,6 +27,38 @@ func (r *shopRepository) GetNearbyShops(ctx context.Context, lat, lng, radius fl
 	query := r.db.WithContext(ctx).Where("ST_DWithin(geom::geography, ST_SetSRID(ST_MakePoint(?, ?), 4326)::geography, ?)", lng, lat, radius)
 	if onlyIndie {
 		query = query.Where("is_chain = ?", false)
+	}
+
+	if err := query.Find(&shops).Error; err != nil {
+		return nil, err
+	}
+	return shops, nil
+}
+
+func (r *shopRepository) SearchQuestShops(ctx context.Context, lat, lng, radius float64, categories []string, keyword string, minRating, maxRating float64) ([]domain.Shop, error) {
+	var shops []domain.Shop
+	query := r.db.WithContext(ctx)
+
+	// Geom filter (required)
+	query = query.Where("ST_DWithin(geom::geography, ST_SetSRID(ST_MakePoint(?, ?), 4326)::geography, ?)", lng, lat, radius)
+
+	// Filter Categories
+	if len(categories) > 0 {
+		query = query.Where("category IN ?", categories)
+	}
+
+	// Filter Keyword (Name or Address)
+	if keyword != "" {
+		likePattern := "%" + keyword + "%"
+		query = query.Where("name ILIKE ? OR address ILIKE ?", likePattern, likePattern)
+	}
+
+	// Filter Rating
+	if minRating > 0 {
+		query = query.Where("rating >= ?", minRating)
+	}
+	if maxRating > 0 {
+		query = query.Where("rating <= ?", maxRating)
 	}
 
 	if err := query.Find(&shops).Error; err != nil {

@@ -247,7 +247,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get errorLocationUnavailable => '位置情報が利用できません';
 
   @override
-  String get errorNoShopsFound => '条件に一致するお店が見つかりませんでした';
+  String get errorNoShopsFound => '対象のお店はありませんでした';
 
   @override
   String get close => '閉じる';
@@ -307,12 +307,19 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String visitComplete(String shopName) {
-    return '訪問完了: $shopName';
-  }
+  String get howWasExperience => 'いかがでしたか？';
 
   @override
-  String get howWasExperience => 'いかがでしたか？';
+  String get visitReviewTitle => '訪問レビュー';
+
+  @override
+  String get visitedOn => '訪問日';
+
+  @override
+  String get yourReview => '自分のレビュー';
+
+  @override
+  String get noCommentProvided => 'コメントはありません。';
 
   @override
   String get commentOptional => 'コメント（任意）';
@@ -471,6 +478,42 @@ class AppLocalizationsJa extends AppLocalizations {
   String get achDescNightOwl => '午前0時から午前4時の間にお店を訪問する。';
 
   @override
+  String get achNameFogRunner => 'フォグランナー';
+
+  @override
+  String get achDescFogRunner => '10軒の異なるお店を訪問する。';
+
+  @override
+  String get achNameLegendaryExplorer => 'レジェンダリー・エクスプローラー';
+
+  @override
+  String get achDescLegendaryExplorer => '200軒の異なるお店を訪問する。';
+
+  @override
+  String get achNameRamenMaster => 'ラーメンマスター';
+
+  @override
+  String get achDescRamenMaster => 'ラーメン店を15軒訪問する。';
+
+  @override
+  String get achNameGourmetKing => 'グルメキング';
+
+  @override
+  String get achDescGourmetKing => '15種類の異なるカテゴリーのお店を訪問する。';
+
+  @override
+  String get achNameMorningBird => 'モーニングバード';
+
+  @override
+  String get achDescMorningBird => '午前6時から9時の間に店舗を訪問する。';
+
+  @override
+  String get achNameWeekendWarrior => 'ウィークエンド・ウォーリアー';
+
+  @override
+  String get achDescWeekendWarrior => '週末に5回店舗を訪問する。';
+
+  @override
   String get achCategoryAll => 'すべて';
 
   @override
@@ -498,4 +541,43 @@ class AppLocalizationsJa extends AppLocalizations {
   String journalDate(String day, String month) {
     return '$month$day日';
   }
+
+  @override
+  String get editProfile => 'プロフィールを編集';
+
+  @override
+  String get changeName => '名前を変更';
+
+  @override
+  String get changePhoto => '写真を変更';
+
+  @override
+  String get displayName => '表示名';
+
+  @override
+  String get editReview => 'レビューを編集';
+
+  @override
+  String get save => '保存';
+
+  @override
+  String get addPhoto => '写真を追加';
+
+  @override
+  String get questRating => '評価';
+
+  @override
+  String get questOpenNow => '営業中のみ';
+
+  @override
+  String get questRatingExcellent => '最高 🔥';
+
+  @override
+  String get questRatingAverage => '良店 👍';
+
+  @override
+  String get questRatingMixed => 'おまかせ 🎲';
+
+  @override
+  String get visitComplete => '到着しました！ 🎉';
 }

@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"fmt"
+	"math"
 	"strings"
 	"time"
 
@@ -10,6 +11,26 @@ import (
 	fofv1 "github.com/viuts/fof/apps/backend/pkg/api/fof/v1"
 	"gorm.io/gorm"
 )
+
+const (
+	// Earth radius in meters
+	earthRadius = 6371000.0
+	// Distance threshold to split paths (meters)
+	pathSplitThreshold = 200.0
+)
+
+// distance calculates the Haversine distance between two points in meters.
+func distance(lat1, lon1, lat2, lon2 float64) float64 {
+	dLat := (lat2 - lat1) * math.Pi / 180.0
+	dLon := (lon2 - lon1) * math.Pi / 180.0
+
+	a := math.Sin(dLat/2)*math.Sin(dLat/2) +
+		math.Cos(lat1*math.Pi/180.0)*math.Cos(lat2*math.Pi/180.0)*
+			math.Sin(dLon/2)*math.Sin(dLon/2)
+	c := 2 * math.Atan2(math.Sqrt(a), math.Sqrt(1-a))
+
+	return earthRadius * c
+}
 
 type LocationRepository interface {
 	UpdateLocation(ctx context.Context, userID uuid.UUID, path []*fofv1.LatLng) (newlyCleared bool, geoJSON string, err error)
@@ -31,16 +52,43 @@ func (r *locationRepository) UpdateLocation(ctx context.Context, userID uuid.UUI
 		return false, area, nil
 	}
 
-	var geomWKT string
+	var geoms []string
+
 	if len(path) == 1 {
-		geomWKT = fmt.Sprintf("POINT(%f %f)", path[0].Lng, path[0].Lat)
+		geoms = append(geoms, fmt.Sprintf("POINT(%f %f)", path[0].Lng, path[0].Lat))
 	} else {
-		var points []string
-		for _, p := range path {
-			points = append(points, fmt.Sprintf("%f %f", p.Lng, p.Lat))
+		var currentSegment []string
+		currentSegment = append(currentSegment, fmt.Sprintf("%f %f", path[0].Lng, path[0].Lat))
+
+		for i := 1; i < len(path); i++ {
+			p1 := path[i-1]
+			p2 := path[i]
+
+			dist := distance(p1.Lat, p1.Lng, p2.Lat, p2.Lng)
+
+			if dist > pathSplitThreshold {
+				// Close current segment as a LineString if it has more than one point, otherwise a Point
+				if len(currentSegment) > 1 {
+					geoms = append(geoms, fmt.Sprintf("LINESTRING(%s)", strings.Join(currentSegment, ",")))
+				} else {
+					geoms = append(geoms, fmt.Sprintf("POINT(%s)", currentSegment[0]))
+				}
+				// Start new segment
+				currentSegment = []string{fmt.Sprintf("%f %f", p2.Lng, p2.Lat)}
+			} else {
+				currentSegment = append(currentSegment, fmt.Sprintf("%f %f", p2.Lng, p2.Lat))
+			}
 		}
-		geomWKT = fmt.Sprintf("LINESTRING(%s)", strings.Join(points, ","))
+
+		// Close final segment
+		if len(currentSegment) > 1 {
+			geoms = append(geoms, fmt.Sprintf("LINESTRING(%s)", strings.Join(currentSegment, ",")))
+		} else {
+			geoms = append(geoms, fmt.Sprintf("POINT(%s)", currentSegment[0]))
+		}
 	}
+
+	geomWKT := fmt.Sprintf("GEOMETRYCOLLECTION(%s)", strings.Join(geoms, ","))
 
 	query := `
 		INSERT INTO user_fogs (user_id, cleared_area, updated_at)

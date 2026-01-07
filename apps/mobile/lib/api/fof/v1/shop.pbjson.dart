@@ -56,6 +56,25 @@ final $typed_data.Uint8List foodCategoryDescriptor = $convert.base64Decode(
     'RfQ0FURUdPUllfSVpBS0FZQRASEhUKEUZPT0RfQ0FURUdPUllfQkFSEBMSFgoSRk9PRF9DQVRF'
     'R09SWV9DQUZFEBQSGAoURk9PRF9DQVRFR09SWV9TV0VFVFMQFQ==');
 
+@$core.Deprecated('Use questRatingFilterDescriptor instead')
+const QuestRatingFilter$json = {
+  '1': 'QuestRatingFilter',
+  '2': [
+    {'1': 'QUEST_RATING_FILTER_UNSPECIFIED', '2': 0},
+    {'1': 'QUEST_RATING_FILTER_ALL', '2': 1},
+    {'1': 'QUEST_RATING_FILTER_EXCELLENT', '2': 2},
+    {'1': 'QUEST_RATING_FILTER_AVERAGE', '2': 3},
+    {'1': 'QUEST_RATING_FILTER_MIXED', '2': 4},
+  ],
+};
+
+/// Descriptor for `QuestRatingFilter`. Decode as a `google.protobuf.EnumDescriptorProto`.
+final $typed_data.Uint8List questRatingFilterDescriptor = $convert.base64Decode(
+    'ChFRdWVzdFJhdGluZ0ZpbHRlchIjCh9RVUVTVF9SQVRJTkdfRklMVEVSX1VOU1BFQ0lGSUVEEA'
+    'ASGwoXUVVFU1RfUkFUSU5HX0ZJTFRFUl9BTEwQARIhCh1RVUVTVF9SQVRJTkdfRklMVEVSX0VY'
+    'Q0VMTEVOVBACEh8KG1FVRVNUX1JBVElOR19GSUxURVJfQVZFUkFHRRADEh0KGVFVRVNUX1JBVE'
+    'lOR19GSUxURVJfTUlYRUQQBA==');
+
 @$core.Deprecated('Use shopDescriptor instead')
 const Shop$json = {
   '1': 'Shop',
@@ -120,4 +139,41 @@ const GetNearbyShopsResponse$json = {
 final $typed_data.Uint8List getNearbyShopsResponseDescriptor = $convert.base64Decode(
     'ChZHZXROZWFyYnlTaG9wc1Jlc3BvbnNlEiIKBXNob3BzGAEgAygLMgwuZm9mLnYxLlNob3BSBX'
     'Nob3Bz');
+
+@$core.Deprecated('Use getQuestShopRequestDescriptor instead')
+const GetQuestShopRequest$json = {
+  '1': 'GetQuestShopRequest',
+  '2': [
+    {'1': 'lat', '3': 1, '4': 1, '5': 1, '10': 'lat'},
+    {'1': 'lng', '3': 2, '4': 1, '5': 1, '10': 'lng'},
+    {'1': 'radius_meters', '3': 3, '4': 1, '5': 1, '10': 'radiusMeters'},
+    {'1': 'categories', '3': 4, '4': 3, '5': 9, '10': 'categories'},
+    {'1': 'keyword', '3': 5, '4': 1, '5': 9, '10': 'keyword'},
+    {'1': 'rating_filter', '3': 6, '4': 1, '5': 14, '6': '.fof.v1.QuestRatingFilter', '10': 'ratingFilter'},
+    {'1': 'open_at_time', '3': 7, '4': 1, '5': 3, '10': 'openAtTime'},
+    {'1': 'exclusive_independent', '3': 9, '4': 1, '5': 8, '10': 'exclusiveIndependent'},
+  ],
+};
+
+/// Descriptor for `GetQuestShopRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List getQuestShopRequestDescriptor = $convert.base64Decode(
+    'ChNHZXRRdWVzdFNob3BSZXF1ZXN0EhAKA2xhdBgBIAEoAVIDbGF0EhAKA2xuZxgCIAEoAVIDbG'
+    '5nEiMKDXJhZGl1c19tZXRlcnMYAyABKAFSDHJhZGl1c01ldGVycxIeCgpjYXRlZ29yaWVzGAQg'
+    'AygJUgpjYXRlZ29yaWVzEhgKB2tleXdvcmQYBSABKAlSB2tleXdvcmQSPgoNcmF0aW5nX2ZpbH'
+    'RlchgGIAEoDjIZLmZvZi52MS5RdWVzdFJhdGluZ0ZpbHRlclIMcmF0aW5nRmlsdGVyEiAKDG9w'
+    'ZW5fYXRfdGltZRgHIAEoA1IKb3BlbkF0VGltZRIzChVleGNsdXNpdmVfaW5kZXBlbmRlbnQYCS'
+    'ABKAhSFGV4Y2x1c2l2ZUluZGVwZW5kZW50');
+
+@$core.Deprecated('Use getQuestShopResponseDescriptor instead')
+const GetQuestShopResponse$json = {
+  '1': 'GetQuestShopResponse',
+  '2': [
+    {'1': 'shop', '3': 1, '4': 1, '5': 11, '6': '.fof.v1.Shop', '10': 'shop'},
+  ],
+};
+
+/// Descriptor for `GetQuestShopResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List getQuestShopResponseDescriptor = $convert.base64Decode(
+    'ChRHZXRRdWVzdFNob3BSZXNwb25zZRIgCgRzaG9wGAEgASgLMgwuZm9mLnYxLlNob3BSBHNob3'
+    'A=');
 

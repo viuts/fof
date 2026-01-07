@@ -12,11 +12,27 @@ service UserService {
       get: "/v1/users/profile"
     };
   }
+
+  rpc UpdateProfile(UpdateProfileRequest) returns (UpdateProfileResponse) {
+    option (google.api.http) = {
+      patch: "/v1/users/profile"
+      body: "*"
+    };
+  }
 }
 
 message GetProfileRequest {}
 
 message GetProfileResponse {
+  User user = 1;
+}
+
+message UpdateProfileRequest {
+  string display_name = 1;
+  string profile_image = 2;
+}
+
+message UpdateProfileResponse {
   User user = 1;
 }
 

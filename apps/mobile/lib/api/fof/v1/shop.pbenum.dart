@@ -68,5 +68,26 @@ class FoodCategory extends $pb.ProtobufEnum {
   const FoodCategory._($core.int v, $core.String n) : super(v, n);
 }
 
+class QuestRatingFilter extends $pb.ProtobufEnum {
+  static const QuestRatingFilter QUEST_RATING_FILTER_UNSPECIFIED = QuestRatingFilter._(0, _omitEnumNames ? '' : 'QUEST_RATING_FILTER_UNSPECIFIED');
+  static const QuestRatingFilter QUEST_RATING_FILTER_ALL = QuestRatingFilter._(1, _omitEnumNames ? '' : 'QUEST_RATING_FILTER_ALL');
+  static const QuestRatingFilter QUEST_RATING_FILTER_EXCELLENT = QuestRatingFilter._(2, _omitEnumNames ? '' : 'QUEST_RATING_FILTER_EXCELLENT');
+  static const QuestRatingFilter QUEST_RATING_FILTER_AVERAGE = QuestRatingFilter._(3, _omitEnumNames ? '' : 'QUEST_RATING_FILTER_AVERAGE');
+  static const QuestRatingFilter QUEST_RATING_FILTER_MIXED = QuestRatingFilter._(4, _omitEnumNames ? '' : 'QUEST_RATING_FILTER_MIXED');
+
+  static const $core.List<QuestRatingFilter> values = <QuestRatingFilter> [
+    QUEST_RATING_FILTER_UNSPECIFIED,
+    QUEST_RATING_FILTER_ALL,
+    QUEST_RATING_FILTER_EXCELLENT,
+    QUEST_RATING_FILTER_AVERAGE,
+    QUEST_RATING_FILTER_MIXED,
+  ];
+
+  static final $core.Map<$core.int, QuestRatingFilter> _byValue = $pb.ProtobufEnum.initByValue(values);
+  static QuestRatingFilter? valueOf($core.int value) => _byValue[value];
+
+  const QuestRatingFilter._($core.int v, $core.String n) : super(v, n);
+}
+
 
 const _omitEnumNames = $core.bool.fromEnvironment('protobuf.omit_enum_names');

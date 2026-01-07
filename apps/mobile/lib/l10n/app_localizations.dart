@@ -650,17 +650,35 @@ abstract class AppLocalizations {
   /// **'{minutes}m {seconds}s remaining'**
   String remainingTime(int minutes, int seconds);
 
-  /// No description provided for @visitComplete.
-  ///
-  /// In en, this message translates to:
-  /// **'Visit Complete: {shopName}'**
-  String visitComplete(String shopName);
-
   /// No description provided for @howWasExperience.
   ///
   /// In en, this message translates to:
   /// **'How was your experience?'**
   String get howWasExperience;
+
+  /// No description provided for @visitReviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit Review'**
+  String get visitReviewTitle;
+
+  /// No description provided for @visitedOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Visited on'**
+  String get visitedOn;
+
+  /// No description provided for @yourReview.
+  ///
+  /// In en, this message translates to:
+  /// **'YOUR REVIEW'**
+  String get yourReview;
+
+  /// No description provided for @noCommentProvided.
+  ///
+  /// In en, this message translates to:
+  /// **'No comment provided.'**
+  String get noCommentProvided;
 
   /// No description provided for @commentOptional.
   ///
@@ -962,6 +980,78 @@ abstract class AppLocalizations {
   /// **'Visit a shop between 12:00 AM and 4:00 AM.'**
   String get achDescNightOwl;
 
+  /// No description provided for @achNameFogRunner.
+  ///
+  /// In en, this message translates to:
+  /// **'Fog Runner'**
+  String get achNameFogRunner;
+
+  /// No description provided for @achDescFogRunner.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit 10 different shops.'**
+  String get achDescFogRunner;
+
+  /// No description provided for @achNameLegendaryExplorer.
+  ///
+  /// In en, this message translates to:
+  /// **'Legendary Explorer'**
+  String get achNameLegendaryExplorer;
+
+  /// No description provided for @achDescLegendaryExplorer.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit 200 different shops.'**
+  String get achDescLegendaryExplorer;
+
+  /// No description provided for @achNameRamenMaster.
+  ///
+  /// In en, this message translates to:
+  /// **'Ramen Master'**
+  String get achNameRamenMaster;
+
+  /// No description provided for @achDescRamenMaster.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit 15 Ramen shops.'**
+  String get achDescRamenMaster;
+
+  /// No description provided for @achNameGourmetKing.
+  ///
+  /// In en, this message translates to:
+  /// **'Gourmet King'**
+  String get achNameGourmetKing;
+
+  /// No description provided for @achDescGourmetKing.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit one shop from 15 different categories.'**
+  String get achDescGourmetKing;
+
+  /// No description provided for @achNameMorningBird.
+  ///
+  /// In en, this message translates to:
+  /// **'Morning Bird'**
+  String get achNameMorningBird;
+
+  /// No description provided for @achDescMorningBird.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit a shop between 6:00 AM and 9:00 AM.'**
+  String get achDescMorningBird;
+
+  /// No description provided for @achNameWeekendWarrior.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekend Warrior'**
+  String get achNameWeekendWarrior;
+
+  /// No description provided for @achDescWeekendWarrior.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit 5 shops on weekends.'**
+  String get achDescWeekendWarrior;
+
   /// No description provided for @achCategoryAll.
   ///
   /// In en, this message translates to:
@@ -1015,6 +1105,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{day} {month}'**
   String journalDate(String day, String month);
+
+  /// No description provided for @editProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Profile'**
+  String get editProfile;
+
+  /// No description provided for @changeName.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Name'**
+  String get changeName;
+
+  /// No description provided for @changePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Photo'**
+  String get changePhoto;
+
+  /// No description provided for @displayName.
+  ///
+  /// In en, this message translates to:
+  /// **'Display Name'**
+  String get displayName;
+
+  /// No description provided for @editReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Review'**
+  String get editReview;
+
+  /// No description provided for @save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get save;
+
+  /// No description provided for @addPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Photo'**
+  String get addPhoto;
+
+  /// No description provided for @questRating.
+  ///
+  /// In en, this message translates to:
+  /// **'RATING'**
+  String get questRating;
+
+  /// No description provided for @questOpenNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Now'**
+  String get questOpenNow;
+
+  /// No description provided for @questRatingExcellent.
+  ///
+  /// In en, this message translates to:
+  /// **'Excellent 🔥'**
+  String get questRatingExcellent;
+
+  /// No description provided for @questRatingAverage.
+  ///
+  /// In en, this message translates to:
+  /// **'Good 👍'**
+  String get questRatingAverage;
+
+  /// No description provided for @questRatingMixed.
+  ///
+  /// In en, this message translates to:
+  /// **'Wildcard 🎲'**
+  String get questRatingMixed;
+
+  /// No description provided for @visitComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'ARRIVED! 🎉'**
+  String get visitComplete;
 }
 
 class _AppLocalizationsDelegate

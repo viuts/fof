@@ -13,6 +13,25 @@ import 'dart:convert' as $convert;
 import 'dart:core' as $core;
 import 'dart:typed_data' as $typed_data;
 
+@$core.Deprecated('Use achievementTierDescriptor instead')
+const AchievementTier$json = {
+  '1': 'AchievementTier',
+  '2': [
+    {'1': 'ACHIEVEMENT_TIER_UNSPECIFIED', '2': 0},
+    {'1': 'ACHIEVEMENT_TIER_BRONZE', '2': 1},
+    {'1': 'ACHIEVEMENT_TIER_SILVER', '2': 2},
+    {'1': 'ACHIEVEMENT_TIER_GOLD', '2': 3},
+    {'1': 'ACHIEVEMENT_TIER_PLATINUM', '2': 4},
+  ],
+};
+
+/// Descriptor for `AchievementTier`. Decode as a `google.protobuf.EnumDescriptorProto`.
+final $typed_data.Uint8List achievementTierDescriptor = $convert.base64Decode(
+    'Cg9BY2hpZXZlbWVudFRpZXISIAocQUNISUVWRU1FTlRfVElFUl9VTlNQRUNJRklFRBAAEhsKF0'
+    'FDSElFVkVNRU5UX1RJRVJfQlJPTlpFEAESGwoXQUNISUVWRU1FTlRfVElFUl9TSUxWRVIQAhIZ'
+    'ChVBQ0hJRVZFTUVOVF9USUVSX0dPTEQQAxIdChlBQ0hJRVZFTUVOVF9USUVSX1BMQVRJTlVNEA'
+    'Q=');
+
 @$core.Deprecated('Use achievementDescriptor instead')
 const Achievement$json = {
   '1': 'Achievement',
@@ -23,6 +42,7 @@ const Achievement$json = {
     {'1': 'exp_reward', '3': 4, '4': 1, '5': 5, '10': 'expReward'},
     {'1': 'title_reward', '3': 5, '4': 1, '5': 9, '10': 'titleReward'},
     {'1': 'category', '3': 6, '4': 1, '5': 9, '10': 'category'},
+    {'1': 'tier', '3': 7, '4': 1, '5': 14, '6': '.fof.v1.AchievementTier', '10': 'tier'},
   ],
 };
 
@@ -31,7 +51,7 @@ final $typed_data.Uint8List achievementDescriptor = $convert.base64Decode(
     'CgtBY2hpZXZlbWVudBIOCgJpZBgBIAEoCVICaWQSEgoEbmFtZRgCIAEoCVIEbmFtZRIgCgtkZX'
     'NjcmlwdGlvbhgDIAEoCVILZGVzY3JpcHRpb24SHQoKZXhwX3Jld2FyZBgEIAEoBVIJZXhwUmV3'
     'YXJkEiEKDHRpdGxlX3Jld2FyZBgFIAEoCVILdGl0bGVSZXdhcmQSGgoIY2F0ZWdvcnkYBiABKA'
-    'lSCGNhdGVnb3J5');
+    'lSCGNhdGVnb3J5EisKBHRpZXIYByABKA4yFy5mb2YudjEuQWNoaWV2ZW1lbnRUaWVyUgR0aWVy');
 
 @$core.Deprecated('Use getAchievementsRequestDescriptor instead')
 const GetAchievementsRequest$json = {

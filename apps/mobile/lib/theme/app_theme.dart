@@ -12,6 +12,12 @@ class AppTheme {
   static const Color primaryLight = Color(0xFFFF8A8E);
   static const Color accentColor = Color(0xFF00B2FF); // Sky Blue
 
+  // Achievement Tier Colors
+  static const Color tierBronze = Color(0xFFA87F32);
+  static const Color tierSilver = Color(0xFFB4B4B4);
+  static const Color tierGold = Color(0xFFFFD700);
+  static const Color tierPlatinum = Color(0xFF88D8EB);
+
   // Light theme colors (New Default)
   static const Color lightBackground = Color(0xFFF8F9FA);
   static const Color lightSurface = Color(0xFFFFFFFF);

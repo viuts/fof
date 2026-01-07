@@ -48,3 +48,43 @@ func (h *UserHandler) GetProfile(ctx context.Context, req *fofv1.GetProfileReque
 		},
 	}, nil
 }
+
+func (h *UserHandler) UpdateProfile(ctx context.Context, req *fofv1.UpdateProfileRequest) (*fofv1.UpdateProfileResponse, error) {
+	userIDStr, ok := ctx.Value(middleware.ContextKeyUserID).(string)
+	if !ok {
+		return nil, status.Error(codes.Unauthenticated, "user not authenticated")
+	}
+
+	userID, err := uuid.Parse(userIDStr)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid user id")
+	}
+
+	user, err := h.repo.GetByID(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	if req.DisplayName != "" {
+		user.DisplayName = req.DisplayName
+	}
+	if req.ProfileImage != "" {
+		user.ProfileImage = req.ProfileImage
+	}
+
+	if err := h.repo.Save(ctx, user); err != nil {
+		return nil, err
+	}
+
+	return &fofv1.UpdateProfileResponse{
+		User: &fofv1.User{
+			Id:           user.ID.String(),
+			Username:     user.Username,
+			Email:        user.Email,
+			Level:        int32(user.Level),
+			Exp:          int32(user.Exp),
+			DisplayName:  user.DisplayName,
+			ProfileImage: user.ProfileImage,
+		},
+	}, nil
+}

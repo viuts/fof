@@ -3,9 +3,7 @@ import '../services/language_service.dart';
 import '../services/api_service.dart';
 import '../services/location_service.dart';
 import '../api/fof/v1/shop.pb.dart';
-import '../api/fof/v1/shop_extensions.dart';
 import '../constants/category_colors.dart';
-import 'dart:math';
 
 class QuestSelectionScreen extends StatefulWidget {
   final Function(Shop) onStartQuest;
@@ -20,6 +18,9 @@ class _QuestSelectionScreenState extends State<QuestSelectionScreen> {
   FoodCategory _selectedCategory = FoodCategory.FOOD_CATEGORY_RAMEN;
   double _distance = 1000; // Meters
   final _keywordController = TextEditingController();
+  QuestRatingFilter _selectedRating =
+      QuestRatingFilter.QUEST_RATING_FILTER_UNSPECIFIED;
+  bool _openNow = true;
 
   @override
   void dispose() {
@@ -139,7 +140,63 @@ class _QuestSelectionScreenState extends State<QuestSelectionScreen> {
 
             const SizedBox(height: 24),
 
-            // 3. Free Text Input
+            // 3. Rating Filter
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    S.of(context).questRating,
+                    style: TextStyle(
+                      color: Colors.grey[600],
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.0,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 8,
+                    children: [
+                      _buildRatingChip(
+                        QuestRatingFilter.QUEST_RATING_FILTER_EXCELLENT,
+                        S.of(context).questRatingExcellent,
+                      ),
+                      _buildRatingChip(
+                        QuestRatingFilter.QUEST_RATING_FILTER_AVERAGE,
+                        S.of(context).questRatingAverage,
+                      ),
+                      _buildRatingChip(
+                        QuestRatingFilter.QUEST_RATING_FILTER_MIXED,
+                        S.of(context).questRatingMixed,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
+            // 4. Open Now Toggle
+            SwitchListTile(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 24),
+              title: Text(
+                S.of(context).questOpenNow,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+              value: _openNow,
+              activeColor: Colors.black,
+              onChanged: (val) => setState(() => _openNow = val),
+            ),
+
+            const SizedBox(height: 24),
+
+            // 5. Free Text Input
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24.0),
               child: Column(
@@ -243,6 +300,29 @@ class _QuestSelectionScreenState extends State<QuestSelectionScreen> {
     );
   }
 
+  Widget _buildRatingChip(QuestRatingFilter filter, String label) {
+    final isSelected = _selectedRating == filter;
+    return ChoiceChip(
+      label: Text(label),
+      selected: isSelected,
+      onSelected: (selected) {
+        setState(() {
+          if (isSelected) {
+            _selectedRating = QuestRatingFilter.QUEST_RATING_FILTER_UNSPECIFIED;
+          } else {
+            _selectedRating = filter;
+          }
+        });
+      },
+      selectedColor: Colors.black,
+      labelStyle: TextStyle(
+        color: isSelected ? Colors.white : Colors.black87,
+        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+      ),
+      side: isSelected ? null : BorderSide(color: Colors.grey[300]!),
+    );
+  }
+
   void _showToast(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -281,50 +361,40 @@ class _QuestSelectionScreenState extends State<QuestSelectionScreen> {
               return;
             }
 
+            // Calculate Open Time
+            int? openAtTime;
+            if (_openNow) {
+              openAtTime = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+            }
+
             // Call API with quest parameters
             try {
               final apiService = ApiService();
-              final result = await apiService.getNearbyShops(
-                position.latitude,
-                position.longitude,
-                _distance,
+              final response = await apiService.getQuestShop(
+                lat: position.latitude,
+                lng: position.longitude,
+                radius: _distance,
+                categories: [_selectedCategory.name],
+                keyword: _keywordController.text.trim(),
+                ratingFilter: _selectedRating,
+                openAtTime: openAtTime,
+                exclusiveIndependent: true,
               );
 
-              // Filter by selected category (client-side for now)
-              final filtered = result.shops
-                  .where(
-                    (shop) => shop.effectiveFoodCategory == _selectedCategory,
-                  )
-                  .where((shop) => !shop.isVisited) // Exclude visited shops
-                  .toList();
-
-              // Filter by keyword if provided
-              final keyword = _keywordController.text.trim().toLowerCase();
-              final finalShops = keyword.isEmpty
-                  ? filtered
-                  : filtered
-                        .where(
-                          (shop) => shop.name.toLowerCase().contains(keyword),
-                        )
-                        .toList();
-
-              if (finalShops.isEmpty) {
+              if (response.hasShop()) {
+                widget.onStartQuest(response.shop);
+              } else {
                 if (mounted) {
-                  _showToast(S.of(context).errorNoShopsFound);
+                  _showNoShopsDialog();
                 }
-                return;
               }
-
-              // Randomly select one shop
-              final random = Random();
-              final selectedShop =
-                  finalShops[random.nextInt(finalShops.length)];
-
-              // Start the quest by calling the callback
-              widget.onStartQuest(selectedShop);
             } catch (e) {
               if (mounted) {
-                _showToast('Error: $e');
+                if (e.toString().contains('404')) {
+                  _showNoShopsDialog();
+                } else {
+                  _showToast(S.of(context).errorLabel(e.toString()));
+                }
               }
             }
           },
@@ -346,6 +416,30 @@ class _QuestSelectionScreenState extends State<QuestSelectionScreen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  void _showNoShopsDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('😢'), // Simple emoji title or localized "Sorry"
+        content: Text(
+          S.of(context).errorNoShopsFound,
+          textAlign: TextAlign.center,
+          style: const TextStyle(fontSize: 16),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              S.of(context).close,
+              style: const TextStyle(color: Colors.black),
+            ),
+          ),
+        ],
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
     );
   }

@@ -9,12 +9,22 @@ class EnvironmentConfig {
       case 'prod':
         return 'https://fof-backend-urjmlwf4ka-uc.a.run.app';
       case 'dev':
-        return 'https://fof-backend-urjmlwf4ka-uc.a.run.app'; // Assuming dev uses the same for now, or update if different
+        return 'https://fof-backend-urjmlwf4ka-uc.a.run.app';
       case 'local':
       default:
-        // Use 10.0.2.2 for Android emulator to access host localhost
-        // Use localhost for iOS simulator
         return 'http://localhost:8080';
+    }
+  }
+
+  static String get storageBucket {
+    switch (env) {
+      case 'prod':
+        return 'prod-fof.firebasestorage.app';
+      case 'dev':
+        return 'dev-fof.firebasestorage.app';
+      case 'local':
+      default:
+        return 'dev-fof.firebasestorage.app';
     }
   }
 }

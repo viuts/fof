@@ -13,6 +13,10 @@ import 'dart:core' as $core;
 
 import 'package:protobuf/protobuf.dart' as $pb;
 
+import 'achievement.pbenum.dart';
+
+export 'achievement.pbenum.dart';
+
 class Achievement extends $pb.GeneratedMessage {
   factory Achievement({
     $core.String? id,
@@ -21,6 +25,7 @@ class Achievement extends $pb.GeneratedMessage {
     $core.int? expReward,
     $core.String? titleReward,
     $core.String? category,
+    AchievementTier? tier,
   }) {
     final $result = create();
     if (id != null) {
@@ -41,6 +46,9 @@ class Achievement extends $pb.GeneratedMessage {
     if (category != null) {
       $result.category = category;
     }
+    if (tier != null) {
+      $result.tier = tier;
+    }
     return $result;
   }
   Achievement._() : super();
@@ -54,6 +62,7 @@ class Achievement extends $pb.GeneratedMessage {
     ..a<$core.int>(4, _omitFieldNames ? '' : 'expReward', $pb.PbFieldType.O3)
     ..aOS(5, _omitFieldNames ? '' : 'titleReward')
     ..aOS(6, _omitFieldNames ? '' : 'category')
+    ..e<AchievementTier>(7, _omitFieldNames ? '' : 'tier', $pb.PbFieldType.OE, defaultOrMaker: AchievementTier.ACHIEVEMENT_TIER_UNSPECIFIED, valueOf: AchievementTier.valueOf, enumValues: AchievementTier.values)
     ..hasRequiredFields = false
   ;
 
@@ -131,6 +140,15 @@ class Achievement extends $pb.GeneratedMessage {
   $core.bool hasCategory() => $_has(5);
   @$pb.TagNumber(6)
   void clearCategory() => clearField(6);
+
+  @$pb.TagNumber(7)
+  AchievementTier get tier => $_getN(6);
+  @$pb.TagNumber(7)
+  set tier(AchievementTier v) { setField(7, v); }
+  @$pb.TagNumber(7)
+  $core.bool hasTier() => $_has(6);
+  @$pb.TagNumber(7)
+  void clearTier() => clearField(7);
 }
 
 class GetAchievementsRequest extends $pb.GeneratedMessage {

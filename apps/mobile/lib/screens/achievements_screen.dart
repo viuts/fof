@@ -240,18 +240,48 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
     );
   }
 
-  IconData _getIconForCategory(String category) {
+  Color _getCategoryColor(String category) {
     switch (category.toUpperCase()) {
       case 'EXPLORATION':
-        return Icons.explore_rounded;
+        return Colors.blue;
       case 'FOODIE':
-        return Icons.restaurant_rounded;
+        return Colors.orange;
       case 'QUEST':
-        return Icons.map_rounded;
+        return Colors.purple;
       case 'SOCIAL':
-        return Icons.people_rounded;
+        return Colors.green;
       default:
-        return Icons.emoji_events_rounded;
+        return AppTheme.primaryColor;
+    }
+  }
+
+  Color _getTierColor(AchievementTier tier) {
+    switch (tier) {
+      case AchievementTier.ACHIEVEMENT_TIER_BRONZE:
+        return AppTheme.tierBronze;
+      case AchievementTier.ACHIEVEMENT_TIER_SILVER:
+        return AppTheme.tierSilver;
+      case AchievementTier.ACHIEVEMENT_TIER_GOLD:
+        return AppTheme.tierGold;
+      case AchievementTier.ACHIEVEMENT_TIER_PLATINUM:
+        return AppTheme.tierPlatinum;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  String _getTierLabel(AchievementTier tier) {
+    switch (tier) {
+      case AchievementTier.ACHIEVEMENT_TIER_BRONZE:
+        return 'BRONZE';
+      case AchievementTier.ACHIEVEMENT_TIER_SILVER:
+        return 'SILVER';
+      case AchievementTier.ACHIEVEMENT_TIER_GOLD:
+        return 'GOLD';
+      case AchievementTier.ACHIEVEMENT_TIER_PLATINUM:
+        return 'PLATINUM';
+      default:
+        return '';
     }
   }
 
@@ -260,7 +290,6 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
     final ach = status.achievement;
     final isUnlocked = status.isUnlocked;
     final progress = status.progress;
-    final icon = _getIconForCategory(ach.category);
 
     // Localize!
     final localized = AchievementLocalization.getLocalizedAchievement(
@@ -301,10 +330,29 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                           .withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(
-                  icon,
-                  color: isUnlocked ? AppTheme.primaryColor : Colors.grey[400],
-                  size: 24,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.emoji_events_rounded,
+                      color: _getTierColor(ach.tier),
+                      size: 24,
+                    ),
+                    if (ach.tier !=
+                        AchievementTier.ACHIEVEMENT_TIER_UNSPECIFIED)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 2),
+                        child: Text(
+                          _getTierLabel(ach.tier),
+                          style: TextStyle(
+                            fontSize: 8,
+                            fontWeight: FontWeight.w900,
+                            color: _getTierColor(ach.tier),
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               ),
               const SizedBox(width: AppTheme.spacingMd),
@@ -312,6 +360,53 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Row(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: _getCategoryColor(
+                                ach.category,
+                              ).withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(
+                                color: _getCategoryColor(
+                                  ach.category,
+                                ).withValues(alpha: 0.5),
+                                width: 1,
+                              ),
+                            ),
+                            child: Text(
+                              AchievementLocalization.getLocalizedCategoryLabel(
+                                s,
+                                ach.category,
+                              ),
+                              style: TextStyle(
+                                fontSize: 9,
+                                fontWeight: FontWeight.w700,
+                                color: _getCategoryColor(ach.category),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Text(
+                          '+${ach.expReward} EXP',
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            color: isUnlocked
+                                ? AppTheme.primaryColor
+                                : Colors.grey[500],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 2),
                     Text(
                       localized.name, // Use localized name
                       style: TextStyle(
@@ -334,9 +429,12 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                 ),
               ),
               if (isUnlocked)
-                const Icon(
+                Icon(
                   Icons.stars_rounded,
-                  color: AppTheme.primaryColor,
+                  color:
+                      ach.tier != AchievementTier.ACHIEVEMENT_TIER_UNSPECIFIED
+                      ? _getTierColor(ach.tier)
+                      : AppTheme.primaryColor,
                   size: 20,
                 ),
             ],

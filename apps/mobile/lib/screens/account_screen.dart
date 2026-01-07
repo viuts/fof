@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../theme/app_theme.dart';
@@ -6,6 +7,8 @@ import '../services/language_service.dart';
 import '../services/map_style_service.dart';
 import '../services/api_service.dart';
 import '../api/fof/v1/user.pb.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
 class AccountScreen extends StatefulWidget {
   final VoidCallback? onDeleteHistory;
@@ -44,6 +47,78 @@ class _AccountScreenState extends State<AccountScreen> {
     }
   }
 
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+
+    if (image != null) {
+      setState(() => _isLoading = true);
+      try {
+        dynamic imageFile;
+        if (kIsWeb) {
+          imageFile = await image.readAsBytes();
+        } else {
+          imageFile = File(image.path);
+        }
+
+        final downloadUrl = await apiService.uploadProfileImage(imageFile);
+        await apiService.updateProfile(profileImage: downloadUrl);
+        await _loadProfile();
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Failed to update image: $e')));
+        }
+      } finally {
+        if (mounted) setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  Future<void> _editDisplayName() async {
+    final s = S.of(context);
+    final controller = TextEditingController(text: _user?.displayName);
+
+    final newName = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(s.changeName),
+        content: TextField(
+          controller: controller,
+          decoration: InputDecoration(labelText: s.displayName),
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(s.cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, controller.text),
+            child: Text(s.submit),
+          ),
+        ],
+      ),
+    );
+
+    if (newName != null && newName != _user?.displayName) {
+      setState(() => _isLoading = true);
+      try {
+        await apiService.updateProfile(displayName: newName);
+        await _loadProfile();
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Failed to update name: $e')));
+        }
+      } finally {
+        if (mounted) setState(() => _isLoading = false);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final s = S.of(context);
@@ -66,29 +141,57 @@ class _AccountScreenState extends State<AccountScreen> {
                 Center(
                   child: Column(
                     children: [
-                      CircleAvatar(
-                        radius: 50,
-                        backgroundColor: AppTheme.darkSurfaceVariant,
-                        backgroundImage: _user?.profileImage.isNotEmpty == true
-                            ? NetworkImage(_user!.profileImage)
-                            : null,
-                        child: _user?.profileImage.isNotEmpty == true
-                            ? null
-                            : const Icon(
-                                Icons.person,
-                                size: 50,
-                                color: AppTheme.textSecondary,
+                      Stack(
+                        children: [
+                          CircleAvatar(
+                            radius: 50,
+                            backgroundColor: AppTheme.darkSurfaceVariant,
+                            backgroundImage:
+                                _user?.profileImage.isNotEmpty == true
+                                ? NetworkImage(_user!.profileImage)
+                                : null,
+                            child: _user?.profileImage.isNotEmpty == true
+                                ? null
+                                : const Icon(
+                                    Icons.person,
+                                    size: 50,
+                                    color: AppTheme.textSecondary,
+                                  ),
+                          ),
+                          Positioned(
+                            right: 0,
+                            bottom: 0,
+                            child: CircleAvatar(
+                              radius: 18,
+                              backgroundColor: AppTheme.primaryColor,
+                              child: IconButton(
+                                icon: const Icon(Icons.camera_alt, size: 18),
+                                color: Colors.white,
+                                onPressed: _pickImage,
                               ),
+                            ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: AppTheme.spacingMd),
-                      Text(
-                        _user?.displayName.isNotEmpty == true
-                            ? _user!.displayName
-                            : 'FoF Explorer',
-                        style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            _user?.displayName.isNotEmpty == true
+                                ? _user!.displayName
+                                : 'FoF Explorer',
+                            style: const TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.edit, size: 20),
+                            color: AppTheme.primaryColor,
+                            onPressed: _editDisplayName,
+                          ),
+                        ],
                       ),
                       Text(
                         _user?.email ?? 'explorer@fof.app',

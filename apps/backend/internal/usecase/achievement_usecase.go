@@ -93,6 +93,33 @@ func (u *achievementUseCase) CheckAchievements(ctx context.Context, userID uuid.
 					}
 				}
 
+				// Day of week filter
+				if targetDays, ok := config["days"].([]interface{}); ok {
+					dayMatch := false
+					if visitedDay, has := contextData["day_of_week"].(int); has {
+						for _, d := range targetDays {
+							if int(d.(float64)) == visitedDay {
+								dayMatch = true
+								break
+							}
+						}
+					}
+					if !dayMatch {
+						match = false
+					}
+				}
+
+				// Hour range filter
+				if startH, ok := config["hour_start"].(float64); ok {
+					if endH, ok := config["hour_end"].(float64); ok {
+						if visitedH, has := contextData["hour"].(int); has {
+							if visitedH < int(startH) || visitedH > int(endH) {
+								match = false
+							}
+						}
+					}
+				}
+
 				if match {
 					currentProg.CurrentValue++
 					if currentProg.CurrentValue >= ach.TargetValue {
@@ -146,16 +173,14 @@ func (u *achievementUseCase) CheckAchievements(ctx context.Context, userID uuid.
 				}
 
 				match := true
-				// Time window check
-				timeStart, hasStart := config["time_start"].(string) // "HH:MM"
-				timeEnd, hasEnd := config["time_end"].(string)       // "HH:MM"
-
-				if hasStart && hasEnd {
-					now := time.Now()
-					// Simplistic time check for "HH:MM" format
-					currentStr := now.Format("15:04")
-					if currentStr < timeStart || currentStr > timeEnd {
-						match = false
+				// Reuse the same logic for simplicity or keep complex conditions here
+				if startH, ok := config["hour_start"].(float64); ok {
+					if endH, ok := config["hour_end"].(float64); ok {
+						if visitedH, has := contextData["hour"].(int); has {
+							if visitedH < int(startH) || visitedH > int(endH) {
+								match = false
+							}
+						}
 					}
 				}
 

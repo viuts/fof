@@ -119,7 +119,7 @@
     "groupDrinks": "居酒屋・バー",
     "groupCafe": "カフェ・スイーツ",
     "errorLocationUnavailable": "位置情報が利用できません",
-    "errorNoShopsFound": "条件に一致するお店が見つかりませんでした",
+    "errorNoShopsFound": "対象のお店はありませんでした",
     "close": "閉じる",
     "exploreAreaMsg": "この地域を探索してください。お店の詳細を確認するには、フォグをクリアする必要があります。",
     "locationLabel": "場所",
@@ -157,13 +157,11 @@
             "seconds": { "type": "int" }
         }
     },
-    "visitComplete": "訪問完了: {shopName}",
-    "@visitComplete": {
-        "placeholders": {
-            "shopName": { "type": "String" }
-        }
-    },
     "howWasExperience": "いかがでしたか？",
+    "visitReviewTitle": "訪問レビュー",
+    "visitedOn": "訪問日",
+    "yourReview": "自分のレビュー",
+    "noCommentProvided": "コメントはありません。",
     "commentOptional": "コメント（任意）",
     "shareThoughts": "感想を共有しましょう...",
     "levelUp": "レベルアップ！ 現在レベル {level}",
@@ -230,6 +228,18 @@
     "achDescCuisineAlchemist": "5つの異なるカテゴリーの店を訪問する。",
     "achNameNightOwl": "ミッドナイト・スナック",
     "achDescNightOwl": "午前0時から午前4時の間にお店を訪問する。",
+    "achNameFogRunner": "フォグランナー",
+    "achDescFogRunner": "10軒の異なるお店を訪問する。",
+    "achNameLegendaryExplorer": "レジェンダリー・エクスプローラー",
+    "achDescLegendaryExplorer": "200軒の異なるお店を訪問する。",
+    "achNameRamenMaster": "ラーメンマスター",
+    "achDescRamenMaster": "ラーメン店を15軒訪問する。",
+    "achNameGourmetKing": "グルメキング",
+    "achDescGourmetKing": "15種類の異なるカテゴリーのお店を訪問する。",
+    "achNameMorningBird": "モーニングバード",
+    "achDescMorningBird": "午前6時から9時の間に店舗を訪問する。",
+    "achNameWeekendWarrior": "ウィークエンド・ウォーリアー",
+    "achDescWeekendWarrior": "週末に5回店舗を訪問する。",
     "achCategoryAll": "すべて",
     "achCategoryExploration": "探索",
     "achCategoryFoodie": "食通",
@@ -244,5 +254,18 @@
             "day": { "type": "String" },
             "month": { "type": "String" }
         }
-    }
+    },
+    "editProfile": "プロフィールを編集",
+    "changeName": "名前を変更",
+    "changePhoto": "写真を変更",
+    "displayName": "表示名",
+    "editReview": "レビューを編集",
+    "save": "保存",
+    "addPhoto": "写真を追加",
+    "questRating": "評価",
+    "questOpenNow": "営業中のみ",
+    "questRatingExcellent": "最高 🔥",
+    "questRatingAverage": "良店 👍",
+    "questRatingMixed": "おまかせ 🎲",
+    "visitComplete": "到着しました！ 🎉"
 }

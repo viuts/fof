@@ -13,6 +13,35 @@ import 'dart:convert' as $convert;
 import 'dart:core' as $core;
 import 'dart:typed_data' as $typed_data;
 
+@$core.Deprecated('Use updateVisitRequestDescriptor instead')
+const UpdateVisitRequest$json = {
+  '1': 'UpdateVisitRequest',
+  '2': [
+    {'1': 'shop_id', '3': 1, '4': 1, '5': 9, '10': 'shopId'},
+    {'1': 'rating', '3': 2, '4': 1, '5': 5, '10': 'rating'},
+    {'1': 'comment', '3': 3, '4': 1, '5': 9, '10': 'comment'},
+    {'1': 'image_urls', '3': 4, '4': 3, '5': 9, '10': 'imageUrls'},
+  ],
+};
+
+/// Descriptor for `UpdateVisitRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List updateVisitRequestDescriptor = $convert.base64Decode(
+    'ChJVcGRhdGVWaXNpdFJlcXVlc3QSFwoHc2hvcF9pZBgBIAEoCVIGc2hvcElkEhYKBnJhdGluZx'
+    'gCIAEoBVIGcmF0aW5nEhgKB2NvbW1lbnQYAyABKAlSB2NvbW1lbnQSHQoKaW1hZ2VfdXJscxgE'
+    'IAMoCVIJaW1hZ2VVcmxz');
+
+@$core.Deprecated('Use updateVisitResponseDescriptor instead')
+const UpdateVisitResponse$json = {
+  '1': 'UpdateVisitResponse',
+  '2': [
+    {'1': 'success', '3': 1, '4': 1, '5': 8, '10': 'success'},
+  ],
+};
+
+/// Descriptor for `UpdateVisitResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List updateVisitResponseDescriptor = $convert.base64Decode(
+    'ChNVcGRhdGVWaXNpdFJlc3BvbnNlEhgKB3N1Y2Nlc3MYASABKAhSB3N1Y2Nlc3M=');
+
 @$core.Deprecated('Use createVisitRequestDescriptor instead')
 const CreateVisitRequest$json = {
   '1': 'CreateVisitRequest',
@@ -79,6 +108,7 @@ const VisitedShop$json = {
     {'1': 'visited_at', '3': 2, '4': 1, '5': 9, '10': 'visitedAt'},
     {'1': 'rating', '3': 3, '4': 1, '5': 5, '10': 'rating'},
     {'1': 'comment', '3': 4, '4': 1, '5': 9, '10': 'comment'},
+    {'1': 'image_urls', '3': 5, '4': 3, '5': 9, '10': 'imageUrls'},
   ],
 };
 
@@ -86,5 +116,5 @@ const VisitedShop$json = {
 final $typed_data.Uint8List visitedShopDescriptor = $convert.base64Decode(
     'CgtWaXNpdGVkU2hvcBIgCgRzaG9wGAEgASgLMgwuZm9mLnYxLlNob3BSBHNob3ASHQoKdmlzaX'
     'RlZF9hdBgCIAEoCVIJdmlzaXRlZEF0EhYKBnJhdGluZxgDIAEoBVIGcmF0aW5nEhgKB2NvbW1l'
-    'bnQYBCABKAlSB2NvbW1lbnQ=');
+    'bnQYBCABKAlSB2NvbW1lbnQSHQoKaW1hZ2VfdXJscxgFIAMoCVIJaW1hZ2VVcmxz');
 

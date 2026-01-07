@@ -157,13 +157,11 @@
             "seconds": { "type": "int" }
         }
     },
-    "visitComplete": "Visit Complete: {shopName}",
-    "@visitComplete": {
-        "placeholders": {
-            "shopName": { "type": "String" }
-        }
-    },
     "howWasExperience": "How was your experience?",
+    "visitReviewTitle": "Visit Review",
+    "visitedOn": "Visited on",
+    "yourReview": "YOUR REVIEW",
+    "noCommentProvided": "No comment provided.",
     "commentOptional": "Comment (optional)",
     "shareThoughts": "Share your thoughts...",
     "levelUp": "LEVEL UP! Now at Level {level}",
@@ -230,6 +228,18 @@
     "achDescCuisineAlchemist": "Visit one shop from 5 different categories.",
     "achNameNightOwl": "Midnight Snack",
     "achDescNightOwl": "Visit a shop between 12:00 AM and 4:00 AM.",
+    "achNameFogRunner": "Fog Runner",
+    "achDescFogRunner": "Visit 10 different shops.",
+    "achNameLegendaryExplorer": "Legendary Explorer",
+    "achDescLegendaryExplorer": "Visit 200 different shops.",
+    "achNameRamenMaster": "Ramen Master",
+    "achDescRamenMaster": "Visit 15 Ramen shops.",
+    "achNameGourmetKing": "Gourmet King",
+    "achDescGourmetKing": "Visit one shop from 15 different categories.",
+    "achNameMorningBird": "Morning Bird",
+    "achDescMorningBird": "Visit a shop between 6:00 AM and 9:00 AM.",
+    "achNameWeekendWarrior": "Weekend Warrior",
+    "achDescWeekendWarrior": "Visit 5 shops on weekends.",
     "achCategoryAll": "ALL",
     "achCategoryExploration": "EXPLORE",
     "achCategoryFoodie": "FOODIE",
@@ -244,5 +254,18 @@
             "day": { "type": "String" },
             "month": { "type": "String" }
         }
-    }
+    },
+    "editProfile": "Edit Profile",
+    "changeName": "Change Name",
+    "changePhoto": "Change Photo",
+    "displayName": "Display Name",
+    "editReview": "Edit Review",
+    "save": "Save",
+    "addPhoto": "Add Photo",
+    "questRating": "RATING",
+    "questOpenNow": "Open Now",
+    "questRatingExcellent": "Excellent 🔥",
+    "questRatingAverage": "Good 👍",
+    "questRatingMixed": "Wildcard 🎲",
+    "visitComplete": "ARRIVED! 🎉"
 }

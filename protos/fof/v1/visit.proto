@@ -22,6 +22,25 @@ service VisitService {
       body: "*"
     };
   }
+
+  // Update a visit review
+  rpc UpdateVisit(UpdateVisitRequest) returns (UpdateVisitResponse) {
+    option (google.api.http) = {
+      patch: "/v1/visits"
+      body: "*"
+    };
+  }
+}
+
+message UpdateVisitRequest {
+  string shop_id = 1;
+  int32 rating = 2;
+  string comment = 3;
+  repeated string image_urls = 4;
+}
+
+message UpdateVisitResponse {
+  bool success = 1;
 }
 
 message CreateVisitRequest {
@@ -51,4 +70,5 @@ message VisitedShop {
   string visited_at = 2; // ISO 8601 string
   int32 rating = 3;
   string comment = 4;
+  repeated string image_urls = 5;
 }

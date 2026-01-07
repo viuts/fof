@@ -81,11 +81,11 @@ func (m *AuthMiddleware) Handle(next http.Handler) http.Handler {
 		picture, _ := parsedToken.Claims["picture"].(string)
 
 		changed := false
-		if name != "" && user.DisplayName != name {
+		if name != "" && user.DisplayName == "" {
 			user.DisplayName = name
 			changed = true
 		}
-		if picture != "" && user.ProfileImage != picture {
+		if picture != "" && user.ProfileImage == "" {
 			user.ProfileImage = picture
 			changed = true
 		}

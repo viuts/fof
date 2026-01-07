@@ -308,12 +308,19 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String visitComplete(String shopName) {
-    return 'Visit Complete: $shopName';
-  }
+  String get howWasExperience => 'How was your experience?';
 
   @override
-  String get howWasExperience => 'How was your experience?';
+  String get visitReviewTitle => 'Visit Review';
+
+  @override
+  String get visitedOn => 'Visited on';
+
+  @override
+  String get yourReview => 'YOUR REVIEW';
+
+  @override
+  String get noCommentProvided => 'No comment provided.';
 
   @override
   String get commentOptional => 'Comment (optional)';
@@ -477,6 +484,43 @@ class AppLocalizationsEn extends AppLocalizations {
   String get achDescNightOwl => 'Visit a shop between 12:00 AM and 4:00 AM.';
 
   @override
+  String get achNameFogRunner => 'Fog Runner';
+
+  @override
+  String get achDescFogRunner => 'Visit 10 different shops.';
+
+  @override
+  String get achNameLegendaryExplorer => 'Legendary Explorer';
+
+  @override
+  String get achDescLegendaryExplorer => 'Visit 200 different shops.';
+
+  @override
+  String get achNameRamenMaster => 'Ramen Master';
+
+  @override
+  String get achDescRamenMaster => 'Visit 15 Ramen shops.';
+
+  @override
+  String get achNameGourmetKing => 'Gourmet King';
+
+  @override
+  String get achDescGourmetKing =>
+      'Visit one shop from 15 different categories.';
+
+  @override
+  String get achNameMorningBird => 'Morning Bird';
+
+  @override
+  String get achDescMorningBird => 'Visit a shop between 6:00 AM and 9:00 AM.';
+
+  @override
+  String get achNameWeekendWarrior => 'Weekend Warrior';
+
+  @override
+  String get achDescWeekendWarrior => 'Visit 5 shops on weekends.';
+
+  @override
   String get achCategoryAll => 'ALL';
 
   @override
@@ -504,4 +548,43 @@ class AppLocalizationsEn extends AppLocalizations {
   String journalDate(String day, String month) {
     return '$day $month';
   }
+
+  @override
+  String get editProfile => 'Edit Profile';
+
+  @override
+  String get changeName => 'Change Name';
+
+  @override
+  String get changePhoto => 'Change Photo';
+
+  @override
+  String get displayName => 'Display Name';
+
+  @override
+  String get editReview => 'Edit Review';
+
+  @override
+  String get save => 'Save';
+
+  @override
+  String get addPhoto => 'Add Photo';
+
+  @override
+  String get questRating => 'RATING';
+
+  @override
+  String get questOpenNow => 'Open Now';
+
+  @override
+  String get questRatingExcellent => 'Excellent 🔥';
+
+  @override
+  String get questRatingAverage => 'Good 👍';
+
+  @override
+  String get questRatingMixed => 'Wildcard 🎲';
+
+  @override
+  String get visitComplete => 'ARRIVED! 🎉';
 }

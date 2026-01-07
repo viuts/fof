@@ -15,11 +15,21 @@ const (
 	AchievementTypeCondition  AchievementType = "CONDITION"  // Complex logic (e.g. specific radius, time)
 )
 
+type AchievementTier string
+
+const (
+	AchievementTierBronze   AchievementTier = "BRONZE"
+	AchievementTierSilver   AchievementTier = "SILVER"
+	AchievementTierGold     AchievementTier = "GOLD"
+	AchievementTierPlatinum AchievementTier = "PLATINUM"
+)
+
 type Achievement struct {
 	ID          string `gorm:"primaryKey"` // e.g. "ramen_lover_1"
 	Name        string `gorm:"not null"`
 	Description string
 	Category    string // "EXPLORATION", "FOODIE", "QUEST", "SOCIAL"
+	Tier        AchievementTier
 
 	// Logic
 	Type            AchievementType

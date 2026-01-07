@@ -34,6 +34,33 @@ const GetProfileResponse$json = {
 final $typed_data.Uint8List getProfileResponseDescriptor = $convert.base64Decode(
     'ChJHZXRQcm9maWxlUmVzcG9uc2USIAoEdXNlchgBIAEoCzIMLmZvZi52MS5Vc2VyUgR1c2Vy');
 
+@$core.Deprecated('Use updateProfileRequestDescriptor instead')
+const UpdateProfileRequest$json = {
+  '1': 'UpdateProfileRequest',
+  '2': [
+    {'1': 'display_name', '3': 1, '4': 1, '5': 9, '10': 'displayName'},
+    {'1': 'profile_image', '3': 2, '4': 1, '5': 9, '10': 'profileImage'},
+  ],
+};
+
+/// Descriptor for `UpdateProfileRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List updateProfileRequestDescriptor = $convert.base64Decode(
+    'ChRVcGRhdGVQcm9maWxlUmVxdWVzdBIhCgxkaXNwbGF5X25hbWUYASABKAlSC2Rpc3BsYXlOYW'
+    '1lEiMKDXByb2ZpbGVfaW1hZ2UYAiABKAlSDHByb2ZpbGVJbWFnZQ==');
+
+@$core.Deprecated('Use updateProfileResponseDescriptor instead')
+const UpdateProfileResponse$json = {
+  '1': 'UpdateProfileResponse',
+  '2': [
+    {'1': 'user', '3': 1, '4': 1, '5': 11, '6': '.fof.v1.User', '10': 'user'},
+  ],
+};
+
+/// Descriptor for `UpdateProfileResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List updateProfileResponseDescriptor = $convert.base64Decode(
+    'ChVVcGRhdGVQcm9maWxlUmVzcG9uc2USIAoEdXNlchgBIAEoCzIMLmZvZi52MS5Vc2VyUgR1c2'
+    'Vy');
+
 @$core.Deprecated('Use userDescriptor instead')
 const User$json = {
   '1': 'User',

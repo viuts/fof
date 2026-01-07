@@ -13,6 +13,7 @@ import (
 type VisitUsecase interface {
 	GetVisitedShops(ctx context.Context, userID string) ([]domain.Visit, error)
 	CreateVisit(ctx context.Context, userID string, shopID string, rating int, comment string) (string, int, int, int, []domain.Achievement, error)
+	UpdateVisit(ctx context.Context, userID string, shopID string, rating int, comment string, imageURLs []string) error
 }
 
 type visitUsecase struct {
@@ -101,15 +102,39 @@ func (u *visitUsecase) CreateVisit(ctx context.Context, userID string, shopID st
 		return "", 0, 0, 0, nil, err
 	}
 
-	// Calculate unlocked achievements
+	now := time.Now()
 	contextData := map[string]interface{}{
-		"shop_id":  shopID,
-		"rating":   rating,
-		"category": shop.Category,
-		"is_chain": shop.IsChain,
+		"shop_id":      shopID,
+		"rating":       rating,
+		"category":     shop.Category,
+		"is_chain":     shop.IsChain,
+		"day_of_week":  int(now.Weekday()), // 0=Sunday, 6=Saturday
+		"hour":         now.Hour(),
 	}
 
 	unlocked, _ := u.achievementUC.CheckAchievements(ctx, userUUID, "VISIT", contextData)
 
 	return geoJSON, currentLevel, currentExp, expGained, unlocked, nil
+}
+
+func (u *visitUsecase) UpdateVisit(ctx context.Context, userID string, shopID string, rating int, comment string, imageURLs []string) error {
+	userUUID, err := uuid.Parse(userID)
+	if err != nil {
+		return err
+	}
+	shopUUID, err := uuid.Parse(shopID)
+	if err != nil {
+		return err
+	}
+
+	visit, err := u.visitRepo.GetByUserIDAndShopID(ctx, userUUID, shopUUID)
+	if err != nil {
+		return err
+	}
+
+	visit.Rating = rating
+	visit.Comment = comment
+	visit.ImageURLs = imageURLs
+
+	return u.visitRepo.Save(ctx, visit)
 }

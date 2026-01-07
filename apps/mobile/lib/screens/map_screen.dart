@@ -14,6 +14,7 @@ import '../api/fof/v1/common.pb.dart';
 import '../api/fof/v1/visit.pb.dart';
 import '../api/fof/v1/location.pb.dart';
 import '../api/fof/v1/user.pb.dart';
+import '../api/fof/v1/achievement.pb.dart';
 import '../api/fof/v1/shop_extensions.dart';
 import '../widgets/fog_layer.dart';
 import '../widgets/shop_beacon.dart';
@@ -686,111 +687,14 @@ class MapScreenState extends State<MapScreen>
   }
 
   void _onVisitCountdownFinished() {
-    setState(() {
-      _isEntering = false;
-      // Keep _enteringShop to show the completion dialog
-    });
-    _showVisitCompletionDialog();
-  }
-
-  Future<void> _showVisitCompletionDialog() async {
     if (_enteringShop == null) return;
 
-    int rating = 5;
-    final commentController = TextEditingController();
+    _submitVisit(_enteringShop!.id, 5, '');
 
-    await showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setDialogState) {
-          final s = S.of(context);
-          return AlertDialog(
-            backgroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-            ),
-            title: Text(
-              s.visitComplete(_enteringShop!.name),
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(s.howWasExperience, style: const TextStyle(fontSize: 16)),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(
-                    5,
-                    (index) => IconButton(
-                      icon: Icon(
-                        index < rating ? Icons.star : Icons.star_border,
-                        color: Colors.amber,
-                        size: 40,
-                      ),
-                      onPressed: () => setDialogState(() => rating = index + 1),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                TextField(
-                  controller: commentController,
-                  decoration: InputDecoration(
-                    labelText: s.commentOptional,
-                    hintText: s.shareThoughts,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                        color: AppTheme.primaryColor,
-                        width: 2,
-                      ),
-                    ),
-                  ),
-                  maxLines: 3,
-                ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  setState(() {
-                    _enteringShop = null;
-                  });
-                  Navigator.pop(context);
-                },
-                child: Text(s.skip, style: TextStyle(color: Colors.grey[600])),
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  final shopId = _enteringShop!.id;
-                  final r = rating;
-                  final comment = commentController.text;
-
-                  Navigator.pop(context); // Close dialog
-                  _submitVisit(shopId, r, comment);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primaryColor,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 12,
-                  ),
-                ),
-                child: Text(s.submit),
-              ),
-            ],
-          );
-        },
-      ),
-    );
+    setState(() {
+      _isEntering = false;
+      _enteringShop = null;
+    });
   }
 
   Future<void> _submitVisit(String shopId, int rating, String comment) async {
@@ -825,15 +729,21 @@ class MapScreenState extends State<MapScreen>
                         color: Colors.yellow,
                       ),
                     ),
-                  ...response.unlockedAchievements.map(
-                    (ach) => Text(
-                      s.unlockedAchievement(ach.name),
+                  ...response.unlockedAchievements.map((ach) {
+                    String prefix = '';
+                    if (ach.hasTier() &&
+                        ach.tier !=
+                            AchievementTier.ACHIEVEMENT_TIER_UNSPECIFIED) {
+                      prefix = '[${ach.tier.name.split('_').last}] ';
+                    }
+                    return Text(
+                      s.unlockedAchievement('$prefix${ach.name}'),
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                       ),
-                    ),
-                  ),
+                    );
+                  }),
                 ],
               ),
               backgroundColor: AppTheme.primaryColor,

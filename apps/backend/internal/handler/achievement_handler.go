@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/viuts/fof/apps/backend/internal/domain"
 	"github.com/viuts/fof/apps/backend/internal/middleware"
 	"github.com/viuts/fof/apps/backend/internal/usecase"
 	fofv1 "github.com/viuts/fof/apps/backend/pkg/api/fof/v1"
@@ -20,6 +21,21 @@ type AchievementHandler struct {
 func NewAchievementHandler(u usecase.AchievementUseCase) *AchievementHandler {
 	return &AchievementHandler{
 		achievementUC: u,
+	}
+}
+
+func MapTierToProto(tier domain.AchievementTier) fofv1.AchievementTier {
+	switch tier {
+	case domain.AchievementTierBronze:
+		return fofv1.AchievementTier_ACHIEVEMENT_TIER_BRONZE
+	case domain.AchievementTierSilver:
+		return fofv1.AchievementTier_ACHIEVEMENT_TIER_SILVER
+	case domain.AchievementTierGold:
+		return fofv1.AchievementTier_ACHIEVEMENT_TIER_GOLD
+	case domain.AchievementTierPlatinum:
+		return fofv1.AchievementTier_ACHIEVEMENT_TIER_PLATINUM
+	default:
+		return fofv1.AchievementTier_ACHIEVEMENT_TIER_UNSPECIFIED
 	}
 }
 
@@ -61,6 +77,7 @@ func (h *AchievementHandler) GetAchievements(ctx context.Context, req *fofv1.Get
 				Category:    a.Achievement.Category,
 				ExpReward:   int32(a.Achievement.ExpReward),
 				TitleReward: a.Achievement.TitleReward,
+				Tier:        MapTierToProto(a.Achievement.Tier),
 			},
 			IsUnlocked:   isUnlocked,
 			CurrentValue: currentValue,

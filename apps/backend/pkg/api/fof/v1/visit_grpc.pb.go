@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion7
 const (
 	VisitService_GetVisitedShops_FullMethodName = "/fof.v1.VisitService/GetVisitedShops"
 	VisitService_CreateVisit_FullMethodName     = "/fof.v1.VisitService/CreateVisit"
+	VisitService_UpdateVisit_FullMethodName     = "/fof.v1.VisitService/UpdateVisit"
 )
 
 // VisitServiceClient is the client API for VisitService service.
@@ -31,6 +32,8 @@ type VisitServiceClient interface {
 	GetVisitedShops(ctx context.Context, in *GetVisitedShopsRequest, opts ...grpc.CallOption) (*GetVisitedShopsResponse, error)
 	// Manually register a visit to a shop
 	CreateVisit(ctx context.Context, in *CreateVisitRequest, opts ...grpc.CallOption) (*CreateVisitResponse, error)
+	// Update a visit review
+	UpdateVisit(ctx context.Context, in *UpdateVisitRequest, opts ...grpc.CallOption) (*UpdateVisitResponse, error)
 }
 
 type visitServiceClient struct {
@@ -59,6 +62,15 @@ func (c *visitServiceClient) CreateVisit(ctx context.Context, in *CreateVisitReq
 	return out, nil
 }
 
+func (c *visitServiceClient) UpdateVisit(ctx context.Context, in *UpdateVisitRequest, opts ...grpc.CallOption) (*UpdateVisitResponse, error) {
+	out := new(UpdateVisitResponse)
+	err := c.cc.Invoke(ctx, VisitService_UpdateVisit_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // VisitServiceServer is the server API for VisitService service.
 // All implementations must embed UnimplementedVisitServiceServer
 // for forward compatibility
@@ -67,6 +79,8 @@ type VisitServiceServer interface {
 	GetVisitedShops(context.Context, *GetVisitedShopsRequest) (*GetVisitedShopsResponse, error)
 	// Manually register a visit to a shop
 	CreateVisit(context.Context, *CreateVisitRequest) (*CreateVisitResponse, error)
+	// Update a visit review
+	UpdateVisit(context.Context, *UpdateVisitRequest) (*UpdateVisitResponse, error)
 	mustEmbedUnimplementedVisitServiceServer()
 }
 
@@ -79,6 +93,9 @@ func (UnimplementedVisitServiceServer) GetVisitedShops(context.Context, *GetVisi
 }
 func (UnimplementedVisitServiceServer) CreateVisit(context.Context, *CreateVisitRequest) (*CreateVisitResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateVisit not implemented")
+}
+func (UnimplementedVisitServiceServer) UpdateVisit(context.Context, *UpdateVisitRequest) (*UpdateVisitResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateVisit not implemented")
 }
 func (UnimplementedVisitServiceServer) mustEmbedUnimplementedVisitServiceServer() {}
 
@@ -129,6 +146,24 @@ func _VisitService_CreateVisit_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _VisitService_UpdateVisit_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateVisitRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VisitServiceServer).UpdateVisit(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: VisitService_UpdateVisit_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VisitServiceServer).UpdateVisit(ctx, req.(*UpdateVisitRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // VisitService_ServiceDesc is the grpc.ServiceDesc for VisitService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -143,6 +178,10 @@ var VisitService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateVisit",
 			Handler:    _VisitService_CreateVisit_Handler,
+		},
+		{
+			MethodName: "UpdateVisit",
+			Handler:    _VisitService_UpdateVisit_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

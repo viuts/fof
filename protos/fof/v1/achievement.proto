@@ -14,6 +14,14 @@ service AchievementService {
   }
 }
 
+enum AchievementTier {
+  ACHIEVEMENT_TIER_UNSPECIFIED = 0;
+  ACHIEVEMENT_TIER_BRONZE = 1;
+  ACHIEVEMENT_TIER_SILVER = 2;
+  ACHIEVEMENT_TIER_GOLD = 3;
+  ACHIEVEMENT_TIER_PLATINUM = 4;
+}
+
 message Achievement {
   string id = 1;
   string name = 2;
@@ -21,6 +29,7 @@ message Achievement {
   int32 exp_reward = 4;
   string title_reward = 5;
   string category = 6;
+  AchievementTier tier = 7;
 }
 
 message GetAchievementsRequest {

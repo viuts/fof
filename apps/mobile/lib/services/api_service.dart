@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import '../api/fof/v1/common.pb.dart';
 import '../api/fof/v1/shop.pb.dart';
 import '../api/fof/v1/location.pb.dart';
@@ -8,6 +10,7 @@ import '../api/fof/v1/visit.pb.dart';
 import '../api/fof/v1/achievement.pb.dart';
 import '../api/fof/v1/user.pb.dart';
 import '../config/environment_config.dart';
+import 'package:fixnum/fixnum.dart';
 
 class ApiService {
   static final ApiService _instance = ApiService._internal();
@@ -99,14 +102,36 @@ class ApiService {
     }
   }
 
-  Future<GetNearbyShopsResponse> getQuestShop(String category) async {
-    final uri = Uri.parse(
-      '$_baseUrl/v1/shops/quest',
-    ).replace(queryParameters: {'category': category});
-    final response = await http.get(uri, headers: await _getHeaders());
+  Future<GetQuestShopResponse> getQuestShop({
+    required double lat,
+    required double lng,
+    required double radius,
+    List<String> categories = const [],
+    String keyword = '',
+    QuestRatingFilter ratingFilter =
+        QuestRatingFilter.QUEST_RATING_FILTER_UNSPECIFIED,
+    int? openAtTime,
+    bool exclusiveIndependent = false,
+  }) async {
+    final response = await http.post(
+      Uri.parse('$_baseUrl/v1/shops/quest/search'),
+      headers: await _getHeaders(),
+      body: jsonEncode(
+        GetQuestShopRequest(
+          lat: lat,
+          lng: lng,
+          radiusMeters: radius,
+          categories: categories,
+          keyword: keyword,
+          ratingFilter: ratingFilter,
+          openAtTime: openAtTime != null ? Int64(openAtTime) : Int64(0),
+          exclusiveIndependent: exclusiveIndependent,
+        ).toProto3Json(),
+      ),
+    );
 
     if (response.statusCode == 200) {
-      return GetNearbyShopsResponse()
+      return GetQuestShopResponse()
         ..mergeFromProto3Json(jsonDecode(response.body));
     } else {
       throw Exception('Failed to get quest shop: ${response.statusCode}');
@@ -164,5 +189,94 @@ class ApiService {
     } else {
       throw Exception('Failed to get profile: ${response.statusCode}');
     }
+  }
+
+  Future<UpdateProfileResponse> updateProfile({
+    String? displayName,
+    String? profileImage,
+  }) async {
+    final response = await http.patch(
+      Uri.parse('$_baseUrl/v1/users/profile'),
+      headers: await _getHeaders(),
+      body: jsonEncode(
+        UpdateProfileRequest(
+          displayName: displayName,
+          profileImage: profileImage,
+        ).toProto3Json(),
+      ),
+    );
+
+    if (response.statusCode == 200) {
+      return UpdateProfileResponse()
+        ..mergeFromProto3Json(jsonDecode(response.body));
+    } else {
+      throw Exception('Failed to update profile: ${response.statusCode}');
+    }
+  }
+
+  Future<String> uploadProfileImage(dynamic imageFile) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) throw Exception('User not authenticated');
+
+    final storageRef = FirebaseStorage.instanceFor(
+      bucket: EnvironmentConfig.storageBucket,
+    ).ref();
+    final imageRef = storageRef.child('profiles/${user.uid}/profile.jpg');
+
+    if (imageFile is List<int>) {
+      await imageRef.putData(Uint8List.fromList(imageFile));
+    } else {
+      // Assuming imageFile is File for mobile
+      await imageRef.putFile(imageFile);
+    }
+
+    return await imageRef.getDownloadURL();
+  }
+
+  Future<UpdateVisitResponse> updateVisit({
+    required String shopId,
+    required int rating,
+    required String comment,
+    required List<String> imageUrls,
+  }) async {
+    final response = await http.patch(
+      Uri.parse('$_baseUrl/v1/visits'),
+      headers: await _getHeaders(),
+      body: jsonEncode(
+        UpdateVisitRequest(
+          shopId: shopId,
+          rating: rating,
+          comment: comment,
+          imageUrls: imageUrls,
+        ).toProto3Json(),
+      ),
+    );
+
+    if (response.statusCode == 200) {
+      return UpdateVisitResponse()
+        ..mergeFromProto3Json(jsonDecode(response.body));
+    } else {
+      throw Exception('Failed to update visit: ${response.statusCode}');
+    }
+  }
+
+  Future<String> uploadVisitImage(String shopId, dynamic imageFile) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) throw Exception('User not authenticated');
+
+    final storageRef = FirebaseStorage.instanceFor(
+      bucket: EnvironmentConfig.storageBucket,
+    ).ref();
+
+    final fileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
+    final imageRef = storageRef.child('visits/${user.uid}/$shopId/$fileName');
+
+    if (imageFile is List<int>) {
+      await imageRef.putData(Uint8List.fromList(imageFile));
+    } else {
+      await imageRef.putFile(imageFile);
+    }
+
+    return await imageRef.getDownloadURL();
   }
 }

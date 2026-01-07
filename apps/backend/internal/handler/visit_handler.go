@@ -55,6 +55,7 @@ func (h *VisitHandler) GetVisitedShops(ctx context.Context, req *fofv1.GetVisite
 			VisitedAt: v.VisitedAt.Format(time.RFC3339),
 			Rating:    int32(v.Rating),
 			Comment:   v.Comment,
+			ImageUrls: v.ImageURLs,
 		}
 	}
 
@@ -83,6 +84,7 @@ func (h *VisitHandler) CreateVisit(ctx context.Context, req *fofv1.CreateVisitRe
 			Category:    ach.Category,
 			ExpReward:   int32(ach.ExpReward),
 			TitleReward: ach.TitleReward,
+			Tier:        MapTierToProto(ach.Tier),
 		}
 	}
 
@@ -93,5 +95,20 @@ func (h *VisitHandler) CreateVisit(ctx context.Context, req *fofv1.CreateVisitRe
 		CurrentExp:           int32(currentExp),
 		CurrentLevel:         int32(level),
 		UnlockedAchievements: pbAchievements,
+	}, nil
+}
+
+func (h *VisitHandler) UpdateVisit(ctx context.Context, req *fofv1.UpdateVisitRequest) (*fofv1.UpdateVisitResponse, error) {
+	userID, ok := ctx.Value(middleware.ContextKeyUserID).(string)
+	if !ok {
+		return nil, status.Error(codes.Unauthenticated, "user not authenticated")
+	}
+
+	if err := h.visitUC.UpdateVisit(ctx, userID, req.ShopId, int(req.Rating), req.Comment, req.ImageUrls); err != nil {
+		return nil, err
+	}
+
+	return &fofv1.UpdateVisitResponse{
+		Success: true,
 	}, nil
 }

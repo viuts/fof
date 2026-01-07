@@ -2,11 +2,13 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import '../api/fof/v1/shop.pb.dart';
+import '../api/fof/v1/shop_extensions.dart'; // Import extensions for effectiveFoodCategory
 import '../constants/category_colors.dart';
 import '../theme/app_theme.dart';
-import '../services/api_service.dart';
 import '../services/location_service.dart';
 import '../services/language_service.dart';
+
+import 'quest_selection_screen.dart';
 
 /// Quest Mode screen with category selection and compass navigation
 /// Implements FR-10, FR-11, FR-12 from PRD
@@ -39,38 +41,6 @@ class _QuestScreenState extends State<QuestScreen>
   void dispose() {
     _compassController.dispose();
     super.dispose();
-  }
-
-  void _startQuest(FoodCategory category) async {
-    try {
-      final response = await ApiService().getQuestShop(category.name);
-      if (response.shops.isNotEmpty) {
-        setState(() {
-          _selectedCategory = category;
-          _isQuestActive = true;
-          _targetShop = response.shops.first;
-        });
-      } else {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(S.of(context).noHiddenGems)));
-      }
-    } catch (e) {
-      debugPrint('Quest error: $e');
-      // Fallback for demo/dev if API fails
-      setState(() {
-        _selectedCategory = category;
-        _isQuestActive = true;
-        _targetShop = Shop(
-          id: 'quest_1',
-          name: '???',
-          lat: widget.currentPosition!.latitude + 0.001,
-          lng: widget.currentPosition!.longitude + 0.001,
-          foodCategory: category,
-          isChain: false,
-        );
-      });
-    }
   }
 
   void _cancelQuest() {
@@ -122,78 +92,26 @@ class _QuestScreenState extends State<QuestScreen>
   }
 
   Widget _buildCategorySelection() {
-    return Padding(
-      padding: const EdgeInsets.all(AppTheme.spacingLg),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            S.of(context).chooseCuisineQuest,
-            style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: AppTheme.spacingSm),
-          Text(
-            S.of(context).selectCategoryHint,
-            style: TextStyle(fontSize: 16, color: AppTheme.textSecondary),
-          ),
-          const SizedBox(height: AppTheme.spacingXl),
-          Expanded(
-            child: GridView.builder(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: AppTheme.spacingMd,
-                mainAxisSpacing: AppTheme.spacingMd,
-                childAspectRatio: 1.2,
-              ),
-              itemCount: ShopCategory.allCategories.length,
-              itemBuilder: (context, index) {
-                final category = ShopCategory.allCategories[index];
-                final color = ShopCategory.getColor(category);
+    // Delegate to the dedicated selection screen
+    // Since QuestSelectionScreen is a Scaffold, we probably want to just return it directly
+    // in build() instead of nesting it here, OR QuestSelectionScreen shouldn't be a Scaffold.
+    // However, assuming for now we return it.
+    // But wait, _buildCategorySelection is returned by build() inside Scaffold body?
+    // QuestScreen build() returns a Scaffold.
+    // If I nest a Scaffold in body, it's okay but might have double AppBars.
+    // QuestScreen has an AppBar. QuestSelectionScreen (if I recall) has body but no AppBar?
+    // Let's check Step 2227. QuestSelectionScreen returns Scaffold.
+    // It does NOT have an AppBar.
+    // So nesting is acceptable, or better:
 
-                return _buildCategoryCard(category, color);
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCategoryCard(FoodCategory category, Color color) {
-    return GestureDetector(
-      onTap: widget.currentPosition != null
-          ? () => _startQuest(category)
-          : null,
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              color.withValues(alpha: 0.3),
-              color.withValues(alpha: 0.1),
-            ],
-          ),
-          borderRadius: BorderRadius.circular(AppTheme.radiusLg),
-          border: Border.all(color: color.withValues(alpha: 0.5), width: 2),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(ShopCategory.getIcon(category), size: 48, color: color),
-            const SizedBox(height: AppTheme.spacingSm),
-            Text(
-              S.of(context).translateCategory(category),
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: color,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
+    return QuestSelectionScreen(
+      onStartQuest: (shop) {
+        setState(() {
+          _selectedCategory = shop.effectiveFoodCategory;
+          _isQuestActive = true;
+          _targetShop = shop;
+        });
+      },
     );
   }
 
@@ -262,80 +180,71 @@ class _QuestScreenState extends State<QuestScreen>
           ),
           const SizedBox(height: AppTheme.spacingXl),
 
-          // Compass (FR-12)
+          // Compass and Distance (Centered and compacted)
           Expanded(
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // Compass widget
-                  SizedBox(
-                    width: 250,
-                    height: 250,
-                    child: CustomPaint(
-                      painter: CompassPainter(
-                        bearing: bearing,
-                        color: ShopCategory.getColor(_selectedCategory!),
-                      ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Compass
+                SizedBox(
+                  width: 220, // Slightly smaller
+                  height: 220,
+                  child: CustomPaint(
+                    painter: CompassPainter(
+                      bearing: bearing,
+                      color: ShopCategory.getColor(_selectedCategory!),
                     ),
                   ),
-                  const SizedBox(height: AppTheme.spacingXl),
-
-                  // Distance indicator
+                ),
+                const SizedBox(height: 32), // Fixed spacing instead of flexible
+                // Distance indicator
+                if (distance < 30)
                   Column(
                     children: [
-                      if (distance < 30) // Reveal when within 30m
-                        Column(
-                          children: [
-                            Text(
-                              S
-                                  .of(context)
-                                  .arrived, // Wait, I didn't add "arrived" to ARB?
-                              // Actually I should use "visitComplete" context or add "arrived"
-                              style: const TextStyle(
-                                fontSize: 32,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.green,
-                              ),
-                            ),
-                            const SizedBox(height: AppTheme.spacingSm),
-                            Text(
-                              S
-                                  .of(context)
-                                  .hiddenGem(
-                                    _targetShop?.name ??
-                                        S.of(context).independentShop,
-                                  ),
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        )
-                      else
-                        Column(
-                          children: [
-                            Text(
-                              '${distance.toInt()}m',
-                              style: const TextStyle(
-                                fontSize: 48,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text(
-                              S.of(context).toDestination,
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: AppTheme.textSecondary,
-                              ),
-                            ),
-                          ],
+                      Text(
+                        S
+                            .of(context)
+                            .visitComplete, // Assuming this key exists or use localized "Arrived"
+                        style: const TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.green,
                         ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        _targetShop?.name ?? S.of(context).independentShop,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  )
+                else
+                  Column(
+                    children: [
+                      Text(
+                        distance >= 1000
+                            ? '${(distance / 1000).toStringAsFixed(1)} km'
+                            : '${distance.toInt()}m',
+                        style: const TextStyle(
+                          fontSize: 40, // Slightly smaller than 48
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: -1.0,
+                        ),
+                      ),
+                      Text(
+                        S.of(context).toDestination,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: AppTheme.textSecondary,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
                     ],
                   ),
-                ],
-              ),
+              ],
             ),
           ),
 
