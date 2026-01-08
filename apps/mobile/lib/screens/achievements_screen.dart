@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
-import '../services/api_service.dart';
 import '../api/fof/v1/achievement.pb.dart';
 import '../l10n/app_localizations.dart';
 import '../utils/achievement_localization.dart';
 import '../services/language_service.dart';
+import '../services/user_service.dart';
+import 'package:provider/provider.dart';
 
 extension UserAchievementStatusExtension on UserAchievementStatus {
   double get progress => targetValue > 0 ? currentValue / targetValue : 0.0;
@@ -18,10 +19,6 @@ class AchievementsScreen extends StatefulWidget {
 }
 
 class _AchievementsScreenState extends State<AchievementsScreen> {
-  final ApiService _apiService = ApiService();
-  List<UserAchievementStatus> _achievements = [];
-  bool _isLoading = true;
-  String? _error;
   String _selectedCategory = 'ALL';
 
   final List<Map<String, dynamic>> _categories = [
@@ -29,7 +26,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
     {'id': 'EXPLORATION', 'label': 'EXPLORE', 'icon': Icons.explore_rounded},
     {'id': 'FOODIE', 'label': 'FOODIE', 'icon': Icons.restaurant_rounded},
     {'id': 'QUEST', 'label': 'QUEST', 'icon': Icons.map_rounded},
-    {'id': 'SOCIAL', 'label': 'SOCIAL', 'icon': Icons.people_rounded},
+    // {'id': 'SOCIAL', 'label': 'SOCIAL', 'icon': Icons.people_rounded},
   ];
 
   @override
@@ -38,19 +35,8 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
     _loadAchievements();
   }
 
-  Future<void> _loadAchievements() async {
-    try {
-      final response = await _apiService.getAchievements();
-      setState(() {
-        _achievements = response.achievements;
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        _error = e.toString();
-        _isLoading = false;
-      });
-    }
+  void _loadAchievements() {
+    Provider.of<UserService>(context, listen: false).loadInitialData();
   }
 
   @override
@@ -66,8 +52,10 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
           IconButton(
             icon: const Icon(Icons.refresh_rounded),
             onPressed: () {
-              setState(() => _isLoading = true);
-              _loadAchievements();
+              Provider.of<UserService>(
+                context,
+                listen: false,
+              ).refreshAchievements();
             },
           ),
         ],
@@ -77,29 +65,9 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
   }
 
   Widget _buildBody() {
-    if (_isLoading) {
+    final userService = Provider.of<UserService>(context);
+    if (userService.isLoading) {
       return const Center(child: CircularProgressIndicator());
-    }
-
-    if (_error != null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.error_outline_rounded,
-              size: 48,
-              color: Colors.red,
-            ),
-            const SizedBox(height: AppTheme.spacingMd),
-            Text('Error: $_error'),
-            TextButton(
-              onPressed: _loadAchievements,
-              child: const Text('Retry'),
-            ),
-          ],
-        ),
-      );
     }
 
     return Row(
@@ -179,10 +147,12 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
   }
 
   Widget _buildAchievementList() {
+    final userService = Provider.of<UserService>(context);
+    final achievements = userService.achievements;
     final filtered =
         (_selectedCategory == 'ALL'
-              ? _achievements
-              : _achievements
+              ? achievements
+              : achievements
                     .where(
                       (a) =>
                           a.achievement.category.toUpperCase() ==

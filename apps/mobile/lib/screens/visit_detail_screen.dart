@@ -92,12 +92,6 @@ class _VisitDetailScreenState extends State<VisitDetailScreen> {
         _isEditing = false;
         _isSaving = false;
       });
-
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Saved successfully')));
-      }
     } catch (e) {
       setState(() => _isSaving = false);
       if (mounted) {

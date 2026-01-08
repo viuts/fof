@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
-import '../services/api_service.dart';
 import '../api/fof/v1/shop.pb.dart';
 import '../api/fof/v1/visit.pb.dart';
 import '../constants/category_colors.dart';
 import '../services/language_service.dart';
 import '../api/fof/v1/shop_extensions.dart';
+import '../services/user_service.dart';
+import 'package:provider/provider.dart';
 import 'visit_detail_screen.dart';
 
 class JournalScreen extends StatefulWidget {
@@ -16,10 +17,6 @@ class JournalScreen extends StatefulWidget {
 }
 
 class _JournalScreenState extends State<JournalScreen> {
-  final ApiService _apiService = ApiService();
-  List<VisitedShop> _visitedShops = [];
-  bool _isLoading = true;
-  String? _error;
   FoodCategory? _selectedCategory; // null means ALL
 
   @override
@@ -28,19 +25,8 @@ class _JournalScreenState extends State<JournalScreen> {
     _loadVisitedShops();
   }
 
-  Future<void> _loadVisitedShops() async {
-    try {
-      final response = await _apiService.getVisitedShops();
-      setState(() {
-        _visitedShops = response.visitedShops;
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        _error = e.toString();
-        _isLoading = false;
-      });
-    }
+  void _loadVisitedShops() {
+    Provider.of<UserService>(context, listen: false).loadInitialData();
   }
 
   @override
@@ -56,8 +42,10 @@ class _JournalScreenState extends State<JournalScreen> {
           IconButton(
             icon: const Icon(Icons.refresh_rounded),
             onPressed: () {
-              setState(() => _isLoading = true);
-              _loadVisitedShops();
+              Provider.of<UserService>(
+                context,
+                listen: false,
+              ).refreshVisitedShops();
             },
           ),
         ],
@@ -67,27 +55,10 @@ class _JournalScreenState extends State<JournalScreen> {
   }
 
   Widget _buildBody() {
-    final s = S.of(context);
-    if (_isLoading) {
+    final userService = Provider.of<UserService>(context);
+    final isLoading = userService.isLoading;
+    if (isLoading) {
       return const Center(child: CircularProgressIndicator());
-    }
-
-    if (_error != null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.error_outline_rounded,
-              size: 48,
-              color: Colors.red,
-            ),
-            const SizedBox(height: AppTheme.spacingMd),
-            Text(s.errorLabel(_error!)),
-            TextButton(onPressed: _loadVisitedShops, child: Text(s.retry)),
-          ],
-        ),
-      );
     }
 
     return Row(
@@ -224,9 +195,11 @@ class _JournalScreenState extends State<JournalScreen> {
 
   Widget _buildVisitedShopsList() {
     final s = S.of(context);
+    final userService = Provider.of<UserService>(context);
+    final visitedShops = userService.visitedShops;
     final filtered = _selectedCategory == null
-        ? _visitedShops
-        : _visitedShops
+        ? visitedShops
+        : visitedShops
               .where((v) => v.shop.effectiveFoodCategory == _selectedCategory)
               .toList();
 

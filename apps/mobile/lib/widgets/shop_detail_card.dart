@@ -11,7 +11,7 @@ import '../services/language_service.dart';
 class ShopDetailCard extends StatelessWidget {
   final Shop shop;
   final latlong2.LatLng? currentLocation;
-  final String? clearedAreaGeojson;
+  final List<List<latlong2.LatLng>> clearedRings;
   final VoidCallback onClose;
   final Function(Shop) onEnterShop;
 
@@ -19,7 +19,7 @@ class ShopDetailCard extends StatelessWidget {
     super.key,
     required this.shop,
     required this.currentLocation,
-    required this.clearedAreaGeojson,
+    required this.clearedRings,
     required this.onClose,
     required this.onEnterShop,
   });
@@ -63,7 +63,7 @@ class ShopDetailCard extends StatelessWidget {
     final shopLocation = latlong2.LatLng(shop.lat, shop.lng);
     final isInClearedArea = GeoUtils.isPointInClearedArea(
       shopLocation,
-      clearedAreaGeojson,
+      clearedRings,
     );
 
     final distanceToShop = currentLocation == null

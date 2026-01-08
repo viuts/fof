@@ -11,9 +11,7 @@ import '../services/location_service.dart';
 import '../services/language_service.dart';
 import '../api/fof/v1/shop.pb.dart';
 import '../api/fof/v1/common.pb.dart';
-import '../api/fof/v1/visit.pb.dart';
 import '../api/fof/v1/location.pb.dart';
-import '../api/fof/v1/user.pb.dart';
 import '../api/fof/v1/achievement.pb.dart';
 import '../api/fof/v1/shop_extensions.dart';
 import '../widgets/fog_layer.dart';
@@ -26,6 +24,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:provider/provider.dart';
 import '../services/map_style_service.dart';
+import '../services/user_service.dart';
 
 class MapScreen extends StatefulWidget {
   final Shop? questShop;
@@ -43,7 +42,7 @@ class MapScreenState extends State<MapScreen>
   final FocusNode _focusNode = FocusNode();
   String? _clearedAreaGeojson;
   final List<Shop> _nearbyShops = [];
-  final List<Shop> _visitedShops = [];
+  List<List<latlong2.LatLng>> _clearedRings = []; // Cached parsed GeoJSON
   latlong2.LatLng? _currentLocation;
   Shop? _selectedShop; // Selected shop for non-blocking detail view
 
@@ -60,8 +59,6 @@ class MapScreenState extends State<MapScreen>
   Shop? _enteringShop;
   Timer? _countdownTimer;
   int _remainingSeconds = 0;
-  int _currentLevel = 1;
-  int _currentExp = 0;
   bool _isInitialLoading = true;
 
   // Blast Animation
@@ -101,17 +98,10 @@ class MapScreenState extends State<MapScreen>
           final newLoc = latlong2.LatLng(lat, lng);
 
           // Calculate heading from movement direction
-          if (_currentLocation != null) {
-            if (!mounted) return;
-            setState(() {
-              _currentLocation = newLoc;
-            });
-          } else {
-            if (!mounted) return;
-            setState(() {
-              _currentLocation = newLoc;
-            });
-          }
+          if (!mounted) return;
+          setState(() {
+            _currentLocation = newLoc;
+          });
 
           if (!_hasCentered && _isMapReady) {
             _hasCentered = true;
@@ -170,10 +160,10 @@ class MapScreenState extends State<MapScreen>
 
   Future<void> _loadInitialData() async {
     try {
+      final userService = Provider.of<UserService>(context, listen: false);
       final futures = <Future>[
         ApiService().getClearedArea(),
-        _fetchVisitedShops(updateState: false),
-        _fetchUserProfile(updateState: false),
+        userService.loadInitialData(),
       ];
 
       final results = await Future.wait(futures);
@@ -181,18 +171,10 @@ class MapScreenState extends State<MapScreen>
       if (!mounted) return;
 
       final clearedAreaResponse = results[0] as GetClearedAreaResponse;
-      final visitedResponse = results[1] as GetVisitedShopsResponse;
-      final profileResponse = results[2] as GetProfileResponse;
 
       setState(() {
         _clearedAreaGeojson = clearedAreaResponse.clearedAreaGeojson;
-        _visitedShops.clear();
-        _visitedShops.addAll(visitedResponse.visitedShops.map((v) => v.shop));
-
-        if (profileResponse.hasUser()) {
-          _currentLevel = profileResponse.user.level;
-          _currentExp = profileResponse.user.exp;
-        }
+        _clearedRings = GeoUtils.parseGeoJson(_clearedAreaGeojson);
       });
 
       // If we didn't fetch nearby shops yet (no location), let the location service callback handle it or the timer
@@ -224,6 +206,7 @@ class MapScreenState extends State<MapScreen>
       if (response.newlyCleared && mounted) {
         setState(() {
           _clearedAreaGeojson = response.clearedAreaGeojson;
+          _clearedRings = GeoUtils.parseGeoJson(_clearedAreaGeojson);
         });
       }
     } catch (e) {
@@ -234,8 +217,11 @@ class MapScreenState extends State<MapScreen>
   // Renamed from _loadShops to be more generic if needed, or just use specific methods
   Future<void> _fetchShops() async {
     await _fetchNearbyShops();
-    await _fetchVisitedShops();
-    await _fetchUserProfile();
+    if (!mounted) return;
+    await Provider.of<UserService>(
+      context,
+      listen: false,
+    ).loadInitialData(force: true);
   }
 
   Future<GetNearbyShopsResponse?> _fetchNearbyShops({
@@ -262,43 +248,9 @@ class MapScreenState extends State<MapScreen>
     }
   }
 
-  Future<GetVisitedShopsResponse?> _fetchVisitedShops({
-    bool updateState = true,
-  }) async {
-    try {
-      final response = await ApiService().getVisitedShops();
+  // Removed _fetchVisitedShops - now in UserService
 
-      if (updateState && mounted) {
-        setState(() {
-          _visitedShops.clear();
-          _visitedShops.addAll(response.visitedShops.map((v) => v.shop));
-        });
-      }
-      return response;
-    } catch (e) {
-      debugPrint('Failed to load visited shops: $e');
-      return null;
-    }
-  }
-
-  Future<GetProfileResponse?> _fetchUserProfile({
-    bool updateState = true,
-  }) async {
-    try {
-      final response = await ApiService().getProfile();
-
-      if (updateState && mounted && response.hasUser()) {
-        setState(() {
-          _currentLevel = response.user.level;
-          _currentExp = response.user.exp;
-        });
-      }
-      return response;
-    } catch (e) {
-      debugPrint('Failed to load user profile: $e');
-      return null;
-    }
-  }
+  // Removed _fetchUserProfile - now in UserService
 
   void _showShopDetails(Shop shop) {
     setState(() {
@@ -759,20 +711,24 @@ class MapScreenState extends State<MapScreen>
     try {
       final response = await ApiService().createVisit(shopId, rating, comment);
       if (response.success) {
-        final oldLevel = _currentLevel;
+        final userService = Provider.of<UserService>(context, listen: false);
+        final oldLevel = userService.currentLevel;
+
         setState(() {
           _clearedAreaGeojson = response.clearedAreaGeojson;
-          _currentLevel = response.currentLevel;
-          _currentExp = response.currentExp;
+          _clearedRings = GeoUtils.parseGeoJson(_clearedAreaGeojson);
           _fetchNearbyShops();
-          _fetchVisitedShops();
-          _fetchVisitedShops();
           _enteringShop = null;
           _isSubmittingVisit = false;
         });
 
-        // Show reward feedback
         if (mounted) {
+          userService.updateVisitData(
+            level: response.currentLevel,
+            exp: response.currentExp,
+          );
+
+          // Show reward feedback
           final s = S.of(context);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -780,9 +736,9 @@ class MapScreenState extends State<MapScreen>
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(S.of(context).visitRecordedExp(response.expGained)),
-                  if (_currentLevel > oldLevel)
+                  if (response.currentLevel > oldLevel)
                     Text(
-                      s.levelUp(_currentLevel),
+                      s.levelUp(response.currentLevel),
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 18,
@@ -832,7 +788,8 @@ class MapScreenState extends State<MapScreen>
       shop = _nearbyShops.firstWhere((s) => s.id == shopId);
     } catch (_) {
       try {
-        shop = _visitedShops.firstWhere((s) => s.id == shopId);
+        final userService = Provider.of<UserService>(context, listen: false);
+        shop = userService.visitedShopModels.firstWhere((s) => s.id == shopId);
       } catch (_) {}
     }
 
@@ -945,12 +902,18 @@ class MapScreenState extends State<MapScreen>
                   urlTemplate: mapStyleService.currentStyle.urlTemplate,
                   subdomains: mapStyleService.currentStyle.subdomains,
                   userAgentPackageName: 'com.viuts.fof',
+                  tileProvider: NetworkTileProvider(
+                    cachingProvider:
+                        BuiltInMapCachingProvider.getOrCreateInstance(
+                          maxCacheSize: 1_000_000_000, // 1 GB
+                        ),
+                  ),
                 ),
                 FogLayer(
                   fogColor: AppTheme.fogColorDark,
                   currentLocation: _currentLocation,
                   visionRadius: 100,
-                  clearedRings: FogLayer.parseGeoJson(_clearedAreaGeojson),
+                  clearedRings: _clearedRings,
                 ),
                 CurrentLocationLayer(
                   positionStream: LocationService().positionStream.map(
@@ -1021,7 +984,11 @@ class MapScreenState extends State<MapScreen>
                       for (var s in _nearbyShops) {
                         allShops[s.id] = s;
                       }
-                      for (var s in _visitedShops) {
+                      final userService = Provider.of<UserService>(
+                        context,
+                        listen: false,
+                      );
+                      for (var s in userService.visitedShopModels) {
                         allShops[s.id] = s;
                       }
 
@@ -1034,13 +1001,14 @@ class MapScreenState extends State<MapScreen>
                       final shopLocation = latlong2.LatLng(shop.lat, shop.lng);
                       final isInClearedArea = GeoUtils.isPointInClearedArea(
                         shopLocation,
-                        _clearedAreaGeojson,
+                        _clearedRings,
                       );
 
                       return Marker(
                         point: shopLocation,
                         width: shop.markerSize + 10,
                         height: shop.markerSize + 10,
+                        key: ValueKey('shop_${shop.id}'),
                         child: ShopBeacon(
                           shop: shop,
                           showPulse: false,
@@ -1103,7 +1071,7 @@ class MapScreenState extends State<MapScreen>
               ShopDetailCard(
                 shop: _selectedShop!,
                 currentLocation: _currentLocation,
-                clearedAreaGeojson: _clearedAreaGeojson,
+                clearedRings: _clearedRings,
                 onClose: () => setState(() => _selectedShop = null),
                 onEnterShop: _startEnteringShop,
               ),
@@ -1118,8 +1086,11 @@ class MapScreenState extends State<MapScreen>
 
   Widget _buildLevelBadge() {
     final s = S.of(context);
-    final nextLevelThreshold = _currentLevel * _currentLevel * 100;
-    final expNeeded = nextLevelThreshold - _currentExp;
+    final userService = Provider.of<UserService>(context);
+    final currentLevel = userService.currentLevel;
+    final currentExp = userService.currentExp;
+    final nextLevelThreshold = currentLevel * currentLevel * 100;
+    final expNeeded = nextLevelThreshold - currentExp;
 
     // Shift down if entering overlay is visible to avoid overlap
     // Also shift down if Quest Mode is active (top overlay present)
@@ -1161,7 +1132,7 @@ class MapScreenState extends State<MapScreen>
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  s.levelLabel(_currentLevel),
+                  s.levelLabel(currentLevel),
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 14,

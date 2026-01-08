@@ -6,11 +6,11 @@ import '../services/location_service.dart';
 import '../services/language_service.dart';
 import '../services/map_style_service.dart';
 import '../services/api_service.dart';
-import '../api/fof/v1/user.pb.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:google_sign_in/google_sign_in.dart';
+import '../services/user_service.dart';
 
 class AccountScreen extends StatefulWidget {
   const AccountScreen({super.key});
@@ -22,8 +22,7 @@ class AccountScreen extends StatefulWidget {
 class _AccountScreenState extends State<AccountScreen> {
   final locationService = LocationService();
   final apiService = ApiService();
-  User? _user;
-  bool _isLoading = true;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -31,20 +30,8 @@ class _AccountScreenState extends State<AccountScreen> {
     _loadProfile();
   }
 
-  Future<void> _loadProfile() async {
-    try {
-      final response = await apiService.getProfile();
-      if (mounted) {
-        setState(() {
-          _user = response.user;
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
-    }
+  void _loadProfile() {
+    Provider.of<UserService>(context, listen: false).loadInitialData();
   }
 
   Future<void> _pickImage() async {
@@ -63,7 +50,12 @@ class _AccountScreenState extends State<AccountScreen> {
 
         final downloadUrl = await apiService.uploadProfileImage(imageFile);
         await apiService.updateProfile(profileImage: downloadUrl);
-        await _loadProfile();
+        if (mounted) {
+          await Provider.of<UserService>(
+            context,
+            listen: false,
+          ).refreshProfile();
+        }
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(
@@ -78,7 +70,9 @@ class _AccountScreenState extends State<AccountScreen> {
 
   Future<void> _editDisplayName() async {
     final s = S.of(context);
-    final controller = TextEditingController(text: _user?.displayName);
+    final userService = Provider.of<UserService>(context, listen: false);
+    final user = userService.profile;
+    final controller = TextEditingController(text: user?.displayName);
 
     final newName = await showDialog<String>(
       context: context,
@@ -102,11 +96,16 @@ class _AccountScreenState extends State<AccountScreen> {
       ),
     );
 
-    if (newName != null && newName != _user?.displayName) {
+    if (newName != null && newName != user?.displayName) {
       setState(() => _isLoading = true);
       try {
         await apiService.updateProfile(displayName: newName);
-        await _loadProfile();
+        if (mounted) {
+          await Provider.of<UserService>(
+            context,
+            listen: false,
+          ).refreshProfile();
+        }
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(
@@ -165,9 +164,13 @@ class _AccountScreenState extends State<AccountScreen> {
     final languageService = Provider.of<LanguageService>(context);
     final mapStyleService = Provider.of<MapStyleService>(context);
 
+    final userService = Provider.of<UserService>(context);
+    final user = userService.profile;
+    final isLoading = _isLoading || userService.isLoading;
+
     return Scaffold(
       appBar: AppBar(title: Text(s.accountTitle)),
-      body: _isLoading
+      body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : ListView(
               padding: const EdgeInsets.fromLTRB(
@@ -187,10 +190,10 @@ class _AccountScreenState extends State<AccountScreen> {
                             radius: 50,
                             backgroundColor: AppTheme.darkSurfaceVariant,
                             backgroundImage:
-                                _user?.profileImage.isNotEmpty == true
-                                ? NetworkImage(_user!.profileImage)
+                                user?.profileImage.isNotEmpty == true
+                                ? NetworkImage(user!.profileImage)
                                 : null,
-                            child: _user?.profileImage.isNotEmpty == true
+                            child: user?.profileImage.isNotEmpty == true
                                 ? null
                                 : const Icon(
                                     Icons.person,
@@ -218,8 +221,8 @@ class _AccountScreenState extends State<AccountScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            _user?.displayName.isNotEmpty == true
-                                ? _user!.displayName
+                            user?.displayName.isNotEmpty == true
+                                ? user!.displayName
                                 : 'FoF Explorer',
                             style: const TextStyle(
                               fontSize: 24,
@@ -234,7 +237,7 @@ class _AccountScreenState extends State<AccountScreen> {
                         ],
                       ),
                       Text(
-                        _user?.email ?? 'explorer@fof.app',
+                        user?.email ?? 'explorer@fof.app',
                         style: const TextStyle(color: AppTheme.textSecondary),
                       ),
                     ],
