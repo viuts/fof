@@ -12,6 +12,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appTitle => 'Fog of Flavor';
 
   @override
+  String get loadingMap => 'Gathering Ingredients...';
+
+  @override
   String errorLabel(String error) {
     return 'Error: $error';
   }
@@ -78,7 +81,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get questHint => 'e.g. \"Iekei\", \"Quiet\", \"Spicy\"';
 
   @override
-  String get questButton => 'ROLL THE DICE';
+  String get questButton => 'FIND QUEST';
 
   @override
   String get tabQuest => 'Quest';
@@ -139,6 +142,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get logout => 'Log Out';
+
+  @override
+  String get logoutConfirm => 'Are you sure you want to log out?';
 
   @override
   String get selectCuisine => 'Select a Cuisine';

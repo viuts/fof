@@ -34,6 +34,7 @@ class S {
   }
 
   String get appTitle => _l10n.appTitle;
+  String get loadingMap => _l10n.loadingMap;
 
   // Tabs
   String get tabQuest => _l10n.tabQuest;
@@ -144,6 +145,7 @@ class S {
   String get languageName => _l10n.languageName;
   String get soundEffects => _l10n.soundEffects;
   String get logout => _l10n.logout;
+  String get logoutConfirm => _l10n.logoutConfirm;
 
   // Quest Screen
   String get questTitle => _l10n.questTitle;

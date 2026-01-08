@@ -1,5 +1,6 @@
 {
     "appTitle": "フォグ・オブ・フレーバー",
+    "loadingMap": "食材を収穫中...",
     "errorLabel": "エラー: {error}",
     "@errorLabel": {
         "placeholders": {
@@ -49,7 +50,7 @@
     "questDistance": "距離",
     "questSpecific": "こだわり条件",
     "questHint": "例: \"家系\", \"静か\", \"辛い\"",
-    "questButton": "サイコロを振る",
+    "questButton": "クエストを探す",
     "tabQuest": "クエスト",
     "tabJournal": "記録",
     "tabMap": "マップ",
@@ -70,6 +71,7 @@
     "languageName": "日本語",
     "soundEffects": "効果音",
     "logout": "ログアウト",
+    "logoutConfirm": "本当にログアウトしますか？",
     "selectCuisine": "料理カテゴリーを選択",
     "journalTitle": "探索ジャーナル",
     "neighborExplorer": "近隣の探索者",
@@ -266,6 +268,6 @@
     "questOpenNow": "営業中のみ",
     "questRatingExcellent": "最高 🔥",
     "questRatingAverage": "良店 👍",
-    "questRatingMixed": "おまかせ 🎲",
+    "questRatingMixed": "賛否両論 🎲",
     "visitComplete": "到着しました！ 🎉"
 }

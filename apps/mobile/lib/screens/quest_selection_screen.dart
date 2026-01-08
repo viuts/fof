@@ -402,8 +402,6 @@ class _QuestSelectionScreenState extends State<QuestSelectionScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.casino, color: Colors.white),
-              const SizedBox(width: 12),
               Text(
                 S.of(context).questButton,
                 style: const TextStyle(

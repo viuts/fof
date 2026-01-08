@@ -62,6 +62,7 @@ class MapScreenState extends State<MapScreen>
   int _remainingSeconds = 0;
   int _currentLevel = 1;
   int _currentExp = 0;
+  bool _isInitialLoading = true;
 
   // Blast Animation
   late AnimationController _blastController;
@@ -199,6 +200,12 @@ class MapScreenState extends State<MapScreen>
       debugPrint('Failed to load initial data: $e');
       // Fallback: try loading singly if batch failed, though unlikely
       await _fetchShops();
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isInitialLoading = false;
+        });
+      }
     }
   }
 
@@ -711,13 +718,6 @@ class MapScreenState extends State<MapScreen>
     );
   }
 
-  void clearHistory() {
-    setState(() {
-      _clearedAreaGeojson = null;
-      _visitedShops.clear();
-    });
-  }
-
   void _startEnteringShop(Shop shop) {
     setState(() {
       _isEntering = true;
@@ -847,6 +847,42 @@ class MapScreenState extends State<MapScreen>
       _blastController.reset();
       _blastController.forward();
     }
+  }
+
+  Widget _buildInitialLoadingOverlay() {
+    final s = S.of(context);
+    return Container(
+      color: AppTheme.fogColorDark,
+      width: double.infinity,
+      height: double.infinity,
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // App Logo
+            const Icon(
+              Icons.restaurant_menu,
+              size: 80,
+              color: AppTheme.primaryColor,
+            ),
+            const SizedBox(height: 32),
+            const CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              s.loadingMap,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1.2,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -1071,6 +1107,9 @@ class MapScreenState extends State<MapScreen>
                 onClose: () => setState(() => _selectedShop = null),
                 onEnterShop: _startEnteringShop,
               ),
+
+            // Initial Loading Overlay
+            if (_isInitialLoading) _buildInitialLoadingOverlay(),
           ],
         ),
       ),

@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/gestures.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'screens/login_screen.dart';
 import 'firebase_options.dart'; // Ensure this file is generated/exists
 
@@ -20,6 +21,9 @@ void main() async {
 
   // Initialize Firebase
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  // Initialize Google Sign In
+  await GoogleSignIn.instance.initialize();
 
   // Preload font to avoid delay on first display
   // We don't need to await this as it can happen in the background

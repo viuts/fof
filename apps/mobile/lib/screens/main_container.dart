@@ -49,12 +49,7 @@ class _MainContainerState extends State<MainContainer> {
             onCancelQuest: cancelQuest,
           ),
           const AchievementsScreen(),
-          AccountScreen(
-            onDeleteHistory: () {
-              // Reset the map state when history is deleted
-              _mapKey.currentState?.clearHistory();
-            },
-          ),
+          const AccountScreen(),
         ],
       ),
       bottomNavigationBar: BottomAppBar(

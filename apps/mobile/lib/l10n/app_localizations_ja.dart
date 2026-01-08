@@ -12,6 +12,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get appTitle => 'フォグ・オブ・フレーバー';
 
   @override
+  String get loadingMap => '食材を収穫中...';
+
+  @override
   String errorLabel(String error) {
     return 'エラー: $error';
   }
@@ -78,7 +81,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get questHint => '例: \"家系\", \"静か\", \"辛い\"';
 
   @override
-  String get questButton => 'サイコロを振る';
+  String get questButton => 'クエストを探す';
 
   @override
   String get tabQuest => 'クエスト';
@@ -139,6 +142,9 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get logout => 'ログアウト';
+
+  @override
+  String get logoutConfirm => '本当にログアウトしますか？';
 
   @override
   String get selectCuisine => '料理カテゴリーを選択';
@@ -576,7 +582,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get questRatingAverage => '良店 👍';
 
   @override
-  String get questRatingMixed => 'おまかせ 🎲';
+  String get questRatingMixed => '賛否両論 🎲';
 
   @override
   String get visitComplete => '到着しました！ 🎉';

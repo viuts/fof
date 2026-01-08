@@ -104,6 +104,12 @@ abstract class AppLocalizations {
   /// **'Fog of Flavor'**
   String get appTitle;
 
+  /// No description provided for @loadingMap.
+  ///
+  /// In en, this message translates to:
+  /// **'Gathering Ingredients...'**
+  String get loadingMap;
+
   /// No description provided for @errorLabel.
   ///
   /// In en, this message translates to:
@@ -215,7 +221,7 @@ abstract class AppLocalizations {
   /// No description provided for @questButton.
   ///
   /// In en, this message translates to:
-  /// **'ROLL THE DICE'**
+  /// **'FIND QUEST'**
   String get questButton;
 
   /// No description provided for @tabQuest.
@@ -337,6 +343,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Log Out'**
   String get logout;
+
+  /// No description provided for @logoutConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to log out?'**
+  String get logoutConfirm;
 
   /// No description provided for @selectCuisine.
   ///

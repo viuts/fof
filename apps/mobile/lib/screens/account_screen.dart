@@ -9,11 +9,11 @@ import '../services/api_service.dart';
 import '../api/fof/v1/user.pb.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'package:firebase_auth/firebase_auth.dart' as auth;
+import 'package:google_sign_in/google_sign_in.dart';
 
 class AccountScreen extends StatefulWidget {
-  final VoidCallback? onDeleteHistory;
-
-  const AccountScreen({super.key, this.onDeleteHistory});
+  const AccountScreen({super.key});
 
   @override
   State<AccountScreen> createState() => _AccountScreenState();
@@ -112,6 +112,46 @@ class _AccountScreenState extends State<AccountScreen> {
           ScaffoldMessenger.of(
             context,
           ).showSnackBar(SnackBar(content: Text('Failed to update name: $e')));
+        }
+      } finally {
+        if (mounted) setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  Future<void> _logout() async {
+    final s = S.of(context);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(s.logout),
+        content: Text(s.logoutConfirm),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(s.cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: Text(s.logout),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      setState(() => _isLoading = true);
+      try {
+        await GoogleSignIn.instance.initialize();
+        await GoogleSignIn.instance.signOut();
+        await auth.FirebaseAuth.instance.signOut();
+        // main.dart authStateChanges() will handle redirection to LoginScreen
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(s.errorLabel(e.toString()))));
         }
       } finally {
         if (mounted) setState(() => _isLoading = false);
@@ -219,16 +259,6 @@ class _AccountScreenState extends State<AccountScreen> {
                           });
                         },
                       ),
-                      const Divider(height: 1),
-                      ListTile(
-                        title: Text(s.deleteHistory),
-                        subtitle: Text(s.deleteSubtitle),
-                        trailing: Icon(
-                          Icons.delete_outline,
-                          color: Theme.of(context).colorScheme.error,
-                        ),
-                        onTap: () => _confirmDeleteHistory(context),
-                      ),
                     ],
                   ),
                 ),
@@ -281,7 +311,7 @@ class _AccountScreenState extends State<AccountScreen> {
 
                 const SizedBox(height: AppTheme.spacingXl),
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: _logout,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red.withValues(alpha: 0.1),
                     foregroundColor: Colors.red,
@@ -338,35 +368,6 @@ class _AccountScreenState extends State<AccountScreen> {
             TextButton(
               onPressed: () => Navigator.pop(context),
               child: Text(s.cancel),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _confirmDeleteHistory(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        final s = S.of(context);
-        return AlertDialog(
-          title: Text(s.deleteHistoryTitle),
-          content: Text(s.deleteHistoryConfirm),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(s.cancel),
-            ),
-            TextButton(
-              onPressed: () {
-                widget.onDeleteHistory?.call();
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Path history deleted.')),
-                );
-              },
-              child: Text(s.delete, style: const TextStyle(color: Colors.red)),
             ),
           ],
         );

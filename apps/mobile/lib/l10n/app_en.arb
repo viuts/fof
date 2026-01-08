@@ -1,5 +1,6 @@
 {
     "appTitle": "Fog of Flavor",
+    "loadingMap": "Gathering Ingredients...",
     "errorLabel": "Error: {error}",
     "@errorLabel": {
         "placeholders": {
@@ -49,7 +50,7 @@
     "questDistance": "HOW FAR?",
     "questSpecific": "ANYTHING SPECIFIC?",
     "questHint": "e.g. \"Iekei\", \"Quiet\", \"Spicy\"",
-    "questButton": "ROLL THE DICE",
+    "questButton": "FIND QUEST",
     "tabQuest": "Quest",
     "tabJournal": "Journal",
     "tabMap": "Map",
@@ -70,6 +71,7 @@
     "languageName": "English",
     "soundEffects": "Sound Effects",
     "logout": "Log Out",
+    "logoutConfirm": "Are you sure you want to log out?",
     "selectCuisine": "Select a Cuisine",
     "journalTitle": "Discovery Journal",
     "neighborExplorer": "Neighborhood Explorer",
