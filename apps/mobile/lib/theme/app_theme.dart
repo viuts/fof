@@ -6,7 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 class AppTheme {
   // Brand colors - Refined Japanese Palette
   static const Color primaryColor = Color(
-    0xFFFF5A5F,
+    0xFF141325,
   ); // Soft Coral (Popular in Japanese apps)
   static const Color primaryDark = Color(0xFFE04246);
   static const Color primaryLight = Color(0xFFFF8A8E);

@@ -103,6 +103,8 @@ type Shop struct {
 	OpeningHours    BusinessHours  `gorm:"type:jsonb"`
 	ImageURLs       pq.StringArray `gorm:"type:text[];column:image_urls"`
 	Rating          float64
+	ReviewCount     int     `gorm:"column:review_count"`
+	AveragePrice    int     `gorm:"column:average_price"`
 	SourceURL       string  `gorm:"uniqueIndex;column:source_url"`
 	ClearanceRadius float64 `gorm:"column:clearance_radius;type:double precision;->"` // Read-only (Generated)
 	Reservable      bool    `gorm:"default:false"`

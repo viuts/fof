@@ -284,13 +284,6 @@ class _AccountScreenState extends State<AccountScreen> {
                         },
                       ),
                       const Divider(height: 1),
-                      SwitchListTile(
-                        secondary: const Icon(Icons.volume_up),
-                        title: Text(s.soundEffects),
-                        value: true,
-                        onChanged: (v) {},
-                      ),
-                      const Divider(height: 1),
                       ListTile(
                         leading: const Icon(Icons.map_outlined),
                         title: Text(s.mapStyle),
@@ -313,8 +306,8 @@ class _AccountScreenState extends State<AccountScreen> {
                 ElevatedButton(
                   onPressed: _logout,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red.withValues(alpha: 0.1),
-                    foregroundColor: Colors.red,
+                    backgroundColor: Colors.red,
+                    foregroundColor: Colors.white,
                   ),
                   child: Text(s.logout),
                 ),

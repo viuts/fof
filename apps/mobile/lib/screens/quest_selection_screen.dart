@@ -4,6 +4,7 @@ import '../services/api_service.dart';
 import '../services/location_service.dart';
 import '../api/fof/v1/shop.pb.dart';
 import '../constants/category_colors.dart';
+import '../theme/app_theme.dart';
 
 class QuestSelectionScreen extends StatefulWidget {
   final Function(Shop) onStartQuest;
@@ -190,7 +191,7 @@ class _QuestSelectionScreenState extends State<QuestSelectionScreen> {
                 ),
               ),
               value: _openNow,
-              activeColor: Colors.black,
+              activeThumbColor: AppTheme.primaryColor,
               onChanged: (val) => setState(() => _openNow = val),
             ),
 

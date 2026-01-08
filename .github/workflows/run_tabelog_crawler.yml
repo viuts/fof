@@ -1,0 +1,40 @@
+name: Run Tabelog Crawler
+
+on:
+  workflow_dispatch:
+    inputs:
+      prefecture:
+        description: "Prefecture to crawl (e.g., tokyo, osaka)"
+        required: true
+        default: "tokyo"
+      category:
+        description: "Category to crawl (e.g., ramen, sushi, all)"
+        required: true
+        default: "all"
+
+jobs:
+  run-crawler:
+    runs-on: ubuntu-latest
+    environment: dev
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.25"
+
+      - name: Install dependencies
+        run: go mod download
+
+      - name: Install Playwright
+        run: go run github.com/playwright-community/playwright-go/cmd/playwright@latest install --with-deps chromium
+
+      - name: Run Crawler
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          go run apps/backend/cmd/tabelog-crawler/main.go \
+            -preference=${{ github.event.inputs.prefecture }} \
+            -category=${{ github.event.inputs.category }}
