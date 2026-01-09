@@ -27,6 +27,10 @@ class LocationService {
 
   /// Update location virtually (for debugging/D-pad)
   void updateVirtualLocation(double lat, double lng) {
+    if (_positionSubscription != null) {
+      _positionSubscription?.cancel();
+      _positionSubscription = null;
+    }
     final now = DateTime.now();
     final newPosition = Position(
       latitude: lat,

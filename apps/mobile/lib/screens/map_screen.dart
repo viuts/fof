@@ -258,161 +258,6 @@ class MapScreenState extends State<MapScreen>
     });
   }
 
-  Widget _buildEnteringOverlay() {
-    if (_enteringShop == null || (!_isEntering && !_isSubmittingVisit)) {
-      return const SizedBox.shrink();
-    }
-
-    if (_isSubmittingVisit) {
-      return Positioned(
-        top: MediaQuery.of(context).padding.top + 16,
-        left: 16,
-        right: 16,
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.1),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Row(
-            children: [
-              const SizedBox(
-                width: 24,
-                height: 24,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      S.of(context).verificationInProgress,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.textPrimaryLight,
-                      ),
-                    ),
-                    Text(
-                      _enteringShop!.name,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey.shade600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    final minutes = _remainingSeconds ~/ 60;
-    final seconds = _remainingSeconds % 60;
-
-    return Positioned(
-      top: MediaQuery.of(context).padding.top + 16,
-      left: 16,
-      right: 16,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.orange.withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.timer,
-                    color: Colors.orange,
-                    size: 24,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        S.of(context).verificationInProgress,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: AppTheme.textPrimaryLight,
-                        ),
-                      ),
-                      Text(
-                        _enteringShop!.name,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey.shade600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.close, size: 20),
-                  onPressed: () {
-                    setState(() {
-                      _isEntering = false;
-                      _enteringShop = null;
-                      _remainingSeconds = 0;
-                    });
-                    _countdownTimer?.cancel();
-                  },
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            LinearProgressIndicator(
-              value: _remainingSeconds / (10 * 1),
-              backgroundColor: Colors.grey.shade200,
-              valueColor: const AlwaysStoppedAnimation<Color>(Colors.orange),
-              borderRadius: BorderRadius.circular(4),
-              minHeight: 6,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              S.of(context).remainingTime(minutes, seconds),
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w800,
-                fontFamily: 'monospace',
-                color: Colors.orange,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildQuestOverlay() {
     if (widget.questShop == null || _currentLocation == null) {
       return const SizedBox.shrink();
@@ -674,7 +519,6 @@ class MapScreenState extends State<MapScreen>
     setState(() {
       _isEntering = true;
       _enteringShop = shop;
-      _selectedShop = null; // Close the detail card
       _remainingSeconds = 10 * 1; // 10 minutes
     });
 
@@ -689,25 +533,20 @@ class MapScreenState extends State<MapScreen>
         _onVisitCountdownFinished();
       }
     });
-
-    // Close the shop details modal if open
-    if (mounted) {
-      Navigator.of(context).popUntil((route) => route.isFirst);
-    }
   }
 
   void _onVisitCountdownFinished() {
     if (_enteringShop == null) return;
 
-    setState(() {
-      _isSubmittingVisit = true;
-      _isEntering = false; // Stop the countdown UI, show loading UI
-    });
-
     _submitVisit(_enteringShop!.id, 5, '');
   }
 
   Future<void> _submitVisit(String shopId, int rating, String comment) async {
+    setState(() {
+      _isSubmittingVisit = true;
+      _isEntering = false;
+    });
+
     try {
       final response = await ApiService().createVisit(shopId, rating, comment);
       if (response.success) {
@@ -719,7 +558,11 @@ class MapScreenState extends State<MapScreen>
           _clearedRings = GeoUtils.parseGeoJson(_clearedAreaGeojson);
           _fetchNearbyShops();
           _enteringShop = null;
-          _isSubmittingVisit = false;
+
+          // Refresh selected shop status
+          if (_selectedShop != null && _selectedShop!.id == shopId) {
+            _selectedShop!.isVisited = true;
+          }
         });
 
         if (mounted) {
@@ -766,16 +609,30 @@ class MapScreenState extends State<MapScreen>
               duration: const Duration(seconds: 4),
             ),
           );
+
+          // Trigger blast animation at shop location
+          _showBlastAnimation(shopId);
+
+          // Flush pending locations so the server has the path up to the visit
+          _sendBatchedLocationUpdate();
         }
-
-        // Trigger blast animation at shop location
-        _showBlastAnimation(shopId);
-
-        // Flush pending locations so the server has the path up to the visit
-        _sendBatchedLocationUpdate();
       }
     } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(S.of(context).errorLabel(e.toString())),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
       debugPrint('Error submitting visit: $e');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSubmittingVisit = false;
+        });
+      }
     }
   }
 
@@ -1050,8 +907,6 @@ class MapScreenState extends State<MapScreen>
                 ),
               ],
             ),
-            // Entering Overlay
-            _buildEnteringOverlay(),
             // Quest overlay
             if (widget.questShop != null && _currentLocation != null)
               _buildQuestOverlay(),
@@ -1074,6 +929,20 @@ class MapScreenState extends State<MapScreen>
                 clearedRings: _clearedRings,
                 onClose: () => setState(() => _selectedShop = null),
                 onEnterShop: _startEnteringShop,
+                isEntering:
+                    _isEntering && _enteringShop?.id == _selectedShop?.id,
+                isSubmitting:
+                    _isSubmittingVisit &&
+                    _enteringShop?.id == _selectedShop?.id,
+                remainingSeconds: _remainingSeconds,
+                onCancelEntering: () {
+                  setState(() {
+                    _isEntering = false;
+                    _enteringShop = null;
+                    _remainingSeconds = 0;
+                  });
+                  _countdownTimer?.cancel();
+                },
               ),
 
             // Initial Loading Overlay
@@ -1093,10 +962,10 @@ class MapScreenState extends State<MapScreen>
     final expNeeded = nextLevelThreshold - currentExp;
 
     // Shift down if entering overlay is visible to avoid overlap
-    // Also shift down if Quest Mode is active (top overlay present)
+    // Quest Mode is active (top overlay present)
     final topPadding =
         MediaQuery.of(context).padding.top +
-        (_isEntering ? 180 : (widget.questShop != null ? 170 : 16));
+        (widget.questShop != null ? 170 : 16);
 
     return AnimatedPositioned(
       duration: const Duration(milliseconds: 300),
@@ -1176,7 +1045,7 @@ class MapScreenState extends State<MapScreen>
     // Use the same logic as LevelBadge to avoid overlap
     final topPadding =
         MediaQuery.of(context).padding.top +
-        (_isEntering ? 180 : (widget.questShop != null ? 170 : 16));
+        (widget.questShop != null ? 170 : 16);
 
     return AnimatedPositioned(
       duration: const Duration(milliseconds: 300),

@@ -123,7 +123,7 @@ class _QuestScreenState extends State<QuestScreen>
     final distance = _calculateDistance();
     final bearing = _calculateBearing();
 
-    return Padding(
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(AppTheme.spacingLg),
       child: Column(
         children: [
@@ -181,73 +181,69 @@ class _QuestScreenState extends State<QuestScreen>
           const SizedBox(height: AppTheme.spacingXl),
 
           // Compass and Distance (Centered and compacted)
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Compass
-                SizedBox(
-                  width: 220, // Slightly smaller
-                  height: 220,
-                  child: CustomPaint(
-                    painter: CompassPainter(
-                      bearing: bearing,
-                      color: ShopCategory.getColor(_selectedCategory!),
-                    ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Compass
+              SizedBox(
+                width: 220, // Slightly smaller
+                height: 220,
+                child: CustomPaint(
+                  painter: CompassPainter(
+                    bearing: bearing,
+                    color: ShopCategory.getColor(_selectedCategory!),
                   ),
                 ),
-                const SizedBox(height: 32), // Fixed spacing instead of flexible
-                // Distance indicator
-                if (distance < 30)
-                  Column(
-                    children: [
-                      Text(
-                        S
-                            .of(context)
-                            .visitComplete, // Assuming this key exists or use localized "Arrived"
-                        style: const TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.green,
-                        ),
+              ),
+              const SizedBox(height: 32),
+              // Distance indicator
+              if (distance < 30)
+                Column(
+                  children: [
+                    Text(
+                      S.of(context).visitComplete,
+                      style: const TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.green,
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        _targetShop?.name ?? S.of(context).independentShop,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                        ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      _targetShop?.name ?? S.of(context).independentShop,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
                       ),
-                    ],
-                  )
-                else
-                  Column(
-                    children: [
-                      Text(
-                        distance >= 1000
-                            ? '${(distance / 1000).toStringAsFixed(1)} km'
-                            : '${distance.toInt()}m',
-                        style: const TextStyle(
-                          fontSize: 40, // Slightly smaller than 48
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: -1.0,
-                        ),
+                    ),
+                  ],
+                )
+              else
+                Column(
+                  children: [
+                    Text(
+                      distance >= 1000
+                          ? '${(distance / 1000).toStringAsFixed(1)} km'
+                          : '${distance.toInt()}m',
+                      style: const TextStyle(
+                        fontSize: 40,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: -1.0,
                       ),
-                      Text(
-                        S.of(context).toDestination,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: AppTheme.textSecondary,
-                          fontWeight: FontWeight.w500,
-                        ),
+                    ),
+                    Text(
+                      S.of(context).toDestination,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: AppTheme.textSecondary,
+                        fontWeight: FontWeight.w500,
                       ),
-                    ],
-                  ),
-              ],
-            ),
+                    ),
+                  ],
+                ),
+            ],
           ),
-
+          const SizedBox(height: AppTheme.spacingXl),
           Container(
             padding: const EdgeInsets.all(AppTheme.spacingMd),
             decoration: BoxDecoration(

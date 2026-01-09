@@ -16,7 +16,7 @@ class QuestSelectionScreen extends StatefulWidget {
 }
 
 class _QuestSelectionScreenState extends State<QuestSelectionScreen> {
-  FoodCategory _selectedCategory = FoodCategory.FOOD_CATEGORY_RAMEN;
+  FoodCategory _selectedCategory = FoodCategory.FOOD_CATEGORY_WASHOKU;
   double _distance = 1000; // Meters
   final _keywordController = TextEditingController();
   QuestRatingFilter _selectedRating =
@@ -36,217 +36,219 @@ class _QuestSelectionScreenState extends State<QuestSelectionScreen> {
       resizeToAvoidBottomInset:
           false, // Prevent FAB moving up awkwardly, simple layout
       body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const SizedBox(height: 24),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              child: Text(
-                S.of(context).questTitle,
-                style: const TextStyle(
-                  color: Colors.black87,
-                  fontSize: 24,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 1.1,
-                  height: 1.1,
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const SizedBox(height: 24),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                child: Text(
+                  S.of(context).questTitle,
+                  style: const TextStyle(
+                    color: Colors.black87,
+                    fontSize: 24,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 1.1,
+                    height: 1.1,
+                  ),
                 ),
               ),
-            ),
 
-            const SizedBox(height: 32),
+              const SizedBox(height: 32),
 
-            // 1. Horizontal Genre Selection
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              child: Text(
-                S.of(context).questCraving,
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.0,
+              // 1. Horizontal Genre Selection
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                child: Text(
+                  S.of(context).questCraving,
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.0,
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 16),
-            SizedBox(
-              height: 120,
-              child: ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                scrollDirection: Axis.horizontal,
-                itemCount: FoodCategory.values.length - 1,
-                itemBuilder: (context, index) {
-                  final category = FoodCategory.values[index + 1];
-                  final isSelected = _selectedCategory == category;
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 12),
-                    child: SizedBox(
-                      width: 90,
-                      child: _buildCategoryItem(category, isSelected),
-                    ),
-                  );
-                },
-              ),
-            ),
-
-            const SizedBox(height: 32),
-
-            // 2. Distance Slider
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    S.of(context).questDistance,
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1.0,
-                    ),
-                  ),
-                  Text(
-                    '${(_distance / 1000).toStringAsFixed(1)} km',
-                    style: const TextStyle(
-                      color: Colors.black87,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 8),
-            SliderTheme(
-              data: SliderTheme.of(context).copyWith(
-                activeTrackColor: Colors.black87,
-                inactiveTrackColor: Colors.black12,
-                thumbColor: Colors.black87,
-                overlayColor: Colors.black.withValues(alpha: 0.1),
-                trackHeight: 4.0,
-                thumbShape: const RoundSliderThumbShape(
-                  enabledThumbRadius: 10.0,
+              const SizedBox(height: 16),
+              SizedBox(
+                height: 120,
+                child: ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  scrollDirection: Axis.horizontal,
+                  itemCount: FoodCategory.values.length - 1,
+                  itemBuilder: (context, index) {
+                    final category = FoodCategory.values[index + 1];
+                    final isSelected = _selectedCategory == category;
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 12),
+                      child: SizedBox(
+                        width: 90,
+                        child: _buildCategoryItem(category, isSelected),
+                      ),
+                    );
+                  },
                 ),
               ),
-              child: Slider(
-                value: _distance,
-                min: 500,
-                max: 5000,
-                divisions: 9, // 500m steps (0.5, 1.0, 1.5 ... 5.0)
-                onChanged: (val) => setState(() => _distance = val),
-              ),
-            ),
 
-            const SizedBox(height: 24),
+              const SizedBox(height: 32),
 
-            // 3. Rating Filter
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    S.of(context).questRating,
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1.0,
+              // 2. Distance Slider
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      S.of(context).questDistance,
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.0,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 12),
-                  Wrap(
-                    spacing: 8,
-                    children: [
-                      _buildRatingChip(
-                        QuestRatingFilter.QUEST_RATING_FILTER_EXCELLENT,
-                        S.of(context).questRatingExcellent,
-                      ),
-                      _buildRatingChip(
-                        QuestRatingFilter.QUEST_RATING_FILTER_AVERAGE,
-                        S.of(context).questRatingAverage,
-                      ),
-                      _buildRatingChip(
-                        QuestRatingFilter.QUEST_RATING_FILTER_MIXED,
-                        S.of(context).questRatingMixed,
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 24),
-
-            // 4. Open Now Toggle
-            SwitchListTile(
-              contentPadding: const EdgeInsets.symmetric(horizontal: 24),
-              title: Text(
-                S.of(context).questOpenNow,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
-              value: _openNow,
-              activeThumbColor: AppTheme.primaryColor,
-              onChanged: (val) => setState(() => _openNow = val),
-            ),
-
-            const SizedBox(height: 24),
-
-            // 5. Free Text Input
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(
-                    S.of(context).questSpecific,
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1.0,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.grey[100],
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.grey[300]!),
-                    ),
-                    child: TextField(
-                      controller: _keywordController,
-                      decoration: InputDecoration(
-                        hintText: S.of(context).questHint,
-                        hintStyle: const TextStyle(color: Colors.black38),
-                        border: InputBorder.none,
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 14,
-                        ),
-                      ),
+                    Text(
+                      '${(_distance / 1000).toStringAsFixed(1)} km',
                       style: const TextStyle(
                         color: Colors.black87,
                         fontSize: 16,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
+              const SizedBox(height: 8),
+              SliderTheme(
+                data: SliderTheme.of(context).copyWith(
+                  activeTrackColor: Colors.black87,
+                  inactiveTrackColor: Colors.black12,
+                  thumbColor: Colors.black87,
+                  overlayColor: Colors.black.withValues(alpha: 0.1),
+                  trackHeight: 4.0,
+                  thumbShape: const RoundSliderThumbShape(
+                    enabledThumbRadius: 10.0,
+                  ),
+                ),
+                child: Slider(
+                  value: _distance,
+                  min: 500,
+                  max: 5000,
+                  divisions: 9, // 500m steps (0.5, 1.0, 1.5 ... 5.0)
+                  onChanged: (val) => setState(() => _distance = val),
+                ),
+              ),
 
-            // 4. Action Button
-            Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: _buildSurpriseButton(context),
-            ),
-            const SizedBox(height: 80),
-          ],
+              const SizedBox(height: 24),
+
+              // 3. Rating Filter
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      S.of(context).questRating,
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.0,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 8,
+                      children: [
+                        _buildRatingChip(
+                          QuestRatingFilter.QUEST_RATING_FILTER_EXCELLENT,
+                          S.of(context).questRatingExcellent,
+                        ),
+                        _buildRatingChip(
+                          QuestRatingFilter.QUEST_RATING_FILTER_AVERAGE,
+                          S.of(context).questRatingAverage,
+                        ),
+                        _buildRatingChip(
+                          QuestRatingFilter.QUEST_RATING_FILTER_MIXED,
+                          S.of(context).questRatingMixed,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 24),
+
+              // 4. Open Now Toggle
+              SwitchListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 24),
+                title: Text(
+                  S.of(context).questOpenNow,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+                value: _openNow,
+                activeThumbColor: AppTheme.primaryColor,
+                onChanged: (val) => setState(() => _openNow = val),
+              ),
+
+              const SizedBox(height: 24),
+
+              // 5. Free Text Input
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      S.of(context).questSpecific,
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.0,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.grey[300]!),
+                      ),
+                      child: TextField(
+                        controller: _keywordController,
+                        decoration: InputDecoration(
+                          hintText: S.of(context).questHint,
+                          hintStyle: const TextStyle(color: Colors.black38),
+                          border: InputBorder.none,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 14,
+                          ),
+                        ),
+                        style: const TextStyle(
+                          color: Colors.black87,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // 4. Action Button
+              Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: _buildSurpriseButton(context),
+              ),
+              const SizedBox(height: 80),
+            ],
+          ),
         ),
       ),
     );

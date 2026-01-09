@@ -14,6 +14,10 @@ class ShopDetailCard extends StatelessWidget {
   final List<List<latlong2.LatLng>> clearedRings;
   final VoidCallback onClose;
   final Function(Shop) onEnterShop;
+  final bool isEntering;
+  final bool isSubmitting;
+  final int remainingSeconds;
+  final VoidCallback? onCancelEntering;
 
   const ShopDetailCard({
     super.key,
@@ -22,6 +26,10 @@ class ShopDetailCard extends StatelessWidget {
     required this.clearedRings,
     required this.onClose,
     required this.onEnterShop,
+    this.isEntering = false,
+    this.isSubmitting = false,
+    this.remainingSeconds = 0,
+    this.onCancelEntering,
   });
 
   Widget _buildDetailRow(
@@ -60,6 +68,7 @@ class ShopDetailCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     final shopLocation = latlong2.LatLng(shop.lat, shop.lng);
     final isInClearedArea = GeoUtils.isPointInClearedArea(
       shopLocation,
@@ -123,9 +132,7 @@ class ShopDetailCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            S
-                                .of(context)
-                                .translateCategory(shop.effectiveFoodCategory),
+                            s.translateCategory(shop.effectiveFoodCategory),
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w800,
@@ -169,7 +176,7 @@ class ShopDetailCard extends StatelessWidget {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          S.of(context).exploreAreaMsg,
+                          s.exploreAreaMsg,
                           style: TextStyle(
                             fontSize: 12,
                             color: AppTheme.textSecondaryLight,
@@ -223,11 +230,7 @@ class ShopDetailCard extends StatelessWidget {
                           Row(
                             children: [
                               Text(
-                                S
-                                    .of(context)
-                                    .translateCategory(
-                                      shop.effectiveFoodCategory,
-                                    ),
+                                s.translateCategory(shop.effectiveFoodCategory),
                                 style: TextStyle(
                                   fontSize: 11,
                                   color: shop.isVisited
@@ -269,34 +272,97 @@ class ShopDetailCard extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 20),
-                _buildDetailRow(
-                  Icons.location_on_outlined,
-                  S.of(context).locationLabel,
-                  shop.address.isNotEmpty
-                      ? shop.address
-                      : '${shop.lat.toStringAsFixed(4)}, ${shop.lng.toStringAsFixed(4)}',
-                ),
-                const SizedBox(height: 12),
-                _buildDetailRow(
-                  Icons.access_time_outlined,
-                  S.of(context).openingHours,
-                  shop.todaysOpeningHours.isNotEmpty
-                      ? shop.todaysOpeningHours
-                      : S.of(context).hoursUnknown,
-                  color: shop.isOpen && shop.todaysOpeningHours.isNotEmpty
-                      ? Colors.green.shade600
-                      : Colors.red.shade600,
-                ),
-                if (shop.isVisited) ...[
+                if (isEntering) ...[
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.orange.withValues(alpha: 0.05),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: Colors.orange.withValues(alpha: 0.2),
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.timer_outlined,
+                              color: Colors.orange,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                s.verificationInProgress,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.orange,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        LinearProgressIndicator(
+                          value:
+                              remainingSeconds / 10, // Assuming 10s countdown
+                          backgroundColor: Colors.orange.withValues(alpha: 0.1),
+                          valueColor: const AlwaysStoppedAnimation<Color>(
+                            Colors.orange,
+                          ),
+                          borderRadius: BorderRadius.circular(4),
+                          minHeight: 6,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          s.remainingTime(
+                            remainingSeconds ~/ 60,
+                            remainingSeconds % 60,
+                          ),
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w800,
+                            fontFamily: 'monospace',
+                            color: Colors.orange,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                ] else ...[
+                  _buildDetailRow(
+                    Icons.location_on_outlined,
+                    s.locationLabel,
+                    shop.address.isNotEmpty
+                        ? shop.address
+                        : '${shop.lat.toStringAsFixed(4)}, ${shop.lng.toStringAsFixed(4)}',
+                  ),
                   const SizedBox(height: 12),
                   _buildDetailRow(
-                    Icons.check_circle_outline,
-                    S.of(context).statusLabel,
-                    S.of(context).visitedLabel,
-                    color: Colors.green.shade600,
+                    Icons.access_time_outlined,
+                    s.openingHours,
+                    shop.todaysOpeningHours.isNotEmpty
+                        ? shop.todaysOpeningHours
+                        : s.hoursUnknown,
+                    color: shop.isOpen && shop.todaysOpeningHours.isNotEmpty
+                        ? Colors.green.shade600
+                        : Colors.red.shade600,
                   ),
+                  if (shop.isVisited) ...[
+                    const SizedBox(height: 12),
+                    _buildDetailRow(
+                      Icons.check_circle_outline,
+                      s.statusLabel,
+                      s.visitedLabel,
+                      color: Colors.green.shade600,
+                    ),
+                  ],
+                  const SizedBox(height: 20),
                 ],
-                const SizedBox(height: 20),
+
                 if (!shop.isVisited) ...[
                   Builder(
                     builder: (context) {
@@ -306,52 +372,93 @@ class ShopDetailCard extends StatelessWidget {
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          if (!isOpen)
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 8),
-                              child: Text(
-                                S.of(context).closedToEnter,
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(
-                                  color: Colors.red,
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.bold,
+                          if (!isEntering) ...[
+                            if (!isOpen)
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 8),
+                                child: Text(
+                                  s.closedToEnter,
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    color: Colors.red,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
-                            ),
-                          if (isOpen && !canEnter)
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 8),
-                              child: Text(
-                                S.of(context).tooFarToEnter,
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(
-                                  color: Colors.orange,
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.bold,
+                            if (isOpen && !canEnter)
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 8),
+                                child: Text(
+                                  s.tooFarToEnter,
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    color: Colors.orange,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
-                            ),
+                          ],
                           ElevatedButton(
-                            onPressed: (canEnter && isOpen)
+                            onPressed: isSubmitting
+                                ? null
+                                : isEntering
+                                ? onCancelEntering
+                                : (canEnter && isOpen)
                                 ? () => onEnterShop(shop)
                                 : null,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: (canEnter && isOpen)
+                              backgroundColor: isSubmitting
+                                  ? Colors.grey.shade200
+                                  : isEntering
+                                  ? Colors.red.shade50
+                                  : (canEnter && isOpen)
                                   ? Colors.green.shade600
                                   : Colors.grey.shade300,
-                              foregroundColor: Colors.white,
+                              foregroundColor: isSubmitting
+                                  ? Colors.grey.shade600
+                                  : isEntering
+                                  ? Colors.red
+                                  : Colors.white,
                               padding: const EdgeInsets.symmetric(vertical: 14),
-                              elevation: (canEnter && isOpen) ? 2 : 0,
+                              elevation: (canEnter && isOpen && !isSubmitting)
+                                  ? 2
+                                  : 0,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
+                                side: isEntering && !isSubmitting
+                                    ? BorderSide(color: Colors.red.shade200)
+                                    : BorderSide.none,
                               ),
                             ),
-                            child: Text(
-                              S.of(context).enterShop,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                if (isSubmitting) ...[
+                                  const SizedBox(
+                                    width: 16,
+                                    height: 16,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.grey,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                ],
+                                Text(
+                                  isSubmitting
+                                      ? '確認中'
+                                      : isEntering
+                                      ? s.cancel
+                                      : s.enterShop,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],
