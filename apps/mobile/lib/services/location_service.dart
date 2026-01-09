@@ -19,7 +19,6 @@ class LocationService {
   // Compass Support
   Stream<double?> get headingStream =>
       FlutterCompass.events!.map((event) => event.heading);
-  bool _isFrozen = false;
   Position? _currentPosition;
   final List<Position> _currentPath = [];
   final List<Function(double lat, double lng)> _updateListeners = [];
@@ -111,17 +110,6 @@ class LocationService {
     }
   }
 
-  /// Set tracking freeze state
-  void setFreeze(bool frozen) {
-    _isFrozen = frozen;
-    if (frozen) {
-      stopTracking();
-    }
-  }
-
-  /// Check if tracking is frozen
-  bool get isFrozen => _isFrozen;
-
   /// Get current path (without clearing)
   Future<List<Position>> getPath() async {
     return List<Position>.from(_currentPath);
@@ -145,7 +133,6 @@ class LocationService {
     required Function(double lat, double lng) onLocationUpdate,
   }) async {
     _updateListeners.add(onLocationUpdate);
-    if (_isFrozen) return;
 
     await loadCachedPath(); // Ensure existing cache is loaded
 

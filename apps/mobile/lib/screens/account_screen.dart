@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../theme/app_theme.dart';
-import '../services/location_service.dart';
 import '../services/language_service.dart';
 import '../services/map_style_service.dart';
 import '../services/api_service.dart';
@@ -20,7 +19,6 @@ class AccountScreen extends StatefulWidget {
 }
 
 class _AccountScreenState extends State<AccountScreen> {
-  final locationService = LocationService();
   final apiService = ApiService();
   bool _isLoading = false;
 
@@ -244,27 +242,6 @@ class _AccountScreenState extends State<AccountScreen> {
                   ),
                 ),
                 const SizedBox(height: AppTheme.spacingXl),
-
-                // Privacy Settings (Migrated from MapScreen)
-                _buildSectionHeader(s.privacySettings),
-                const SizedBox(height: AppTheme.spacingSm),
-                Card(
-                  child: Column(
-                    children: [
-                      SwitchListTile(
-                        title: Text(s.freezeTracking),
-                        subtitle: Text(s.freezeSubtitle),
-                        value: locationService.isFrozen,
-                        activeThumbColor: AppTheme.primaryColor,
-                        onChanged: (value) {
-                          setState(() {
-                            locationService.setFreeze(value);
-                          });
-                        },
-                      ),
-                    ],
-                  ),
-                ),
 
                 const SizedBox(height: AppTheme.spacingLg),
                 _buildSectionHeader(s.preferences),
