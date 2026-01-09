@@ -9,6 +9,7 @@ import 'package:geolocator/geolocator.dart';
 import '../services/api_service.dart';
 import '../services/location_service.dart';
 import '../services/language_service.dart';
+import 'visit_detail_screen.dart';
 import '../api/fof/v1/shop.pb.dart';
 import '../api/fof/v1/common.pb.dart';
 import '../api/fof/v1/location.pb.dart';
@@ -942,6 +943,25 @@ class MapScreenState extends State<MapScreen>
                     _remainingSeconds = 0;
                   });
                   _countdownTimer?.cancel();
+                },
+                onViewVisit: () {
+                  final userService = Provider.of<UserService>(
+                    context,
+                    listen: false,
+                  );
+                  try {
+                    final visit = userService.visitedShops.firstWhere(
+                      (v) => v.shop.id == _selectedShop!.id,
+                    );
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => VisitDetailScreen(visit: visit),
+                      ),
+                    );
+                  } catch (e) {
+                    debugPrint('Error finding visit for shop: $e');
+                  }
                 },
               ),
 

@@ -1195,6 +1195,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'ARRIVED! 🎉'**
   String get visitComplete;
+
+  /// No description provided for @photosLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'PHOTOS'**
+  String get photosLabel;
+
+  /// No description provided for @viewReview.
+  ///
+  /// In en, this message translates to:
+  /// **'View Review'**
+  String get viewReview;
 }
 
 class _AppLocalizationsDelegate

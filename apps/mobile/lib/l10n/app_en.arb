@@ -269,5 +269,7 @@
     "questRatingExcellent": "Excellent 🔥",
     "questRatingAverage": "Good 👍",
     "questRatingMixed": "Wildcard 🎲",
-    "visitComplete": "ARRIVED! 🎉"
+    "visitComplete": "ARRIVED! 🎉",
+    "photosLabel": "PHOTOS",
+    "viewReview": "View Review"
 }

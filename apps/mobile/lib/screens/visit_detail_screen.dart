@@ -102,6 +102,38 @@ class _VisitDetailScreenState extends State<VisitDetailScreen> {
     }
   }
 
+  void _showFullScreenImage(ImageProvider imageProvider) {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: EdgeInsets.zero,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            GestureDetector(
+              onTap: () => Navigator.pop(context),
+              child: Container(color: Colors.black.withValues(alpha: 0.9)),
+            ),
+            InteractiveViewer(
+              minScale: 0.5,
+              maxScale: 4.0,
+              child: Center(child: Image(image: imageProvider)),
+            ),
+            Positioned(
+              top: MediaQuery.of(context).padding.top + 16,
+              right: 16,
+              child: IconButton(
+                icon: const Icon(Icons.close, color: Colors.red, size: 32),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final shop = widget.visit.shop;
@@ -359,9 +391,9 @@ class _VisitDetailScreenState extends State<VisitDetailScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
-              "PHOTOS", // I should add a translation for this if I have time, but let's use hardcoded or existing
-              style: TextStyle(
+            Text(
+              s.photosLabel,
+              style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w800,
                 color: AppTheme.primaryColor,
@@ -393,7 +425,14 @@ class _VisitDetailScreenState extends State<VisitDetailScreen> {
                 children: [
                   ClipRRect(
                     borderRadius: BorderRadius.circular(12),
-                    child: Image.network(_imageUrls[index], fit: BoxFit.cover),
+                    child: GestureDetector(
+                      onTap: () =>
+                          _showFullScreenImage(NetworkImage(_imageUrls[index])),
+                      child: Image.network(
+                        _imageUrls[index],
+                        fit: BoxFit.cover,
+                      ),
+                    ),
                   ),
                   if (_isEditing)
                     Positioned(
@@ -425,12 +464,19 @@ class _VisitDetailScreenState extends State<VisitDetailScreen> {
                 children: [
                   ClipRRect(
                     borderRadius: BorderRadius.circular(12),
-                    child: kIsWeb
-                        ? Image.network(
-                            (image as XFile).path,
-                            fit: BoxFit.cover,
-                          )
-                        : Image.file(image as File, fit: BoxFit.cover),
+                    child: GestureDetector(
+                      onTap: () => _showFullScreenImage(
+                        kIsWeb
+                            ? NetworkImage((image as XFile).path)
+                            : FileImage(image as File) as ImageProvider,
+                      ),
+                      child: kIsWeb
+                          ? Image.network(
+                              (image as XFile).path,
+                              fit: BoxFit.cover,
+                            )
+                          : Image.file(image as File, fit: BoxFit.cover),
+                    ),
                   ),
                   if (_isEditing)
                     Positioned(

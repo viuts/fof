@@ -586,4 +586,10 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get visitComplete => '到着しました！ 🎉';
+
+  @override
+  String get photosLabel => '写真';
+
+  @override
+  String get viewReview => 'レビューを見る';
 }

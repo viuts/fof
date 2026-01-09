@@ -251,4 +251,8 @@ class S {
   String get editReview => _l10n.editReview;
   String get save => _l10n.save;
   String get addPhoto => _l10n.addPhoto;
+
+  String get photosLabel => _l10n.photosLabel;
+
+  String get viewReview => _l10n.viewReview;
 }

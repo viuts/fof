@@ -269,5 +269,7 @@
     "questRatingExcellent": "最高 🔥",
     "questRatingAverage": "良店 👍",
     "questRatingMixed": "賛否両論 🎲",
-    "visitComplete": "到着しました！ 🎉"
+    "visitComplete": "到着しました！ 🎉",
+    "photosLabel": "写真",
+    "viewReview": "レビューを見る"
 }

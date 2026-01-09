@@ -18,6 +18,7 @@ class ShopDetailCard extends StatelessWidget {
   final bool isSubmitting;
   final int remainingSeconds;
   final VoidCallback? onCancelEntering;
+  final VoidCallback? onViewVisit;
 
   const ShopDetailCard({
     super.key,
@@ -30,6 +31,7 @@ class ShopDetailCard extends StatelessWidget {
     this.isSubmitting = false,
     this.remainingSeconds = 0,
     this.onCancelEntering,
+    this.onViewVisit,
   });
 
   Widget _buildDetailRow(
@@ -464,6 +466,39 @@ class ShopDetailCard extends StatelessWidget {
                         ],
                       );
                     },
+                  ),
+                ],
+
+                // Action button for visited shops (View Review)
+                if (shop.isVisited) ...[
+                  const SizedBox(height: 12),
+                  ElevatedButton(
+                    onPressed: onViewVisit,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.primaryColor.withValues(
+                        alpha: 0.1,
+                      ),
+                      foregroundColor: AppTheme.primaryColor,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        side: BorderSide(
+                          color: AppTheme.primaryColor.withValues(alpha: 0.2),
+                        ),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.rate_review_outlined, size: 20),
+                        const SizedBox(width: 8),
+                        Text(
+                          s.viewReview,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ],

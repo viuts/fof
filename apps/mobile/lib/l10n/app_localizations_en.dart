@@ -593,4 +593,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get visitComplete => 'ARRIVED! 🎉';
+
+  @override
+  String get photosLabel => 'PHOTOS';
+
+  @override
+  String get viewReview => 'View Review';
 }
