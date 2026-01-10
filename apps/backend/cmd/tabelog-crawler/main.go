@@ -9,6 +9,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/joho/godotenv"
@@ -20,7 +21,7 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-const WorkerCount = 5
+const WorkerCount = 10
 
 type Job struct {
 	URL string
@@ -154,7 +155,7 @@ var (
 
 func main() {
 	preference := flag.String("preference", "tokyo", "Preference (e.g. tokyo)")
-	category := flag.String("category", "ramen", "Category (e.g. ramen)")
+	category := flag.String("category", "all", "Category (e.g. ramen)")
 	flag.Parse()
 
 	if err := godotenv.Load(); err != nil {
@@ -185,7 +186,8 @@ func main() {
 
 	// Initialize Workers
 	jobs := make(chan Job, 1000)
-	results := make(chan Result, 1000)
+	shopsChan := make(chan *domain.Shop, 1000)
+	var wg sync.WaitGroup
 
 	// Create common ad-block handler
 	routeHandler := func(route playwright.Route) {
@@ -225,8 +227,41 @@ func main() {
 
 		context.Route("**/*", routeHandler)
 
-		go worker(i+1, context, db, jobs, results)
+		wg.Add(1)
+		go worker(i+1, context, jobs, shopsChan, &wg)
 	}
+
+	// Batch Writer Goroutine
+	writerDone := make(chan struct{})
+	go func() {
+		defer close(writerDone)
+		var batch []*domain.Shop
+		const batchSize = 100
+
+		saveBatch := func() {
+			if len(batch) == 0 {
+				return
+			}
+			result := db.Clauses(clause.OnConflict{
+				Columns:   []clause.Column{{Name: "source_url"}},
+				DoUpdates: clause.AssignmentColumns([]string{"name", "category", "lat", "lng", "geom", "address", "phone", "opening_hours", "image_urls", "rating", "review_count", "average_price", "reservable", "updated_at"}),
+			}).Create(batch)
+			if result.Error != nil {
+				log.Printf("[Writer] Error saving batch: %v", result.Error)
+			} else {
+				log.Printf("[Writer] Successfully saved batch of %d shops", len(batch))
+			}
+			batch = nil
+		}
+
+		for shop := range shopsChan {
+			batch = append(batch, shop)
+			if len(batch) >= batchSize {
+				saveBatch()
+			}
+		}
+		saveBatch() // Save final batch
+	}()
 
 	// Determine categories to crawl
 	var categoriesToCrawl []string
@@ -359,38 +394,24 @@ func main() {
 	}()
 
 	// Wait for workers to finish
-	for i := 0; i < WorkerCount; i++ {
-		<-results
-	}
+	wg.Wait()
+	close(shopsChan)
+	<-writerDone
 
 	log.Println("All jobs completed. Exiting.")
 }
 
-func worker(id int, ctx playwright.BrowserContext, db *gorm.DB, jobs <-chan Job, results chan<- Result) {
+func worker(id int, ctx playwright.BrowserContext, jobs <-chan Job, shopsChan chan<- *domain.Shop, wg *sync.WaitGroup) {
+	defer wg.Done()
 	for job := range jobs {
 		log.Printf("[Worker %d] Processing: %s", id, job.URL)
 		shop, err := crawlShopDetail(ctx, job.URL)
 		if err != nil {
 			log.Printf("[Worker %d] Error crawling shop %s: %v", id, job.URL, err)
 		} else {
-			// Save to DB (Upsert)
-			result := db.Clauses(clause.OnConflict{
-				Columns:   []clause.Column{{Name: "source_url"}},
-				DoUpdates: clause.AssignmentColumns([]string{"name", "category", "lat", "lng", "geom", "address", "phone", "opening_hours", "image_urls", "rating", "review_count", "average_price", "reservable", "updated_at"}),
-			}).Create(shop)
-
-			if result.Error != nil {
-				log.Printf("[Worker %d] Error saving shop %s to DB: %v", id, shop.Name, result.Error)
-			} else {
-				log.Printf("[Worker %d] Saved/Updated shop: %s", id, shop.Name)
-			}
+			shopsChan <- shop
 		}
-
-		// results is used to signal worker completion in the main loop refactor
-		// Wait, I need a better way to signaling completion since workers process many jobs.
-		// I'll use a WaitGroup or just have workers signal 'nil' when done with the channel.
 	}
-	results <- Result{} // Signal one worker finished
 }
 
 func getShopCategory(cuisine string) fofv1.FoodCategory {
@@ -629,7 +650,7 @@ func crawlShopDetail(ctx playwright.BrowserContext, url string) (*domain.Shop, e
 								fmt.Sscanf(v, "%f", &shop.Rating)
 							}
 						}
-						if reviewCount, ok := aggregateRating["reviewCount"]; ok {
+						if reviewCount, ok := aggregateRating["ratingCount"]; ok {
 							switch v := reviewCount.(type) {
 							case float64:
 								shop.ReviewCount = int(v)

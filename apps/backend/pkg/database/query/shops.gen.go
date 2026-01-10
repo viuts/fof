@@ -40,6 +40,8 @@ func newShop(db *gorm.DB, opts ...gen.DOOption) shop {
 	_shop.OpeningHours = field.NewField(tableName, "opening_hours")
 	_shop.ImageURLs = field.NewField(tableName, "image_urls")
 	_shop.Rating = field.NewFloat64(tableName, "rating")
+	_shop.ReviewCount = field.NewInt(tableName, "review_count")
+	_shop.AveragePrice = field.NewInt(tableName, "average_price")
 	_shop.SourceURL = field.NewString(tableName, "source_url")
 	_shop.ClearanceRadius = field.NewFloat64(tableName, "clearance_radius")
 	_shop.Reservable = field.NewBool(tableName, "reservable")
@@ -67,6 +69,8 @@ type shop struct {
 	OpeningHours    field.Field
 	ImageURLs       field.Field
 	Rating          field.Float64
+	ReviewCount     field.Int
+	AveragePrice    field.Int
 	SourceURL       field.String
 	ClearanceRadius field.Float64
 	Reservable      field.Bool
@@ -100,6 +104,8 @@ func (s *shop) updateTableName(table string) *shop {
 	s.OpeningHours = field.NewField(table, "opening_hours")
 	s.ImageURLs = field.NewField(table, "image_urls")
 	s.Rating = field.NewFloat64(table, "rating")
+	s.ReviewCount = field.NewInt(table, "review_count")
+	s.AveragePrice = field.NewInt(table, "average_price")
 	s.SourceURL = field.NewString(table, "source_url")
 	s.ClearanceRadius = field.NewFloat64(table, "clearance_radius")
 	s.Reservable = field.NewBool(table, "reservable")
@@ -121,7 +127,7 @@ func (s *shop) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (s *shop) fillFieldMap() {
-	s.fieldMap = make(map[string]field.Expr, 17)
+	s.fieldMap = make(map[string]field.Expr, 19)
 	s.fieldMap["id"] = s.ID
 	s.fieldMap["name"] = s.Name
 	s.fieldMap["category"] = s.Category
@@ -134,6 +140,8 @@ func (s *shop) fillFieldMap() {
 	s.fieldMap["opening_hours"] = s.OpeningHours
 	s.fieldMap["image_urls"] = s.ImageURLs
 	s.fieldMap["rating"] = s.Rating
+	s.fieldMap["review_count"] = s.ReviewCount
+	s.fieldMap["average_price"] = s.AveragePrice
 	s.fieldMap["source_url"] = s.SourceURL
 	s.fieldMap["clearance_radius"] = s.ClearanceRadius
 	s.fieldMap["reservable"] = s.Reservable

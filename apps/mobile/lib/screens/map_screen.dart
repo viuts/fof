@@ -61,6 +61,10 @@ class MapScreenState extends State<MapScreen>
   Timer? _countdownTimer;
   int _remainingSeconds = 0;
   bool _isInitialLoading = true;
+  bool _isQuestTransition =
+      false; // Whether the next overlay transition should be animated
+  bool _hasArrivedAtQuest =
+      false; // Flag to ensure arrival sequence triggers only once
 
   // Blast Animation
   late AnimationController _blastController;
@@ -113,6 +117,21 @@ class MapScreenState extends State<MapScreen>
             _hasFetchedNearbyShops = true;
             _fetchNearbyShops();
           }
+
+          // Arrival Detection for Quest
+          if (widget.questShop != null && !_hasArrivedAtQuest) {
+            final distance = Geolocator.distanceBetween(
+              newLoc.latitude,
+              newLoc.longitude,
+              widget.questShop!.lat,
+              widget.questShop!.lng,
+            );
+
+            if (distance < 25) {
+              _hasArrivedAtQuest = true;
+              _showArrivalSequence();
+            }
+          }
         },
       );
       // location service started
@@ -149,6 +168,14 @@ class MapScreenState extends State<MapScreen>
     }
   }
 
+  @override
+  void didUpdateWidget(MapScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.questShop?.id != oldWidget.questShop?.id) {
+      _hasArrivedAtQuest = false;
+    }
+  }
+
   Future<void> _saveFilters() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -177,12 +204,8 @@ class MapScreenState extends State<MapScreen>
         _clearedAreaGeojson = clearedAreaResponse.clearedAreaGeojson;
         _clearedRings = GeoUtils.parseGeoJson(_clearedAreaGeojson);
       });
-
-      // If we didn't fetch nearby shops yet (no location), let the location service callback handle it or the timer
     } catch (e) {
       debugPrint('Failed to load initial data: $e');
-      // Fallback: try loading singly if batch failed, though unlikely
-      await _fetchShops();
     } finally {
       if (mounted) {
         setState(() {
@@ -215,31 +238,39 @@ class MapScreenState extends State<MapScreen>
     }
   }
 
-  // Renamed from _loadShops to be more generic if needed, or just use specific methods
-  Future<void> _fetchShops() async {
-    await _fetchNearbyShops();
-    if (!mounted) return;
-    await Provider.of<UserService>(
-      context,
-      listen: false,
-    ).loadInitialData(force: true);
-  }
-
-  Future<GetNearbyShopsResponse?> _fetchNearbyShops({
-    bool updateState = true,
-  }) async {
+  Future<GetNearbyShopsResponse?> _fetchNearbyShops() async {
     if (_currentLocation == null) return null;
     try {
       final response = await ApiService().getNearbyShops(
         _currentLocation!.latitude,
         _currentLocation!.longitude,
-        1000.0, // 1km radius
+        500.0, // 500m radius
       );
 
-      if (updateState && mounted) {
+      if (mounted) {
         setState(() {
-          _nearbyShops.clear();
-          _nearbyShops.addAll(response.shops);
+          final newShops = response.shops;
+          final Map<String, Shop> newShopsMap = {
+            for (var s in newShops) s.id: s,
+          };
+
+          // 1. Remove shops that are no longer in the response
+          _nearbyShops.removeWhere((shop) => !newShopsMap.containsKey(shop.id));
+
+          // 2. Update existing shops and keep track of them
+          final Set<String> existingIds = {};
+          for (int i = 0; i < _nearbyShops.length; i++) {
+            final id = _nearbyShops[i].id;
+            existingIds.add(id);
+            _nearbyShops[i] = newShopsMap[id]!; // Update with latest data
+          }
+
+          // 3. Add new shops
+          for (final shop in newShops) {
+            if (!existingIds.contains(shop.id)) {
+              _nearbyShops.add(shop);
+            }
+          }
         });
       }
       return response;
@@ -249,18 +280,36 @@ class MapScreenState extends State<MapScreen>
     }
   }
 
-  // Removed _fetchVisitedShops - now in UserService
-
-  // Removed _fetchUserProfile - now in UserService
-
   void _showShopDetails(Shop shop) {
     setState(() {
       _selectedShop = shop;
+      _isQuestTransition = false;
     });
+  }
+
+  void _showArrivalSequence() {
+    if (widget.questShop == null) return;
+
+    // Select shop locally to show the detail card
+    setState(() {
+      _selectedShop = widget.questShop;
+      _isQuestTransition = true;
+    });
+
+    // Notify parent to complete/cancel the quest as we've arrived
+    widget.onCancelQuest?.call();
+
+    // Feedback
+    HapticFeedback.heavyImpact();
   }
 
   Widget _buildQuestOverlay() {
     if (widget.questShop == null || _currentLocation == null) {
+      return const SizedBox.shrink();
+    }
+
+    // Hide quest overlay if a shop is selected to avoid overlap
+    if (_selectedShop != null) {
       return const SizedBox.shrink();
     }
 
@@ -273,139 +322,127 @@ class MapScreenState extends State<MapScreen>
 
     final isArrived = distance < 30; // Within 30 meters
 
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.15),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ],
+    return Container(
+      key: const ValueKey('quest_overlay'),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.15),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
             children: [
-              Row(
-                children: [
-                  Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: Colors.orange.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Icon(
-                      Icons.explore,
-                      color: Colors.orange,
-                      size: 28,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          S
-                              .of(context)
-                              .translateCategory(
-                                widget.questShop!.effectiveFoodCategory,
-                              ),
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white70,
-                            letterSpacing: 1.2,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          isArrived ? widget.questShop!.name : '???',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w800,
-                            color: isArrived
-                                ? AppTheme.textPrimaryLight
-                                : AppTheme.textSecondaryLight,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.close, size: 20),
-                    onPressed: widget.onCancelQuest,
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                  ),
-                ],
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: Colors.orange.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  Icons.explore,
+                  color: Colors.orange,
+                  size: 28,
+                ),
               ),
-              const SizedBox(height: 16),
-              if (isArrived)
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.green.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(
-                        Icons.check_circle,
-                        color: Colors.green,
-                        size: 24,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        S.of(context).arrived,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.green,
-                        ),
-                      ),
-                    ],
-                  ),
-                )
-              else
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(
-                      Icons.navigation,
-                      color: Colors.orange,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 8),
                     Text(
-                      '${distance.toInt()}m',
+                      S
+                          .of(context)
+                          .translateCategory(
+                            widget.questShop!.effectiveFoodCategory,
+                          ),
                       style: const TextStyle(
-                        fontSize: 24,
+                        fontSize: 12,
                         fontWeight: FontWeight.bold,
-                        color: AppTheme.textPrimaryLight,
+                        color: AppTheme.textSecondaryLight,
+                        letterSpacing: 1.2,
                       ),
                     ),
+                    const SizedBox(height: 2),
                     Text(
-                      S.of(context).away,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: AppTheme.textSecondaryLight,
+                      isArrived ? widget.questShop!.name : '???',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                        color: isArrived
+                            ? AppTheme.textPrimaryLight
+                            : AppTheme.textSecondaryLight,
                       ),
                     ),
                   ],
                 ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.close, size: 20),
+                onPressed: widget.onCancelQuest,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+              ),
             ],
           ),
-        ),
+          const SizedBox(height: 16),
+          if (isArrived)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.green.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.check_circle, color: Colors.green, size: 24),
+                  const SizedBox(width: 8),
+                  Text(
+                    S.of(context).arrived,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.green,
+                    ),
+                  ),
+                ],
+              ),
+            )
+          else
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.navigation, color: Colors.orange, size: 20),
+                const SizedBox(width: 8),
+                Text(
+                  '${distance.toInt()}m',
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.textPrimaryLight,
+                  ),
+                ),
+                Text(
+                  S.of(context).away,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: AppTheme.textSecondaryLight,
+                  ),
+                ),
+              ],
+            ),
+        ],
       ),
     );
   }
@@ -414,8 +451,8 @@ class MapScreenState extends State<MapScreen>
   void _moveVirtualLocation(String direction) {
     if (_currentLocation == null) return;
 
-    // Move approximately 10 meters in the selected direction
-    const double metersToMove = 10.0;
+    // Move approximately 25 meters in the selected direction
+    const double metersToMove = 25.0;
     const double metersPerDegree =
         111320.0; // Approximate meters per degree of latitude
 
@@ -908,9 +945,81 @@ class MapScreenState extends State<MapScreen>
                 ),
               ],
             ),
-            // Quest overlay
-            if (widget.questShop != null && _currentLocation != null)
-              _buildQuestOverlay(),
+            // Bottom Overlay (Quest or Shop Detail) with smooth transition
+            Positioned(
+              bottom: 16,
+              left: 16,
+              right: 16,
+              child: AnimatedSwitcher(
+                duration: _isQuestTransition
+                    ? const Duration(milliseconds: 400)
+                    : Duration.zero,
+                transitionBuilder: (child, animation) {
+                  return FadeTransition(
+                    opacity: animation,
+                    child: SlideTransition(
+                      position: Tween<Offset>(
+                        begin: const Offset(0, 0.1),
+                        end: Offset.zero,
+                      ).animate(animation),
+                      child: child,
+                    ),
+                  );
+                },
+                child: _selectedShop != null
+                    ? ShopDetailCard(
+                        key: ValueKey('shop_detail_${_selectedShop!.id}'),
+                        shop: _selectedShop!,
+                        currentLocation: _currentLocation,
+                        clearedRings: _clearedRings,
+                        onClose: () => setState(() {
+                          _selectedShop = null;
+                          _isQuestTransition = false;
+                        }),
+                        onEnterShop: _startEnteringShop,
+                        isEntering:
+                            _isEntering &&
+                            _enteringShop?.id == _selectedShop?.id,
+                        isSubmitting:
+                            _isSubmittingVisit &&
+                            _enteringShop?.id == _selectedShop?.id,
+                        remainingSeconds: _remainingSeconds,
+                        onCancelEntering: () {
+                          setState(() {
+                            _isEntering = false;
+                            _enteringShop = null;
+                            _remainingSeconds = 0;
+                          });
+                          _countdownTimer?.cancel();
+                        },
+                        onViewVisit: () {
+                          final userService = Provider.of<UserService>(
+                            context,
+                            listen: false,
+                          );
+                          try {
+                            final visit = userService.visitedShops.firstWhere(
+                              (v) => v.shop.id == _selectedShop!.id,
+                            );
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    VisitDetailScreen(visit: visit),
+                              ),
+                            );
+                          } catch (e) {
+                            debugPrint('Visit not found for shop: $e');
+                          }
+                        },
+                      )
+                    : (widget.questShop != null && _currentLocation != null
+                          ? _buildQuestOverlay()
+                          : const SizedBox.shrink(
+                              key: ValueKey('empty_bottom'),
+                            )),
+              ),
+            ),
             // Blast animation layer
             _buildBlastLayer(radiusInMeters: 250.0),
             // Virtual D-pad for development (Web only)
@@ -921,49 +1030,6 @@ class MapScreenState extends State<MapScreen>
 
             // Filter Bar
             _buildFilterBar(),
-
-            // Persistent Shop Detail Card
-            if (_selectedShop != null)
-              ShopDetailCard(
-                shop: _selectedShop!,
-                currentLocation: _currentLocation,
-                clearedRings: _clearedRings,
-                onClose: () => setState(() => _selectedShop = null),
-                onEnterShop: _startEnteringShop,
-                isEntering:
-                    _isEntering && _enteringShop?.id == _selectedShop?.id,
-                isSubmitting:
-                    _isSubmittingVisit &&
-                    _enteringShop?.id == _selectedShop?.id,
-                remainingSeconds: _remainingSeconds,
-                onCancelEntering: () {
-                  setState(() {
-                    _isEntering = false;
-                    _enteringShop = null;
-                    _remainingSeconds = 0;
-                  });
-                  _countdownTimer?.cancel();
-                },
-                onViewVisit: () {
-                  final userService = Provider.of<UserService>(
-                    context,
-                    listen: false,
-                  );
-                  try {
-                    final visit = userService.visitedShops.firstWhere(
-                      (v) => v.shop.id == _selectedShop!.id,
-                    );
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => VisitDetailScreen(visit: visit),
-                      ),
-                    );
-                  } catch (e) {
-                    debugPrint('Error finding visit for shop: $e');
-                  }
-                },
-              ),
 
             // Initial Loading Overlay
             if (_isInitialLoading) _buildInitialLoadingOverlay(),
@@ -977,20 +1043,10 @@ class MapScreenState extends State<MapScreen>
     final s = S.of(context);
     final userService = Provider.of<UserService>(context);
     final currentLevel = userService.currentLevel;
-    final currentExp = userService.currentExp;
-    final nextLevelThreshold = currentLevel * currentLevel * 100;
-    final expNeeded = nextLevelThreshold - currentExp;
+    final expNeeded = (currentLevel * 100);
 
-    // Shift down if entering overlay is visible to avoid overlap
-    // Quest Mode is active (top overlay present)
-    final topPadding =
-        MediaQuery.of(context).padding.top +
-        (widget.questShop != null ? 170 : 16);
-
-    return AnimatedPositioned(
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
-      top: topPadding,
+    return Positioned(
+      top: MediaQuery.of(context).padding.top + 16,
       left: 16,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -1062,15 +1118,10 @@ class MapScreenState extends State<MapScreen>
   }
 
   Widget _buildFilterBar() {
-    // Use the same logic as LevelBadge to avoid overlap
-    final topPadding =
-        MediaQuery.of(context).padding.top +
-        (widget.questShop != null ? 170 : 16);
-
     return AnimatedPositioned(
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
-      top: topPadding,
+      top: MediaQuery.of(context).padding.top + 16,
       right: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,

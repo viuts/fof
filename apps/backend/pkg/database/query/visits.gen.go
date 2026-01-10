@@ -34,6 +34,7 @@ func newVisit(db *gorm.DB, opts ...gen.DOOption) visit {
 	_visit.VisitedAt = field.NewTime(tableName, "visited_at")
 	_visit.Rating = field.NewInt(tableName, "rating")
 	_visit.Comment = field.NewString(tableName, "comment")
+	_visit.ImageURLs = field.NewField(tableName, "image_urls")
 	_visit.Exp = field.NewInt(tableName, "exp")
 	_visit.User = visitBelongsToUser{
 		db: db.Session(&gorm.Session{}),
@@ -62,6 +63,7 @@ type visit struct {
 	VisitedAt field.Time
 	Rating    field.Int
 	Comment   field.String
+	ImageURLs field.Field
 	Exp       field.Int
 	User      visitBelongsToUser
 
@@ -88,6 +90,7 @@ func (v *visit) updateTableName(table string) *visit {
 	v.VisitedAt = field.NewTime(table, "visited_at")
 	v.Rating = field.NewInt(table, "rating")
 	v.Comment = field.NewString(table, "comment")
+	v.ImageURLs = field.NewField(table, "image_urls")
 	v.Exp = field.NewInt(table, "exp")
 
 	v.fillFieldMap()
@@ -105,13 +108,14 @@ func (v *visit) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (v *visit) fillFieldMap() {
-	v.fieldMap = make(map[string]field.Expr, 9)
+	v.fieldMap = make(map[string]field.Expr, 10)
 	v.fieldMap["id"] = v.ID
 	v.fieldMap["user_id"] = v.UserID
 	v.fieldMap["shop_id"] = v.ShopID
 	v.fieldMap["visited_at"] = v.VisitedAt
 	v.fieldMap["rating"] = v.Rating
 	v.fieldMap["comment"] = v.Comment
+	v.fieldMap["image_urls"] = v.ImageURLs
 	v.fieldMap["exp"] = v.Exp
 
 }
