@@ -95,6 +95,7 @@ const Shop$json = {
     {'1': 'clearance_radius', '3': 14, '4': 1, '5': 1, '10': 'clearanceRadius'},
     {'1': 'food_category', '3': 15, '4': 1, '5': 14, '6': '.fof.v1.FoodCategory', '10': 'foodCategory'},
     {'1': 'reservable', '3': 16, '4': 1, '5': 8, '10': 'reservable'},
+    {'1': 'average_price', '3': 17, '4': 1, '5': 5, '10': 'averagePrice'},
   ],
 };
 
@@ -108,7 +109,8 @@ final $typed_data.Uint8List shopDescriptor = $convert.base64Decode(
     'JscxIWCgZyYXRpbmcYDCABKAFSBnJhdGluZxIdCgpzb3VyY2VfdXJsGA0gASgJUglzb3VyY2VV'
     'cmwSKQoQY2xlYXJhbmNlX3JhZGl1cxgOIAEoAVIPY2xlYXJhbmNlUmFkaXVzEjkKDWZvb2RfY2'
     'F0ZWdvcnkYDyABKA4yFC5mb2YudjEuRm9vZENhdGVnb3J5Ugxmb29kQ2F0ZWdvcnkSHgoKcmVz'
-    'ZXJ2YWJsZRgQIAEoCFIKcmVzZXJ2YWJsZQ==');
+    'ZXJ2YWJsZRgQIAEoCFIKcmVzZXJ2YWJsZRIjCg1hdmVyYWdlX3ByaWNlGBEgASgFUgxhdmVyYW'
+    'dlUHJpY2U=');
 
 @$core.Deprecated('Use getNearbyShopsRequestDescriptor instead')
 const GetNearbyShopsRequest$json = {

@@ -2,8 +2,7 @@ package usecase
 
 import (
 	"context"
-	"encoding/json"
-	"strings"
+	"log"
 	"time"
 
 	"github.com/google/uuid"
@@ -12,7 +11,7 @@ import (
 )
 
 type AchievementUseCase interface {
-	CheckAchievements(ctx context.Context, userID uuid.UUID, eventType string, contextData map[string]interface{}) ([]domain.Achievement, error)
+	CheckAchievements(ctx context.Context, userID uuid.UUID, eventType domain.EventType, achCtx domain.AchievementContext) ([]domain.Achievement, error)
 	GetAchievements(ctx context.Context, userID uuid.UUID) ([]domain.UserAchievementComposite, error)
 }
 
@@ -26,7 +25,7 @@ func NewAchievementUseCase(ar repository.AchievementRepository) AchievementUseCa
 	}
 }
 
-func (u *achievementUseCase) CheckAchievements(ctx context.Context, userID uuid.UUID, eventType string, contextData map[string]interface{}) ([]domain.Achievement, error) {
+func (u *achievementUseCase) CheckAchievements(ctx context.Context, userID uuid.UUID, eventType domain.EventType, achCtx domain.AchievementContext) ([]domain.Achievement, error) {
 	// 1. Get all achievements
 	allAchievements, err := u.achievementRepo.GetAll(ctx)
 	if err != nil {
@@ -64,136 +63,7 @@ func (u *achievementUseCase) CheckAchievements(ctx context.Context, userID uuid.
 		}
 
 		// LOGIC: Evaluate based on type
-		isNowUnlocked := false
-
-		switch ach.Type {
-		case domain.AchievementTypeCount:
-			// Simple counter check.
-			// For "Visit" events, we might just increment if condition matches.
-			// E.g. "Visit 10 Ramen shops"
-			if eventType == "VISIT" {
-				// Check condition config
-				var config map[string]interface{}
-				if len(ach.ConditionConfig) > 0 {
-					_ = json.Unmarshal(ach.ConditionConfig, &config)
-				}
-
-				// Verify conditions (category, etc.)
-				match := true
-				if targetCat, ok := config["category"].(string); ok && targetCat != "" {
-					if visitedCat, has := contextData["category"].(string); !has || !strings.EqualFold(visitedCat, targetCat) {
-						match = false
-					}
-				}
-
-				// Indie filter
-				if onlyIndie, ok := config["indie"].(bool); ok && onlyIndie {
-					if isChain, has := contextData["is_chain"].(bool); has && isChain {
-						match = false
-					}
-				}
-
-				// Day of week filter
-				if targetDays, ok := config["days"].([]interface{}); ok {
-					dayMatch := false
-					if visitedDay, has := contextData["day_of_week"].(int); has {
-						for _, d := range targetDays {
-							if int(d.(float64)) == visitedDay {
-								dayMatch = true
-								break
-							}
-						}
-					}
-					if !dayMatch {
-						match = false
-					}
-				}
-
-				// Hour range filter
-				if startH, ok := config["hour_start"].(float64); ok {
-					if endH, ok := config["hour_end"].(float64); ok {
-						if visitedH, has := contextData["hour"].(int); has {
-							if visitedH < int(startH) || visitedH > int(endH) {
-								match = false
-							}
-						}
-					}
-				}
-
-				if match {
-					currentProg.CurrentValue++
-					if currentProg.CurrentValue >= ach.TargetValue {
-						isNowUnlocked = true
-					}
-				}
-			}
-
-		case domain.AchievementTypeCollection:
-			if eventType == "VISIT" {
-				var config map[string]interface{}
-				if len(ach.ConditionConfig) > 0 {
-					_ = json.Unmarshal(ach.ConditionConfig, &config)
-				}
-
-				if uniqueCatTab, ok := config["unique_category"].(bool); ok && uniqueCatTab {
-					visitedCat, has := contextData["category"].(string)
-					if has && visitedCat != "" {
-						// Load tracked categories from metadata
-						var tracked []string
-						if len(currentProg.Metadata) > 0 {
-							_ = json.Unmarshal(currentProg.Metadata, &tracked)
-						}
-
-						// Check if this category is new
-						isNew := true
-						for _, t := range tracked {
-							if strings.EqualFold(t, visitedCat) {
-								isNew = false
-								break
-							}
-						}
-
-						if isNew {
-							tracked = append(tracked, visitedCat)
-							currentProg.Metadata, _ = json.Marshal(tracked)
-							currentProg.CurrentValue = len(tracked)
-							if currentProg.CurrentValue >= ach.TargetValue {
-								isNowUnlocked = true
-							}
-						}
-					}
-				}
-			}
-
-		case domain.AchievementTypeCondition:
-			if eventType == "VISIT" {
-				var config map[string]interface{}
-				if len(ach.ConditionConfig) > 0 {
-					_ = json.Unmarshal(ach.ConditionConfig, &config)
-				}
-
-				match := true
-				// Reuse the same logic for simplicity or keep complex conditions here
-				if startH, ok := config["hour_start"].(float64); ok {
-					if endH, ok := config["hour_end"].(float64); ok {
-						if visitedH, has := contextData["hour"].(int); has {
-							if visitedH < int(startH) || visitedH > int(endH) {
-								match = false
-							}
-						}
-					}
-				}
-
-				if match {
-					currentProg.CurrentValue++
-					if currentProg.CurrentValue >= ach.TargetValue {
-						isNowUnlocked = true
-					}
-				}
-			}
-		}
-
-		if isNowUnlocked {
+		if ach.Evaluate(currentProg, eventType, achCtx) {
 			currentProg.IsUnlocked = true
 			now := time.Now()
 			currentProg.UnlockedAt = &now
@@ -201,7 +71,9 @@ func (u *achievementUseCase) CheckAchievements(ctx context.Context, userID uuid.
 		}
 
 		// Save progress (even if not unlocked, to track count)
-		_ = u.achievementRepo.SaveUserProgress(ctx, currentProg)
+		if err := u.achievementRepo.SaveUserProgress(ctx, currentProg); err != nil {
+			log.Printf("Failed to save user progress: %v", err)
+		}
 	}
 
 	return unlocked, nil

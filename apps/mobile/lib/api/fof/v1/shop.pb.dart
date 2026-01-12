@@ -36,6 +36,7 @@ class Shop extends $pb.GeneratedMessage {
     $core.double? clearanceRadius,
     FoodCategory? foodCategory,
     $core.bool? reservable,
+    $core.int? averagePrice,
   }) {
     final $result = create();
     if (id != null) {
@@ -86,6 +87,9 @@ class Shop extends $pb.GeneratedMessage {
     if (reservable != null) {
       $result.reservable = reservable;
     }
+    if (averagePrice != null) {
+      $result.averagePrice = averagePrice;
+    }
     return $result;
   }
   Shop._() : super();
@@ -109,6 +113,7 @@ class Shop extends $pb.GeneratedMessage {
     ..a<$core.double>(14, _omitFieldNames ? '' : 'clearanceRadius', $pb.PbFieldType.OD)
     ..e<FoodCategory>(15, _omitFieldNames ? '' : 'foodCategory', $pb.PbFieldType.OE, defaultOrMaker: FoodCategory.FOOD_CATEGORY_UNSPECIFIED, valueOf: FoodCategory.valueOf, enumValues: FoodCategory.values)
     ..aOB(16, _omitFieldNames ? '' : 'reservable')
+    ..a<$core.int>(17, _omitFieldNames ? '' : 'averagePrice', $pb.PbFieldType.O3)
     ..hasRequiredFields = false
   ;
 
@@ -270,6 +275,15 @@ class Shop extends $pb.GeneratedMessage {
   $core.bool hasReservable() => $_has(15);
   @$pb.TagNumber(16)
   void clearReservable() => clearField(16);
+
+  @$pb.TagNumber(17)
+  $core.int get averagePrice => $_getIZ(16);
+  @$pb.TagNumber(17)
+  set averagePrice($core.int v) { $_setSignedInt32(16, v); }
+  @$pb.TagNumber(17)
+  $core.bool hasAveragePrice() => $_has(16);
+  @$pb.TagNumber(17)
+  void clearAveragePrice() => clearField(17);
 }
 
 class GetNearbyShopsRequest extends $pb.GeneratedMessage {

@@ -39,6 +39,7 @@ message Shop {
   double clearance_radius = 14;
   FoodCategory food_category = 15;
   bool reservable = 16;
+  int32 average_price = 17;
 }
 
 enum FoodCategory {

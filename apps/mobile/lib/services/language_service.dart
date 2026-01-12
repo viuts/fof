@@ -177,6 +177,7 @@ class S {
   String get groupAsian => _l10n.groupAsian;
   String get groupDrinks => _l10n.groupDrinks;
   String get groupCafe => _l10n.groupCafe;
+  String get groupOthers => _l10n.groupOthers;
 
   // Methods with arguments
   String arriveWithin(double distance) => _l10n.arriveWithin(distance.toInt());
@@ -255,4 +256,7 @@ class S {
   String get photosLabel => _l10n.photosLabel;
 
   String get viewReview => _l10n.viewReview;
+  String get reservable => _l10n.reservable;
+  String get notReservable => _l10n.notReservable;
+  String get website => _l10n.website;
 }

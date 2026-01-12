@@ -250,6 +250,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get groupCafe => 'カフェ・スイーツ';
 
   @override
+  String get groupOthers => 'その他';
+
+  @override
   String get errorLocationUnavailable => '位置情報が利用できません';
 
   @override
@@ -592,4 +595,319 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get viewReview => 'レビューを見る';
+
+  @override
+  String get reservable => '予約可';
+
+  @override
+  String get notReservable => '予約不可';
+
+  @override
+  String get website => 'ウェブサイト';
+
+  @override
+  String get achNameExplorerLv1 => 'エクスプローラー Lv.1';
+
+  @override
+  String get achDescExplorerLv1 => '5軒の異なるお店を訪問する。';
+
+  @override
+  String get achNameExplorerLv2 => 'エクスプローラー Lv.2';
+
+  @override
+  String get achDescExplorerLv2 => '25軒の異なるお店を訪問する。';
+
+  @override
+  String get achNameExplorerLv3 => 'エクスプローラー Lv.3';
+
+  @override
+  String get achDescExplorerLv3 => '100軒の異なるお店を訪問する。';
+
+  @override
+  String get achNameMasterExplorer => 'マスター・エクスプローラー';
+
+  @override
+  String get achDescMasterExplorer => '500軒の異なるお店を訪問する。';
+
+  @override
+  String get achNameGodOfWalk => '散歩の神';
+
+  @override
+  String get achDescGodOfWalk => '1000軒の異なるお店を訪問する。';
+
+  @override
+  String get achNameRamenLover => 'ラーメン通';
+
+  @override
+  String get achDescRamenLover => 'ラーメン店を10軒訪問する。';
+
+  @override
+  String get achNameRamenGod => 'ラーメン神';
+
+  @override
+  String get achDescRamenGod => 'ラーメン店を50軒訪問する。';
+
+  @override
+  String get achNameCafeFan => 'カフェファン';
+
+  @override
+  String get achDescCafeFan => 'カフェを3軒訪問する。';
+
+  @override
+  String get achNameCafeLover => 'カフェ好き';
+
+  @override
+  String get achDescCafeLover => 'カフェを10軒訪問する。';
+
+  @override
+  String get achNameCafeMaster => 'カフェマスター';
+
+  @override
+  String get achDescCafeMaster => 'カフェを30軒訪問する。';
+
+  @override
+  String get achNameSushiFan => '寿司ファン';
+
+  @override
+  String get achDescSushiFan => '寿司屋を3軒訪問する。';
+
+  @override
+  String get achNameSushiLover => '寿司好き';
+
+  @override
+  String get achDescSushiLover => '寿司屋を10軒訪問する。';
+
+  @override
+  String get achNameSushiMaster => '寿司マスター';
+
+  @override
+  String get achDescSushiMaster => '寿司屋を30軒訪問する。';
+
+  @override
+  String get achNameYakinikuFan => '焼肉ファン';
+
+  @override
+  String get achDescYakinikuFan => '焼肉屋を3軒訪問する。';
+
+  @override
+  String get achNameYakinikuLover => '焼肉好き';
+
+  @override
+  String get achDescYakinikuLover => '焼肉屋を10軒訪問する。';
+
+  @override
+  String get achNameYakinikuMaster => '焼肉マスター';
+
+  @override
+  String get achDescYakinikuMaster => '焼肉屋を30軒訪問する。';
+
+  @override
+  String get achNameIzakayaFan => '居酒屋ファン';
+
+  @override
+  String get achDescIzakayaFan => '居酒屋を3軒訪問する。';
+
+  @override
+  String get achNameIzakayaLover => '居酒屋好き';
+
+  @override
+  String get achDescIzakayaLover => '居酒屋を10軒訪問する。';
+
+  @override
+  String get achNameIzakayaMaster => '居酒屋マスター';
+
+  @override
+  String get achDescIzakayaMaster => '居酒屋を30軒訪問する。';
+
+  @override
+  String get achNameBarFan => 'バーファン';
+
+  @override
+  String get achDescBarFan => 'バーを3軒訪問する。';
+
+  @override
+  String get achNameBarLover => 'バー好き';
+
+  @override
+  String get achDescBarLover => 'バーを10軒訪問する。';
+
+  @override
+  String get achNameBarMaster => 'バーマスター';
+
+  @override
+  String get achDescBarMaster => 'バーを30軒訪問する。';
+
+  @override
+  String get achNameSweetsFan => 'スイーツファン';
+
+  @override
+  String get achDescSweetsFan => 'スイーツ店を3軒訪問する。';
+
+  @override
+  String get achNameSweetsLover => 'スイーツ好き';
+
+  @override
+  String get achDescSweetsLover => 'スイーツ店を10軒訪問する。';
+
+  @override
+  String get achNameSweetsMaster => 'スイーツマスター';
+
+  @override
+  String get achDescSweetsMaster => 'スイーツ店を30軒訪問する。';
+
+  @override
+  String get achNameCurryFan => 'カレーファン';
+
+  @override
+  String get achDescCurryFan => 'カレー屋を3軒訪問する。';
+
+  @override
+  String get achNameCurryLover => 'カレー好き';
+
+  @override
+  String get achDescCurryLover => 'カレー屋を10軒訪問する。';
+
+  @override
+  String get achNameCurryMaster => 'カレーマスター';
+
+  @override
+  String get achDescCurryMaster => 'カレー屋を30軒訪問する。';
+
+  @override
+  String get achNameEuroFan => '洋食ファン';
+
+  @override
+  String get achDescEuroFan => '洋食・欧州料理店を3軒訪問する。';
+
+  @override
+  String get achNameEuroLover => '洋食好き';
+
+  @override
+  String get achDescEuroLover => '洋食・欧州料理店を10軒訪問する。';
+
+  @override
+  String get achNameEuroMaster => '洋食マスター';
+
+  @override
+  String get achDescEuroMaster => '洋食・欧州料理店を30軒訪問する。';
+
+  @override
+  String get achNameChineseFan => '中華ファン';
+
+  @override
+  String get achDescChineseFan => '中華料理店を3軒訪問する。';
+
+  @override
+  String get achNameChineseLover => '中華好き';
+
+  @override
+  String get achDescChineseLover => '中華料理店を10軒訪問する。';
+
+  @override
+  String get achNameChineseMaster => '中華マスター';
+
+  @override
+  String get achDescChineseMaster => '中華料理店を30軒訪問する。';
+
+  @override
+  String get achNameDonFan => '丼ファン';
+
+  @override
+  String get achDescDonFan => '丼ものの店を3軒訪問する。';
+
+  @override
+  String get achNameDonLover => '丼好き';
+
+  @override
+  String get achDescDonLover => '丼ものの店を10軒訪問する。';
+
+  @override
+  String get achNameDonMaster => '丼マスター';
+
+  @override
+  String get achDescDonMaster => '丼ものの店を30軒訪問する。';
+
+  @override
+  String get achNameWashokuFan => '和食ファン';
+
+  @override
+  String get achDescWashokuFan => '和食店を3軒訪問する。';
+
+  @override
+  String get achNameWashokuLover => '和食好き';
+
+  @override
+  String get achDescWashokuLover => '和食店を10軒訪問する。';
+
+  @override
+  String get achNameWashokuMaster => '和食マスター';
+
+  @override
+  String get achDescWashokuMaster => '和食店を30軒訪問する。';
+
+  @override
+  String get achNameYakitoriFan => '焼き鳥ファン';
+
+  @override
+  String get achDescYakitoriFan => '焼き鳥屋を3軒訪問する。';
+
+  @override
+  String get achNameYakitoriLover => '焼き鳥好き';
+
+  @override
+  String get achDescYakitoriLover => '焼き鳥屋を10軒訪問する。';
+
+  @override
+  String get achNameYakitoriMaster => '焼き鳥マスター';
+
+  @override
+  String get achDescYakitoriMaster => '焼き鳥屋を30軒訪問する。';
+
+  @override
+  String get achNameOmnivore => '雑食系';
+
+  @override
+  String get achDescOmnivore => '20種類の異なるカテゴリーのお店を訪問する。';
+
+  @override
+  String get achNameIndieSpirit => 'インディーズ魂';
+
+  @override
+  String get achDescIndieSpirit => '個人経営店を50軒訪問する。';
+
+  @override
+  String get achNameChainLover => 'チェーン店好き';
+
+  @override
+  String get achDescChainLover => 'チェーン店を10軒訪問する。';
+
+  @override
+  String get achNameLunchRush => 'ランチラッシュ';
+
+  @override
+  String get achDescLunchRush => '午前11時半から午後1時半の間にお店を訪問する。';
+
+  @override
+  String get achNameAfternoonTea => 'アフタヌーンティー';
+
+  @override
+  String get achDescAfternoonTea => '午後3時から5時の間にお店を訪問する。';
+
+  @override
+  String get achNameDinnerTime => 'ディナータイム';
+
+  @override
+  String get achDescDinnerTime => '午後6時から9時の間にお店を訪問する。';
+
+  @override
+  String get achNameWeekdayWorker => '平日ワーカー';
+
+  @override
+  String get achDescWeekdayWorker => '平日に10軒のお店を訪問する。';
+
+  @override
+  String get achNameFridayNight => '花金';
+
+  @override
+  String get achDescFridayNight => '金曜日の夜（18時以降）にお店を訪問する。';
 }

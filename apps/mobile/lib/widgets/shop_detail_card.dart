@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:latlong2/latlong.dart' as latlong2;
 import 'package:geolocator/geolocator.dart';
 import '../api/fof/v1/shop.pb.dart';
@@ -68,6 +69,26 @@ class ShopDetailCard extends StatelessWidget {
     );
   }
 
+  String _getPriceSymbol(int price) {
+    if (price == 0) return '';
+    if (price < 1000) return '\$';
+    if (price < 3000) return '\$\$';
+    if (price < 8000) return '\$\$\$';
+    return '\$\$\$\$';
+  }
+
+  Future<void> _launchSourceUrl(String urlString) async {
+    if (urlString.isEmpty) return;
+    final uri = Uri.parse(urlString);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(
+        uri,
+        mode: LaunchMode
+            .platformDefault, // Default handles in-app on mobile, new tab on web usually
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final s = S.of(context);
@@ -102,7 +123,7 @@ class ShopDetailCard extends StatelessWidget {
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(16),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -190,23 +211,24 @@ class ShopDetailCard extends StatelessWidget {
             // Shop is in cleared area - show full details
             if (isDiscovered) ...[
               Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
-                    width: 56,
-                    height: 56,
+                    width: 48,
+                    height: 48,
                     decoration: BoxDecoration(
                       color: shop.isVisited
                           ? shop.color.withValues(alpha: 0.1)
                           : Colors.grey.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(12),
                     ),
                     child: Icon(
                       ShopCategory.getIcon(shop.effectiveFoodCategory),
                       color: shop.isVisited ? shop.color : Colors.grey,
-                      size: 30,
+                      size: 24,
                     ),
                   ),
-                  const SizedBox(width: AppTheme.spacingMd),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -214,14 +236,15 @@ class ShopDetailCard extends StatelessWidget {
                         Text(
                           shop.name,
                           style: TextStyle(
-                            fontSize: 20,
+                            fontSize: 18,
                             fontWeight: FontWeight.w800,
                             color: shop.isVisited
                                 ? AppTheme.textPrimaryLight
                                 : Colors.grey.shade600,
                             letterSpacing: -0.5,
+                            height: 1.2,
                           ),
-                          maxLines: 1,
+                          maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 4),
@@ -234,42 +257,93 @@ class ShopDetailCard extends StatelessWidget {
                                 color: shop.isVisited
                                     ? shop.color
                                     : Colors.grey,
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: 1.0,
+                                fontWeight: FontWeight.w700,
                               ),
                             ),
-                          ],
-                        ),
-                        if (shop.reservable)
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.event_available,
-                                size: 11,
-                                color: Colors.green.shade600,
+                            if (shop.averagePrice > 0) ...[
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 4,
+                                ),
+                                child: Text(
+                                  '•',
+                                  style: TextStyle(
+                                    color: Colors.grey.shade400,
+                                    fontSize: 10,
+                                  ),
+                                ),
                               ),
-                              const SizedBox(width: 4),
                               Text(
-                                'Reservable',
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  color: Colors.green.shade600,
+                                _getPriceSymbol(shop.averagePrice),
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  color: AppTheme.textSecondaryLight,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
                             ],
-                          ),
+                            // Reservable Status (Always show)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 4,
+                              ),
+                              child: Text(
+                                '•',
+                                style: TextStyle(
+                                  color: Colors.grey.shade400,
+                                  fontSize: 10,
+                                ),
+                              ),
+                            ),
+                            Icon(
+                              shop.reservable
+                                  ? Icons.calendar_today_outlined
+                                  : Icons
+                                        .calendar_today_outlined, // keep same icon or use event_busy?
+                              size: 10,
+                              color: shop.reservable
+                                  ? AppTheme.textSecondaryLight
+                                  : Colors.grey.shade400,
+                            ),
+                            const SizedBox(width: 2),
+                            Text(
+                              shop.reservable ? s.reservable : s.notReservable,
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: shop.reservable
+                                    ? AppTheme.textSecondaryLight
+                                    : Colors.grey.shade400,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                   ),
+                  if (shop.sourceUrl.isNotEmpty) ...[
+                    IconButton(
+                      icon: const Icon(Icons.open_in_new),
+                      onPressed: () => _launchSourceUrl(shop.sourceUrl),
+                      color: AppTheme.textSecondaryLight,
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                      iconSize: 20,
+                      tooltip: s.website,
+                    ),
+                    const SizedBox(width: 12),
+                  ],
                   IconButton(
                     icon: const Icon(Icons.close),
                     onPressed: onClose,
                     color: Colors.grey,
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    iconSize: 20,
                   ),
                 ],
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
               if (isEntering) ...[
                 Container(
                   padding: const EdgeInsets.all(16),
@@ -357,7 +431,7 @@ class ShopDetailCard extends StatelessWidget {
                     color: Colors.green.shade600,
                   ),
                 ],
-                const SizedBox(height: 20),
+                const SizedBox(height: 16),
               ],
 
               if (!shop.isVisited) ...[
@@ -366,99 +440,103 @@ class ShopDetailCard extends StatelessWidget {
                     final canEnter = distanceToShop <= 25;
                     final isOpen = shop.isOpen;
 
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        if (!isEntering) ...[
-                          if (!isOpen)
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 8),
-                              child: Text(
-                                s.closedToEnter,
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(
-                                  color: Colors.red,
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          if (isOpen && !canEnter)
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 8),
-                              child: Text(
-                                s.tooFarToEnter,
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(
-                                  color: Colors.orange,
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                        ],
-                        ElevatedButton(
-                          onPressed: isSubmitting
-                              ? null
-                              : isEntering
-                              ? onCancelEntering
-                              : (canEnter && isOpen)
-                              ? () => onEnterShop(shop)
-                              : null,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: isSubmitting
-                                ? Colors.grey.shade200
-                                : isEntering
-                                ? Colors.red.shade50
-                                : (canEnter && isOpen)
-                                ? Colors.green.shade600
-                                : Colors.grey.shade300,
-                            foregroundColor: isSubmitting
-                                ? Colors.grey.shade600
-                                : isEntering
-                                ? Colors.red
-                                : Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            elevation: (canEnter && isOpen && !isSubmitting)
-                                ? 2
-                                : 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              side: isEntering && !isSubmitting
-                                  ? BorderSide(color: Colors.red.shade200)
-                                  : BorderSide.none,
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              if (isSubmitting) ...[
-                                const SizedBox(
-                                  width: 16,
-                                  height: 16,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      Colors.grey,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                              ],
-                              Text(
-                                isSubmitting
-                                    ? '確認中'
-                                    : isEntering
-                                    ? s.cancel
-                                    : s.enterShop,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
+                    return ElevatedButton(
+                      onPressed: isSubmitting
+                          ? null
+                          : isEntering
+                          ? onCancelEntering
+                          : (canEnter && isOpen)
+                          ? () => onEnterShop(shop)
+                          : null,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: isSubmitting
+                            ? Colors.grey.shade200
+                            : isEntering
+                            ? Colors.red.shade50
+                            : (canEnter && isOpen)
+                            ? Colors.green.shade600
+                            : Colors.grey.shade300,
+                        foregroundColor: isSubmitting
+                            ? Colors.grey.shade600
+                            : isEntering
+                            ? Colors.red
+                            : Colors.white,
+                        disabledBackgroundColor:
+                            Colors.grey.shade200, // Explicit disabled color
+                        disabledForegroundColor: Colors
+                            .grey
+                            .shade500, // Explicit disabled text color
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 12,
+                        ), // Reduced padding
+                        elevation: (canEnter && isOpen && !isSubmitting)
+                            ? 2
+                            : 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: isEntering && !isSubmitting
+                              ? BorderSide(color: Colors.red.shade200)
+                              : BorderSide.none,
                         ),
-                      ],
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          if (isSubmitting) ...[
+                            const SizedBox(
+                              width: 14,
+                              height: 14,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Colors.grey,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              '確認中',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ] else if (isEntering) ...[
+                            Text(
+                              s.cancel,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ] else if (!isOpen) ...[
+                            Icon(Icons.access_time, size: 16),
+                            const SizedBox(width: 6),
+                            Text(
+                              s.closedToEnter, // Ensure this string fits or use a shorter one if needed
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ] else if (!canEnter) ...[
+                            Icon(Icons.directions_walk, size: 16),
+                            const SizedBox(width: 6),
+                            Text(
+                              s.tooFarToEnter, // Ensure this string fits
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ] else ...[
+                            Text(
+                              s.enterShop,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
                     );
                   },
                 ),

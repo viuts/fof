@@ -94,7 +94,7 @@ func (u *visitUsecase) CreateVisit(ctx context.Context, userID string, shopID st
 		}
 
 		// 3. Clear area
-		geoJSON, err = u.locationRepo.ClearAreaAroundPoint(ctx, tx, userUUID, shop.Lat, shop.Lng, 250.0)
+		geoJSON, err = u.locationRepo.ClearAreaAroundPoint(ctx, tx, userUUID, shop.Lat, shop.Lng, shop.GetClearanceRadius())
 		return err
 	})
 
@@ -103,16 +103,16 @@ func (u *visitUsecase) CreateVisit(ctx context.Context, userID string, shopID st
 	}
 
 	now := time.Now()
-	contextData := map[string]interface{}{
-		"shop_id":      shopID,
-		"rating":       rating,
-		"category":     shop.Category,
-		"is_chain":     shop.IsChain,
-		"day_of_week":  int(now.Weekday()), // 0=Sunday, 6=Saturday
-		"hour":         now.Hour(),
+	achCtx := domain.AchievementContext{
+		ShopID:    shopID,
+		Rating:    rating,
+		Category:  shop.Category,
+		IsChain:   shop.IsChain,
+		DayOfWeek: int(now.Weekday()), // 0=Sunday, 6=Saturday
+		Hour:      now.Hour(),
 	}
 
-	unlocked, _ := u.achievementUC.CheckAchievements(ctx, userUUID, "VISIT", contextData)
+	unlocked, _ := u.achievementUC.CheckAchievements(ctx, userUUID, domain.EventTypeVisit, achCtx)
 
 	return geoJSON, currentLevel, currentExp, expGained, unlocked, nil
 }

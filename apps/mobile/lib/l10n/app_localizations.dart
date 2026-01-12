@@ -548,6 +548,12 @@ abstract class AppLocalizations {
   /// **'Café & Sweets'**
   String get groupCafe;
 
+  /// No description provided for @groupOthers.
+  ///
+  /// In en, this message translates to:
+  /// **'Others'**
+  String get groupOthers;
+
   /// No description provided for @errorLocationUnavailable.
   ///
   /// In en, this message translates to:
@@ -1207,6 +1213,636 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'View Review'**
   String get viewReview;
+
+  /// No description provided for @reservable.
+  ///
+  /// In en, this message translates to:
+  /// **'Reservable'**
+  String get reservable;
+
+  /// No description provided for @notReservable.
+  ///
+  /// In en, this message translates to:
+  /// **'Not Reservable'**
+  String get notReservable;
+
+  /// No description provided for @website.
+  ///
+  /// In en, this message translates to:
+  /// **'Website'**
+  String get website;
+
+  /// No description provided for @achNameExplorerLv1.
+  ///
+  /// In en, this message translates to:
+  /// **'Explorer Lv.1'**
+  String get achNameExplorerLv1;
+
+  /// No description provided for @achDescExplorerLv1.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit 5 different shops.'**
+  String get achDescExplorerLv1;
+
+  /// No description provided for @achNameExplorerLv2.
+  ///
+  /// In en, this message translates to:
+  /// **'Explorer Lv.2'**
+  String get achNameExplorerLv2;
+
+  /// No description provided for @achDescExplorerLv2.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit 25 different shops.'**
+  String get achDescExplorerLv2;
+
+  /// No description provided for @achNameExplorerLv3.
+  ///
+  /// In en, this message translates to:
+  /// **'Explorer Lv.3'**
+  String get achNameExplorerLv3;
+
+  /// No description provided for @achDescExplorerLv3.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit 100 different shops.'**
+  String get achDescExplorerLv3;
+
+  /// No description provided for @achNameMasterExplorer.
+  ///
+  /// In en, this message translates to:
+  /// **'Master Explorer'**
+  String get achNameMasterExplorer;
+
+  /// No description provided for @achDescMasterExplorer.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit 500 different shops.'**
+  String get achDescMasterExplorer;
+
+  /// No description provided for @achNameGodOfWalk.
+  ///
+  /// In en, this message translates to:
+  /// **'God of Walk'**
+  String get achNameGodOfWalk;
+
+  /// No description provided for @achDescGodOfWalk.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit 1000 different shops.'**
+  String get achDescGodOfWalk;
+
+  /// No description provided for @achNameRamenLover.
+  ///
+  /// In en, this message translates to:
+  /// **'Ramen Lover'**
+  String get achNameRamenLover;
+
+  /// No description provided for @achDescRamenLover.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit 10 Ramen shops.'**
+  String get achDescRamenLover;
+
+  /// No description provided for @achNameRamenGod.
+  ///
+  /// In en, this message translates to:
+  /// **'Ramen God'**
+  String get achNameRamenGod;
+
+  /// No description provided for @achDescRamenGod.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit 50 Ramen shops.'**
+  String get achDescRamenGod;
+
+  /// No description provided for @achNameCafeFan.
+  ///
+  /// In en, this message translates to:
+  /// **'Cafe Fan'**
+  String get achNameCafeFan;
+
+  /// No description provided for @achDescCafeFan.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit 3 Cafes.'**
+  String get achDescCafeFan;
+
+  /// No description provided for @achNameCafeLover.
+  ///
+  /// In en, this message translates to:
+  /// **'Cafe Lover'**
+  String get achNameCafeLover;
+
+  /// No description provided for @achDescCafeLover.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit 10 Cafes.'**
+  String get achDescCafeLover;
+
+  /// No description provided for @achNameCafeMaster.
+  ///
+  /// In en, this message translates to:
+  /// **'Cafe Master'**
+  String get achNameCafeMaster;
+
+  /// No description provided for @achDescCafeMaster.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit 30 Cafes.'**
+  String get achDescCafeMaster;
+
+  /// No description provided for @achNameSushiFan.
+  ///
+  /// In en, this message translates to:
+  /// **'Sushi Fan'**
+  String get achNameSushiFan;
+
+  /// No description provided for @achDescSushiFan.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit 3 Sushi shops.'**
+  String get achDescSushiFan;
+
+  /// No description provided for @achNameSushiLover.
+  ///
+  /// In en, this message translates to:
+  /// **'Sushi Lover'**
+  String get achNameSushiLover;
+
+  /// No description provided for @achDescSushiLover.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit 10 Sushi shops.'**
+  String get achDescSushiLover;
+
+  /// No description provided for @achNameSushiMaster.
+  ///
+  /// In en, this message translates to:
+  /// **'Sushi Master'**
+  String get achNameSushiMaster;
+
+  /// No description provided for @achDescSushiMaster.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit 30 Sushi shops.'**
+  String get achDescSushiMaster;
+
+  /// No description provided for @achNameYakinikuFan.
+  ///
+  /// In en, this message translates to:
+  /// **'Yakiniku Fan'**
+  String get achNameYakinikuFan;
+
+  /// No description provided for @achDescYakinikuFan.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit 3 Yakiniku shops.'**
+  String get achDescYakinikuFan;
+
+  /// No description provided for @achNameYakinikuLover.
+  ///
+  /// In en, this message translates to:
+  /// **'Yakiniku Lover'**
+  String get achNameYakinikuLover;
+
+  /// No description provided for @achDescYakinikuLover.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit 10 Yakiniku shops.'**
+  String get achDescYakinikuLover;
+
+  /// No description provided for @achNameYakinikuMaster.
+  ///
+  /// In en, this message translates to:
+  /// **'Yakiniku Master'**
+  String get achNameYakinikuMaster;
+
+  /// No description provided for @achDescYakinikuMaster.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit 30 Yakiniku shops.'**
+  String get achDescYakinikuMaster;
+
+  /// No description provided for @achNameIzakayaFan.
+  ///
+  /// In en, this message translates to:
+  /// **'Izakaya Fan'**
+  String get achNameIzakayaFan;
+
+  /// No description provided for @achDescIzakayaFan.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit 3 Izakayas.'**
+  String get achDescIzakayaFan;
+
+  /// No description provided for @achNameIzakayaLover.
+  ///
+  /// In en, this message translates to:
+  /// **'Izakaya Lover'**
+  String get achNameIzakayaLover;
+
+  /// No description provided for @achDescIzakayaLover.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit 10 Izakayas.'**
+  String get achDescIzakayaLover;
+
+  /// No description provided for @achNameIzakayaMaster.
+  ///
+  /// In en, this message translates to:
+  /// **'Izakaya Master'**
+  String get achNameIzakayaMaster;
+
+  /// No description provided for @achDescIzakayaMaster.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit 30 Izakayas.'**
+  String get achDescIzakayaMaster;
+
+  /// No description provided for @achNameBarFan.
+  ///
+  /// In en, this message translates to:
+  /// **'Bar Fan'**
+  String get achNameBarFan;
+
+  /// No description provided for @achDescBarFan.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit 3 Bars.'**
+  String get achDescBarFan;
+
+  /// No description provided for @achNameBarLover.
+  ///
+  /// In en, this message translates to:
+  /// **'Bar Lover'**
+  String get achNameBarLover;
+
+  /// No description provided for @achDescBarLover.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit 10 Bars.'**
+  String get achDescBarLover;
+
+  /// No description provided for @achNameBarMaster.
+  ///
+  /// In en, this message translates to:
+  /// **'Bar Master'**
+  String get achNameBarMaster;
+
+  /// No description provided for @achDescBarMaster.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit 30 Bars.'**
+  String get achDescBarMaster;
+
+  /// No description provided for @achNameSweetsFan.
+  ///
+  /// In en, this message translates to:
+  /// **'Sweets Fan'**
+  String get achNameSweetsFan;
+
+  /// No description provided for @achDescSweetsFan.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit 3 Sweets shops.'**
+  String get achDescSweetsFan;
+
+  /// No description provided for @achNameSweetsLover.
+  ///
+  /// In en, this message translates to:
+  /// **'Sweets Lover'**
+  String get achNameSweetsLover;
+
+  /// No description provided for @achDescSweetsLover.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit 10 Sweets shops.'**
+  String get achDescSweetsLover;
+
+  /// No description provided for @achNameSweetsMaster.
+  ///
+  /// In en, this message translates to:
+  /// **'Sweets Master'**
+  String get achNameSweetsMaster;
+
+  /// No description provided for @achDescSweetsMaster.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit 30 Sweets shops.'**
+  String get achDescSweetsMaster;
+
+  /// No description provided for @achNameCurryFan.
+  ///
+  /// In en, this message translates to:
+  /// **'Curry Fan'**
+  String get achNameCurryFan;
+
+  /// No description provided for @achDescCurryFan.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit 3 Curry shops.'**
+  String get achDescCurryFan;
+
+  /// No description provided for @achNameCurryLover.
+  ///
+  /// In en, this message translates to:
+  /// **'Curry Lover'**
+  String get achNameCurryLover;
+
+  /// No description provided for @achDescCurryLover.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit 10 Curry shops.'**
+  String get achDescCurryLover;
+
+  /// No description provided for @achNameCurryMaster.
+  ///
+  /// In en, this message translates to:
+  /// **'Curry Master'**
+  String get achNameCurryMaster;
+
+  /// No description provided for @achDescCurryMaster.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit 30 Curry shops.'**
+  String get achDescCurryMaster;
+
+  /// No description provided for @achNameEuroFan.
+  ///
+  /// In en, this message translates to:
+  /// **'European Fan'**
+  String get achNameEuroFan;
+
+  /// No description provided for @achDescEuroFan.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit 3 European style shops.'**
+  String get achDescEuroFan;
+
+  /// No description provided for @achNameEuroLover.
+  ///
+  /// In en, this message translates to:
+  /// **'European Lover'**
+  String get achNameEuroLover;
+
+  /// No description provided for @achDescEuroLover.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit 10 European style shops.'**
+  String get achDescEuroLover;
+
+  /// No description provided for @achNameEuroMaster.
+  ///
+  /// In en, this message translates to:
+  /// **'European Master'**
+  String get achNameEuroMaster;
+
+  /// No description provided for @achDescEuroMaster.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit 30 European style shops.'**
+  String get achDescEuroMaster;
+
+  /// No description provided for @achNameChineseFan.
+  ///
+  /// In en, this message translates to:
+  /// **'Chinese Fan'**
+  String get achNameChineseFan;
+
+  /// No description provided for @achDescChineseFan.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit 3 Chinese shops.'**
+  String get achDescChineseFan;
+
+  /// No description provided for @achNameChineseLover.
+  ///
+  /// In en, this message translates to:
+  /// **'Chinese Lover'**
+  String get achNameChineseLover;
+
+  /// No description provided for @achDescChineseLover.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit 10 Chinese shops.'**
+  String get achDescChineseLover;
+
+  /// No description provided for @achNameChineseMaster.
+  ///
+  /// In en, this message translates to:
+  /// **'Chinese Master'**
+  String get achNameChineseMaster;
+
+  /// No description provided for @achDescChineseMaster.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit 30 Chinese shops.'**
+  String get achDescChineseMaster;
+
+  /// No description provided for @achNameDonFan.
+  ///
+  /// In en, this message translates to:
+  /// **'Donburi Fan'**
+  String get achNameDonFan;
+
+  /// No description provided for @achDescDonFan.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit 3 Donburi (Rice Bowl) shops.'**
+  String get achDescDonFan;
+
+  /// No description provided for @achNameDonLover.
+  ///
+  /// In en, this message translates to:
+  /// **'Donburi Lover'**
+  String get achNameDonLover;
+
+  /// No description provided for @achDescDonLover.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit 10 Donburi shops.'**
+  String get achDescDonLover;
+
+  /// No description provided for @achNameDonMaster.
+  ///
+  /// In en, this message translates to:
+  /// **'Donburi Master'**
+  String get achNameDonMaster;
+
+  /// No description provided for @achDescDonMaster.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit 30 Donburi shops.'**
+  String get achDescDonMaster;
+
+  /// No description provided for @achNameWashokuFan.
+  ///
+  /// In en, this message translates to:
+  /// **'Washoku Fan'**
+  String get achNameWashokuFan;
+
+  /// No description provided for @achDescWashokuFan.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit 3 Washoku shops.'**
+  String get achDescWashokuFan;
+
+  /// No description provided for @achNameWashokuLover.
+  ///
+  /// In en, this message translates to:
+  /// **'Washoku Lover'**
+  String get achNameWashokuLover;
+
+  /// No description provided for @achDescWashokuLover.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit 10 Washoku shops.'**
+  String get achDescWashokuLover;
+
+  /// No description provided for @achNameWashokuMaster.
+  ///
+  /// In en, this message translates to:
+  /// **'Washoku Master'**
+  String get achNameWashokuMaster;
+
+  /// No description provided for @achDescWashokuMaster.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit 30 Washoku shops.'**
+  String get achDescWashokuMaster;
+
+  /// No description provided for @achNameYakitoriFan.
+  ///
+  /// In en, this message translates to:
+  /// **'Yakitori Fan'**
+  String get achNameYakitoriFan;
+
+  /// No description provided for @achDescYakitoriFan.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit 3 Yakitori shops.'**
+  String get achDescYakitoriFan;
+
+  /// No description provided for @achNameYakitoriLover.
+  ///
+  /// In en, this message translates to:
+  /// **'Yakitori Lover'**
+  String get achNameYakitoriLover;
+
+  /// No description provided for @achDescYakitoriLover.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit 10 Yakitori shops.'**
+  String get achDescYakitoriLover;
+
+  /// No description provided for @achNameYakitoriMaster.
+  ///
+  /// In en, this message translates to:
+  /// **'Yakitori Master'**
+  String get achNameYakitoriMaster;
+
+  /// No description provided for @achDescYakitoriMaster.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit 30 Yakitori shops.'**
+  String get achDescYakitoriMaster;
+
+  /// No description provided for @achNameOmnivore.
+  ///
+  /// In en, this message translates to:
+  /// **'Omnivore'**
+  String get achNameOmnivore;
+
+  /// No description provided for @achDescOmnivore.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit one shop from 20 different categories.'**
+  String get achDescOmnivore;
+
+  /// No description provided for @achNameIndieSpirit.
+  ///
+  /// In en, this message translates to:
+  /// **'Indie Spirit'**
+  String get achNameIndieSpirit;
+
+  /// No description provided for @achDescIndieSpirit.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit 50 Independent shops.'**
+  String get achDescIndieSpirit;
+
+  /// No description provided for @achNameChainLover.
+  ///
+  /// In en, this message translates to:
+  /// **'Chain Lover'**
+  String get achNameChainLover;
+
+  /// No description provided for @achDescChainLover.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit 10 Chain shops.'**
+  String get achDescChainLover;
+
+  /// No description provided for @achNameLunchRush.
+  ///
+  /// In en, this message translates to:
+  /// **'Lunch Rush'**
+  String get achNameLunchRush;
+
+  /// No description provided for @achDescLunchRush.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit a shop between 11:30 AM and 1:30 PM.'**
+  String get achDescLunchRush;
+
+  /// No description provided for @achNameAfternoonTea.
+  ///
+  /// In en, this message translates to:
+  /// **'Afternoon Tea'**
+  String get achNameAfternoonTea;
+
+  /// No description provided for @achDescAfternoonTea.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit a shop between 3:00 PM and 5:00 PM.'**
+  String get achDescAfternoonTea;
+
+  /// No description provided for @achNameDinnerTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Dinner Time'**
+  String get achNameDinnerTime;
+
+  /// No description provided for @achDescDinnerTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit a shop between 6:00 PM and 9:00 PM.'**
+  String get achDescDinnerTime;
+
+  /// No description provided for @achNameWeekdayWorker.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekday Worker'**
+  String get achNameWeekdayWorker;
+
+  /// No description provided for @achDescWeekdayWorker.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit 10 shops on weekdays.'**
+  String get achDescWeekdayWorker;
+
+  /// No description provided for @achNameFridayNight.
+  ///
+  /// In en, this message translates to:
+  /// **'TGIF'**
+  String get achNameFridayNight;
+
+  /// No description provided for @achDescFridayNight.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit a shop on Friday night (after 6 PM).'**
+  String get achDescFridayNight;
 }
 
 class _AppLocalizationsDelegate

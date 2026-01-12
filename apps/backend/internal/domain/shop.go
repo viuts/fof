@@ -91,25 +91,37 @@ type TimeInterval struct {
 type BusinessHours map[BusinessDay][]TimeInterval
 
 type Shop struct {
-	ID              uuid.UUID `gorm:"type:uuid;primaryKey;default:gen_random_uuid()"`
-	Name            string    `gorm:"not null"`
-	Category        string
-	Lat             float64 `gorm:"not null"`
-	Lng             float64 `gorm:"not null"`
-	IsChain         bool    `gorm:"default:false"`
-	Geom            *string `gorm:"type:geometry(Point,4326)"` // PostGIS Point
-	Address         string
-	Phone           string
-	OpeningHours    BusinessHours  `gorm:"type:jsonb"`
-	ImageURLs       pq.StringArray `gorm:"type:text[];column:image_urls"`
-	Rating          float64
-	ReviewCount     int     `gorm:"column:review_count"`
-	AveragePrice    int     `gorm:"column:average_price"`
-	SourceURL       string  `gorm:"uniqueIndex;column:source_url"`
-	ClearanceRadius float64 `gorm:"column:clearance_radius;type:double precision;->"` // Read-only (Generated)
-	Reservable      bool    `gorm:"default:false"`
-	CreatedAt       time.Time
-	UpdatedAt       time.Time
+	ID           uuid.UUID `gorm:"type:uuid;primaryKey;default:gen_random_uuid()"`
+	Name         string    `gorm:"not null"`
+	Category     string
+	Lat          float64 `gorm:"not null"`
+	Lng          float64 `gorm:"not null"`
+	IsChain      bool    `gorm:"default:false"`
+	Geom         *string `gorm:"type:geometry(Point,4326)"` // PostGIS Point
+	Address      string
+	Phone        string
+	OpeningHours BusinessHours  `gorm:"type:jsonb"`
+	ImageURLs    pq.StringArray `gorm:"type:text[];column:image_urls"`
+	Rating       float64
+	ReviewCount  int    `gorm:"column:review_count"`
+	AveragePrice int    `gorm:"column:average_price"`
+	SourceURL    string `gorm:"uniqueIndex:uni_shops_source_url;column:source_url"`
+	Reservable   bool   `gorm:"default:false"`
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+}
+
+func (s *Shop) GetClearanceRadius() float64 {
+	// Priority: >3.5 or <2.5 -> 500m
+	if s.Rating > 3.5 || s.Rating < 2.5 {
+		return 500.0
+	}
+	// Independent -> 250m
+	if !s.IsChain {
+		return 250.0
+	}
+	// Default (Chain and average rating) -> 100m
+	return 100.0
 }
 
 // Scan implements the Scanner interface.

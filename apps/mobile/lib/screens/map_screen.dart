@@ -43,6 +43,7 @@ class MapScreenState extends State<MapScreen>
   final FocusNode _focusNode = FocusNode();
   String? _clearedAreaGeojson;
   final List<Shop> _nearbyShops = [];
+  List<Marker> _shopMarkers = [];
   List<List<latlong2.LatLng>> _clearedRings = []; // Cached parsed GeoJSON
   latlong2.LatLng? _currentLocation;
   Shop? _selectedShop; // Selected shop for non-blocking detail view
@@ -203,6 +204,7 @@ class MapScreenState extends State<MapScreen>
       setState(() {
         _clearedAreaGeojson = clearedAreaResponse.clearedAreaGeojson;
         _clearedRings = GeoUtils.parseGeoJson(_clearedAreaGeojson);
+        _updateMarkers();
       });
     } catch (e) {
       debugPrint('Failed to load initial data: $e');
@@ -231,6 +233,7 @@ class MapScreenState extends State<MapScreen>
         setState(() {
           _clearedAreaGeojson = response.clearedAreaGeojson;
           _clearedRings = GeoUtils.parseGeoJson(_clearedAreaGeojson);
+          _updateMarkers();
         });
       }
     } catch (e) {
@@ -271,6 +274,8 @@ class MapScreenState extends State<MapScreen>
               _nearbyShops.add(shop);
             }
           }
+
+          _updateMarkers(); // Pre-calculate markers
         });
       }
       return response;
@@ -278,6 +283,49 @@ class MapScreenState extends State<MapScreen>
       debugPrint('Failed to load nearby shops: $e');
       return null;
     }
+  }
+
+  void _updateMarkers() {
+    final allShops = <String, Shop>{};
+    for (var s in _nearbyShops) {
+      allShops[s.id] = s;
+    }
+    final userService = Provider.of<UserService>(context, listen: false);
+    for (var s in userService.visitedShopModels) {
+      allShops[s.id] = s;
+    }
+
+    final filteredShops = allShops.values.where(
+      (s) => !_hiddenCategories.contains(s.effectiveFoodCategory),
+    );
+
+    setState(() {
+      _shopMarkers = filteredShops.map((shop) {
+        final shopLocation = latlong2.LatLng(shop.lat, shop.lng);
+        final isInClearedArea = GeoUtils.isPointInClearedArea(
+          shopLocation,
+          _clearedRings,
+        );
+
+        final showName = _isMapReady && _mapController.camera.zoom >= 17.0;
+        final markerSize = shop.markerSize + 10;
+
+        return Marker(
+          point: shopLocation,
+          width: markerSize,
+          height: markerSize,
+          alignment: Alignment.center,
+          key: ValueKey('shop_${shop.id}'),
+          child: ShopBeacon(
+            shop: shop,
+            showPulse: false,
+            showName: showName,
+            isInClearedArea: isInClearedArea,
+            onTap: () => _showShopDetails(shop),
+          ),
+        );
+      }).toList();
+    });
   }
 
   void _showShopDetails(Shop shop) {
@@ -499,7 +547,7 @@ class MapScreenState extends State<MapScreen>
   Widget _buildVirtualDPad() {
     return Positioned(
       left: 16,
-      bottom: 32,
+      top: 72,
       child: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
@@ -601,6 +649,7 @@ class MapScreenState extends State<MapScreen>
           if (_selectedShop != null && _selectedShop!.id == shopId) {
             _selectedShop!.isVisited = true;
           }
+          _updateMarkers();
         });
 
         if (mounted) {
@@ -791,6 +840,9 @@ class MapScreenState extends State<MapScreen>
                     _mapController.move(_currentLocation!, 15.0);
                   }
                 },
+                onPositionChanged: (position, hasGesture) {
+                  _updateMarkers();
+                },
               ),
               children: [
                 TileLayer(
@@ -874,44 +926,7 @@ class MapScreenState extends State<MapScreen>
                           },
                         ),
                       ),
-                    ...(() {
-                      final allShops = <String, Shop>{};
-                      for (var s in _nearbyShops) {
-                        allShops[s.id] = s;
-                      }
-                      final userService = Provider.of<UserService>(
-                        context,
-                        listen: false,
-                      );
-                      for (var s in userService.visitedShopModels) {
-                        allShops[s.id] = s;
-                      }
-
-                      return allShops.values.where(
-                        (s) => !_hiddenCategories.contains(
-                          s.effectiveFoodCategory,
-                        ),
-                      );
-                    }()).map((shop) {
-                      final shopLocation = latlong2.LatLng(shop.lat, shop.lng);
-                      final isInClearedArea = GeoUtils.isPointInClearedArea(
-                        shopLocation,
-                        _clearedRings,
-                      );
-
-                      return Marker(
-                        point: shopLocation,
-                        width: shop.markerSize + 10,
-                        height: shop.markerSize + 10,
-                        key: ValueKey('shop_${shop.id}'),
-                        child: ShopBeacon(
-                          shop: shop,
-                          showPulse: false,
-                          isInClearedArea: isInClearedArea,
-                          onTap: () => _showShopDetails(shop),
-                        ),
-                      );
-                    }),
+                    ..._shopMarkers,
                     // Quest marker (if active)
                     if (widget.questShop != null)
                       Marker(
@@ -1193,7 +1208,10 @@ class MapScreenState extends State<MapScreen>
                             children: [
                               TextButton(
                                 onPressed: () {
-                                  setState(() => _hiddenCategories.clear());
+                                  setState(() {
+                                    _hiddenCategories.clear();
+                                    _updateMarkers();
+                                  });
                                   setModalState(() {});
                                   _saveFilters();
                                 },
@@ -1213,6 +1231,7 @@ class MapScreenState extends State<MapScreen>
                                     _hiddenCategories.addAll(
                                       ShopCategory.allCategories,
                                     );
+                                    _updateMarkers();
                                   });
                                   setModalState(() {});
                                   _saveFilters();
@@ -1249,8 +1268,8 @@ class MapScreenState extends State<MapScreen>
                                 child: Text(
                                   group.label,
                                   style: TextStyle(
-                                    color: Colors.grey[600],
-                                    fontSize: 12,
+                                    color: Colors.grey[700],
+                                    fontSize: 13,
                                     fontWeight: FontWeight.w800,
                                     letterSpacing: 1.0,
                                   ),
@@ -1270,20 +1289,23 @@ class MapScreenState extends State<MapScreen>
                                       s.translateCategory(cat),
                                       style: TextStyle(
                                         color: isHidden
-                                            ? Colors.grey[600]
+                                            ? Colors.grey[400]
                                             : Colors.black87,
                                         fontSize: 13,
                                         fontWeight: isHidden
                                             ? FontWeight.normal
-                                            : FontWeight.w600,
+                                            : FontWeight.w800,
                                       ),
                                     ),
                                     avatar: Icon(
                                       icon,
                                       size: 16,
-                                      color: isHidden ? Colors.grey : color,
+                                      color: isHidden
+                                          ? Colors.grey[300]
+                                          : color,
                                     ),
                                     selected: !isHidden,
+                                    showCheckmark: false,
                                     onSelected: (selected) {
                                       setState(() {
                                         if (selected) {
@@ -1292,19 +1314,17 @@ class MapScreenState extends State<MapScreen>
                                           _hiddenCategories.add(cat);
                                         }
                                         _saveFilters();
+                                        _updateMarkers();
                                       });
                                       setModalState(() {});
                                     },
                                     backgroundColor: Colors.white,
-                                    selectedColor: color.withValues(
-                                      alpha: 0.15,
-                                    ),
-                                    checkmarkColor: color,
+                                    selectedColor: color.withValues(alpha: 0.2),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(12),
                                       side: BorderSide(
                                         color: isHidden
-                                            ? Colors.grey[300]!
+                                            ? Colors.grey[200]!
                                             : color,
                                       ),
                                     ),

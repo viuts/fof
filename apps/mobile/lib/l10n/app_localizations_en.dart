@@ -250,6 +250,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get groupCafe => 'Café & Sweets';
 
   @override
+  String get groupOthers => 'Others';
+
+  @override
   String get errorLocationUnavailable => 'Location not available';
 
   @override
@@ -599,4 +602,319 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get viewReview => 'View Review';
+
+  @override
+  String get reservable => 'Reservable';
+
+  @override
+  String get notReservable => 'Not Reservable';
+
+  @override
+  String get website => 'Website';
+
+  @override
+  String get achNameExplorerLv1 => 'Explorer Lv.1';
+
+  @override
+  String get achDescExplorerLv1 => 'Visit 5 different shops.';
+
+  @override
+  String get achNameExplorerLv2 => 'Explorer Lv.2';
+
+  @override
+  String get achDescExplorerLv2 => 'Visit 25 different shops.';
+
+  @override
+  String get achNameExplorerLv3 => 'Explorer Lv.3';
+
+  @override
+  String get achDescExplorerLv3 => 'Visit 100 different shops.';
+
+  @override
+  String get achNameMasterExplorer => 'Master Explorer';
+
+  @override
+  String get achDescMasterExplorer => 'Visit 500 different shops.';
+
+  @override
+  String get achNameGodOfWalk => 'God of Walk';
+
+  @override
+  String get achDescGodOfWalk => 'Visit 1000 different shops.';
+
+  @override
+  String get achNameRamenLover => 'Ramen Lover';
+
+  @override
+  String get achDescRamenLover => 'Visit 10 Ramen shops.';
+
+  @override
+  String get achNameRamenGod => 'Ramen God';
+
+  @override
+  String get achDescRamenGod => 'Visit 50 Ramen shops.';
+
+  @override
+  String get achNameCafeFan => 'Cafe Fan';
+
+  @override
+  String get achDescCafeFan => 'Visit 3 Cafes.';
+
+  @override
+  String get achNameCafeLover => 'Cafe Lover';
+
+  @override
+  String get achDescCafeLover => 'Visit 10 Cafes.';
+
+  @override
+  String get achNameCafeMaster => 'Cafe Master';
+
+  @override
+  String get achDescCafeMaster => 'Visit 30 Cafes.';
+
+  @override
+  String get achNameSushiFan => 'Sushi Fan';
+
+  @override
+  String get achDescSushiFan => 'Visit 3 Sushi shops.';
+
+  @override
+  String get achNameSushiLover => 'Sushi Lover';
+
+  @override
+  String get achDescSushiLover => 'Visit 10 Sushi shops.';
+
+  @override
+  String get achNameSushiMaster => 'Sushi Master';
+
+  @override
+  String get achDescSushiMaster => 'Visit 30 Sushi shops.';
+
+  @override
+  String get achNameYakinikuFan => 'Yakiniku Fan';
+
+  @override
+  String get achDescYakinikuFan => 'Visit 3 Yakiniku shops.';
+
+  @override
+  String get achNameYakinikuLover => 'Yakiniku Lover';
+
+  @override
+  String get achDescYakinikuLover => 'Visit 10 Yakiniku shops.';
+
+  @override
+  String get achNameYakinikuMaster => 'Yakiniku Master';
+
+  @override
+  String get achDescYakinikuMaster => 'Visit 30 Yakiniku shops.';
+
+  @override
+  String get achNameIzakayaFan => 'Izakaya Fan';
+
+  @override
+  String get achDescIzakayaFan => 'Visit 3 Izakayas.';
+
+  @override
+  String get achNameIzakayaLover => 'Izakaya Lover';
+
+  @override
+  String get achDescIzakayaLover => 'Visit 10 Izakayas.';
+
+  @override
+  String get achNameIzakayaMaster => 'Izakaya Master';
+
+  @override
+  String get achDescIzakayaMaster => 'Visit 30 Izakayas.';
+
+  @override
+  String get achNameBarFan => 'Bar Fan';
+
+  @override
+  String get achDescBarFan => 'Visit 3 Bars.';
+
+  @override
+  String get achNameBarLover => 'Bar Lover';
+
+  @override
+  String get achDescBarLover => 'Visit 10 Bars.';
+
+  @override
+  String get achNameBarMaster => 'Bar Master';
+
+  @override
+  String get achDescBarMaster => 'Visit 30 Bars.';
+
+  @override
+  String get achNameSweetsFan => 'Sweets Fan';
+
+  @override
+  String get achDescSweetsFan => 'Visit 3 Sweets shops.';
+
+  @override
+  String get achNameSweetsLover => 'Sweets Lover';
+
+  @override
+  String get achDescSweetsLover => 'Visit 10 Sweets shops.';
+
+  @override
+  String get achNameSweetsMaster => 'Sweets Master';
+
+  @override
+  String get achDescSweetsMaster => 'Visit 30 Sweets shops.';
+
+  @override
+  String get achNameCurryFan => 'Curry Fan';
+
+  @override
+  String get achDescCurryFan => 'Visit 3 Curry shops.';
+
+  @override
+  String get achNameCurryLover => 'Curry Lover';
+
+  @override
+  String get achDescCurryLover => 'Visit 10 Curry shops.';
+
+  @override
+  String get achNameCurryMaster => 'Curry Master';
+
+  @override
+  String get achDescCurryMaster => 'Visit 30 Curry shops.';
+
+  @override
+  String get achNameEuroFan => 'European Fan';
+
+  @override
+  String get achDescEuroFan => 'Visit 3 European style shops.';
+
+  @override
+  String get achNameEuroLover => 'European Lover';
+
+  @override
+  String get achDescEuroLover => 'Visit 10 European style shops.';
+
+  @override
+  String get achNameEuroMaster => 'European Master';
+
+  @override
+  String get achDescEuroMaster => 'Visit 30 European style shops.';
+
+  @override
+  String get achNameChineseFan => 'Chinese Fan';
+
+  @override
+  String get achDescChineseFan => 'Visit 3 Chinese shops.';
+
+  @override
+  String get achNameChineseLover => 'Chinese Lover';
+
+  @override
+  String get achDescChineseLover => 'Visit 10 Chinese shops.';
+
+  @override
+  String get achNameChineseMaster => 'Chinese Master';
+
+  @override
+  String get achDescChineseMaster => 'Visit 30 Chinese shops.';
+
+  @override
+  String get achNameDonFan => 'Donburi Fan';
+
+  @override
+  String get achDescDonFan => 'Visit 3 Donburi (Rice Bowl) shops.';
+
+  @override
+  String get achNameDonLover => 'Donburi Lover';
+
+  @override
+  String get achDescDonLover => 'Visit 10 Donburi shops.';
+
+  @override
+  String get achNameDonMaster => 'Donburi Master';
+
+  @override
+  String get achDescDonMaster => 'Visit 30 Donburi shops.';
+
+  @override
+  String get achNameWashokuFan => 'Washoku Fan';
+
+  @override
+  String get achDescWashokuFan => 'Visit 3 Washoku shops.';
+
+  @override
+  String get achNameWashokuLover => 'Washoku Lover';
+
+  @override
+  String get achDescWashokuLover => 'Visit 10 Washoku shops.';
+
+  @override
+  String get achNameWashokuMaster => 'Washoku Master';
+
+  @override
+  String get achDescWashokuMaster => 'Visit 30 Washoku shops.';
+
+  @override
+  String get achNameYakitoriFan => 'Yakitori Fan';
+
+  @override
+  String get achDescYakitoriFan => 'Visit 3 Yakitori shops.';
+
+  @override
+  String get achNameYakitoriLover => 'Yakitori Lover';
+
+  @override
+  String get achDescYakitoriLover => 'Visit 10 Yakitori shops.';
+
+  @override
+  String get achNameYakitoriMaster => 'Yakitori Master';
+
+  @override
+  String get achDescYakitoriMaster => 'Visit 30 Yakitori shops.';
+
+  @override
+  String get achNameOmnivore => 'Omnivore';
+
+  @override
+  String get achDescOmnivore => 'Visit one shop from 20 different categories.';
+
+  @override
+  String get achNameIndieSpirit => 'Indie Spirit';
+
+  @override
+  String get achDescIndieSpirit => 'Visit 50 Independent shops.';
+
+  @override
+  String get achNameChainLover => 'Chain Lover';
+
+  @override
+  String get achDescChainLover => 'Visit 10 Chain shops.';
+
+  @override
+  String get achNameLunchRush => 'Lunch Rush';
+
+  @override
+  String get achDescLunchRush => 'Visit a shop between 11:30 AM and 1:30 PM.';
+
+  @override
+  String get achNameAfternoonTea => 'Afternoon Tea';
+
+  @override
+  String get achDescAfternoonTea => 'Visit a shop between 3:00 PM and 5:00 PM.';
+
+  @override
+  String get achNameDinnerTime => 'Dinner Time';
+
+  @override
+  String get achDescDinnerTime => 'Visit a shop between 6:00 PM and 9:00 PM.';
+
+  @override
+  String get achNameWeekdayWorker => 'Weekday Worker';
+
+  @override
+  String get achDescWeekdayWorker => 'Visit 10 shops on weekdays.';
+
+  @override
+  String get achNameFridayNight => 'TGIF';
+
+  @override
+  String get achDescFridayNight => 'Visit a shop on Friday night (after 6 PM).';
 }

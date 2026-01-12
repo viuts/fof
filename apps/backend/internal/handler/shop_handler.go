@@ -58,8 +58,10 @@ func (h *ShopHandler) GetNearbyShops(ctx context.Context, req *fofv1.GetNearbySh
 			ImageUrls:       s.ImageURLs,
 			Rating:          s.Rating,
 			SourceUrl:       s.SourceURL,
-			ClearanceRadius: s.ClearanceRadius,
+			ClearanceRadius: s.GetClearanceRadius(),
 			IsVisited:       visitedMap[s.ID.String()],
+			AveragePrice:    int32(s.AveragePrice),
+			Reservable:      s.Reservable,
 		}
 	}
 
@@ -148,8 +150,10 @@ func (h *ShopHandler) GetQuestShop(ctx context.Context, req *fofv1.GetQuestShopR
 			ImageUrls:       shop.ImageURLs,
 			Rating:          shop.Rating,
 			SourceUrl:       shop.SourceURL,
-			ClearanceRadius: shop.ClearanceRadius,
+			ClearanceRadius: shop.GetClearanceRadius(),
 			IsVisited:       isVisited,
+			AveragePrice:    int32(shop.AveragePrice),
+			Reservable:      shop.Reservable,
 		},
 	}, nil
 }

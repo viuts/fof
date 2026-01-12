@@ -49,7 +49,7 @@ func (h *VisitHandler) GetVisitedShops(ctx context.Context, req *fofv1.GetVisite
 				ImageUrls:       s.ImageURLs,
 				Rating:          s.Rating,
 				SourceUrl:       s.SourceURL,
-				ClearanceRadius: s.ClearanceRadius,
+				ClearanceRadius: s.GetClearanceRadius(),
 				IsVisited:       true,
 			},
 			VisitedAt: v.VisitedAt.Format(time.RFC3339),
@@ -81,9 +81,8 @@ func (h *VisitHandler) CreateVisit(ctx context.Context, req *fofv1.CreateVisitRe
 			Id:          ach.ID,
 			Name:        ach.Name,
 			Description: ach.Description,
-			Category:    ach.Category,
+			Category:    string(ach.Category),
 			ExpReward:   int32(ach.ExpReward),
-			TitleReward: ach.TitleReward,
 			Tier:        MapTierToProto(ach.Tier),
 		}
 	}

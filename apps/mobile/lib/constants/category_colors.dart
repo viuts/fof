@@ -109,8 +109,8 @@ class ShopCategory {
     FoodCategory.FOOD_CATEGORY_IZAKAYA,
     FoodCategory.FOOD_CATEGORY_BAR,
     FoodCategory.FOOD_CATEGORY_CAFE,
-    FoodCategory.FOOD_CATEGORY_CAFE,
     FoodCategory.FOOD_CATEGORY_SWEETS,
+    FoodCategory.FOOD_CATEGORY_UNSPECIFIED,
   ];
 
   /// Grouped categories for better UI selection
@@ -166,6 +166,10 @@ class ShopCategory {
           FoodCategory.FOOD_CATEGORY_CAFE,
           FoodCategory.FOOD_CATEGORY_SWEETS,
         ],
+      ),
+      CategoryGroup(
+        label: s.groupOthers,
+        categories: [FoodCategory.FOOD_CATEGORY_UNSPECIFIED],
       ),
     ];
   }
