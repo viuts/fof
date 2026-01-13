@@ -415,10 +415,15 @@ class ShopDetailCard extends StatelessWidget {
                 _buildDetailRow(
                   Icons.access_time_outlined,
                   s.openingHours,
-                  shop.todaysOpeningHours.isNotEmpty
+                  shop.todaysOpeningHours == 'CLOSED'
+                      ? s.closedStatus
+                      : shop.todaysOpeningHours.isNotEmpty
                       ? shop.todaysOpeningHours
                       : s.hoursUnknown,
-                  color: shop.isOpen && shop.todaysOpeningHours.isNotEmpty
+                  color:
+                      shop.isOpen &&
+                          shop.todaysOpeningHours.isNotEmpty &&
+                          shop.todaysOpeningHours != 'CLOSED'
                       ? Colors.green.shade600
                       : Colors.red.shade600,
                 ),

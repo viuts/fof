@@ -194,19 +194,111 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
       );
     }
 
-    return ListView.separated(
+    return ListView.builder(
       padding: const EdgeInsets.only(
         left: AppTheme.spacingMd,
         right: AppTheme.spacingMd,
         top: AppTheme.spacingMd,
-        bottom: 16, // Extra space for FAB and bottom bar
+        bottom: 16,
       ),
-      itemCount: filtered.length,
-      separatorBuilder: (context, index) =>
-          const SizedBox(height: AppTheme.spacingMd),
+      itemCount: filtered.length + 1,
       itemBuilder: (context, index) {
-        return _buildAchievementCard(filtered[index]);
+        if (index == 0) {
+          return _buildTrophySummary(filtered);
+        }
+        final status = filtered[index - 1];
+        return Padding(
+          padding: const EdgeInsets.only(bottom: AppTheme.spacingMd),
+          child: _buildAchievementCard(status),
+        );
       },
+    );
+  }
+
+  Widget _buildTrophySummary(List<UserAchievementStatus> achievements) {
+    int plat = 0, gold = 0, silv = 0, bron = 0;
+    int platT = 0, goldT = 0, silvT = 0, bronT = 0;
+
+    for (var a in achievements) {
+      switch (a.achievement.tier) {
+        case AchievementTier.ACHIEVEMENT_TIER_PLATINUM:
+          platT++;
+          if (a.isUnlocked) plat++;
+          break;
+        case AchievementTier.ACHIEVEMENT_TIER_GOLD:
+          goldT++;
+          if (a.isUnlocked) gold++;
+          break;
+        case AchievementTier.ACHIEVEMENT_TIER_SILVER:
+          silvT++;
+          if (a.isUnlocked) silv++;
+          break;
+        case AchievementTier.ACHIEVEMENT_TIER_BRONZE:
+          bronT++;
+          if (a.isUnlocked) bron++;
+          break;
+        default:
+          break;
+      }
+    }
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: AppTheme.spacingLg),
+      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 12),
+      decoration: BoxDecoration(
+        color: AppTheme.lightSurface,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _buildTrophySummaryItem(
+            AchievementTier.ACHIEVEMENT_TIER_PLATINUM,
+            plat,
+            platT,
+          ),
+          _buildTrophySummaryItem(
+            AchievementTier.ACHIEVEMENT_TIER_GOLD,
+            gold,
+            goldT,
+          ),
+          _buildTrophySummaryItem(
+            AchievementTier.ACHIEVEMENT_TIER_SILVER,
+            silv,
+            silvT,
+          ),
+          _buildTrophySummaryItem(
+            AchievementTier.ACHIEVEMENT_TIER_BRONZE,
+            bron,
+            bronT,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTrophySummaryItem(AchievementTier tier, int count, int total) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(Icons.emoji_events_rounded, color: _getTierColor(tier), size: 32),
+        const SizedBox(height: 8),
+        Text(
+          '$count / $total',
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
+            color: AppTheme.textPrimaryLight,
+          ),
+        ),
+      ],
     );
   }
 

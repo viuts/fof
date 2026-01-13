@@ -55,6 +55,9 @@ migrate-down:
 crawl-tabelog:
 	@cd apps/backend && go run cmd/tabelog-crawler/main.go
 
+refill-tabelog:
+	@cd apps/backend && go run cmd/tabelog-refiller/main.go
+
 ## help: Show this help message
 help:
 	@echo "Fog of Flavor Makefile"

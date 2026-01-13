@@ -145,7 +145,11 @@ class ParsedOpeningHours {
       'sun',
     ][now.weekday - 1];
     final intervals = days[dayKey];
-    if (intervals == null || intervals.isEmpty) return '';
+    if (intervals == null || intervals.isEmpty) {
+      // If we have some data for other days but not today, it means closed.
+      // If we have no data at all, return empty.
+      return days.isEmpty ? '' : 'CLOSED';
+    }
     return intervals.map((i) => '${i.open} - ${i.close}').join(', ');
   }
 }

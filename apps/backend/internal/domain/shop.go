@@ -97,16 +97,16 @@ type Shop struct {
 	Lat          float64 `gorm:"not null"`
 	Lng          float64 `gorm:"not null"`
 	IsChain      bool    `gorm:"default:false"`
-	Geom         *string `gorm:"type:geometry(Point,4326)"` // PostGIS Point
+	Geom         *string `gorm:"type:geometry(Point,4326);index:,type:gist"` // PostGIS Point
 	Address      string
 	Phone        string
-	OpeningHours BusinessHours  `gorm:"type:jsonb"`
+	OpeningHours BusinessHours  `gorm:"type:jsonb;index:,type:gin"`
 	ImageURLs    pq.StringArray `gorm:"type:text[];column:image_urls"`
-	Rating       float64
-	ReviewCount  int    `gorm:"column:review_count"`
-	AveragePrice int    `gorm:"column:average_price"`
-	SourceURL    string `gorm:"uniqueIndex:uni_shops_source_url;column:source_url"`
-	Reservable   bool   `gorm:"default:false"`
+	Rating       float64        `gorm:"index"`
+	ReviewCount  int            `gorm:"column:review_count;index"`
+	AveragePrice int            `gorm:"column:average_price"`
+	SourceURL    string         `gorm:"uniqueIndex:uni_shops_source_url;column:source_url"`
+	Reservable   bool           `gorm:"default:false"`
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
 }

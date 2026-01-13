@@ -90,6 +90,14 @@ class MapScreenState extends State<MapScreen>
       const Duration(seconds: 10),
       (_) => _sendBatchedLocationUpdate(),
     );
+    // wait for 10s to show initial loading overlay
+    Timer(const Duration(seconds: 10), () {
+      if (mounted) {
+        setState(() {
+          _isInitialLoading = false;
+        });
+      }
+    });
 
     _blastController = AnimationController(
       vsync: this,
@@ -109,7 +117,7 @@ class MapScreenState extends State<MapScreen>
             _currentLocation = newLoc;
           });
 
-          if (!_hasCentered && _isMapReady) {
+          if (_isInitialLoading && _isMapReady) {
             _hasCentered = true;
             _mapController.move(newLoc, 15.0);
           }
@@ -276,6 +284,7 @@ class MapScreenState extends State<MapScreen>
           }
 
           _updateMarkers(); // Pre-calculate markers
+          _isInitialLoading = false;
         });
       }
       return response;
@@ -751,36 +760,13 @@ class MapScreenState extends State<MapScreen>
   }
 
   Widget _buildInitialLoadingOverlay() {
-    final s = S.of(context);
     return Container(
-      color: AppTheme.fogColorDark,
-      width: double.infinity,
-      height: double.infinity,
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // App Logo
-            const Icon(
-              Icons.restaurant_menu,
-              size: 80,
-              color: AppTheme.primaryColor,
-            ),
-            const SizedBox(height: 32),
-            const CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              s.loadingMap,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1.2,
-              ),
-            ),
-          ],
+      color: AppTheme.lightBackground,
+      child: const Center(
+        child: SizedBox(
+          width: 32,
+          height: 32,
+          child: CircularProgressIndicator(strokeWidth: 2),
         ),
       ),
     );
@@ -1046,8 +1032,16 @@ class MapScreenState extends State<MapScreen>
             // Filter Bar
             _buildFilterBar(),
 
-            // Initial Loading Overlay
-            if (_isInitialLoading) _buildInitialLoadingOverlay(),
+            // Initial Loading Overlay (Smooth Fade)
+            IgnorePointer(
+              ignoring: !_isInitialLoading,
+              child: AnimatedOpacity(
+                duration: AppTheme.longAnimation,
+                curve: Curves.easeInOut,
+                opacity: _isInitialLoading ? 1.0 : 0.0,
+                child: _buildInitialLoadingOverlay(),
+              ),
+            ),
           ],
         ),
       ),

@@ -25,6 +25,8 @@ func NewShopRepository(db *gorm.DB) ShopRepository {
 func (r *shopRepository) GetNearbyShops(ctx context.Context, lat, lng, radius float64, onlyIndie bool) ([]domain.Shop, error) {
 	var shops []domain.Shop
 	query := r.db.WithContext(ctx).Where("ST_DWithin(geom::geography, ST_SetSRID(ST_MakePoint(?, ?), 4326)::geography, ?)", lng, lat, radius)
+	// Filter out shops that likely not operating
+	query = query.Where("rating > 0")
 	if onlyIndie {
 		query = query.Where("is_chain = ?", false)
 	}
