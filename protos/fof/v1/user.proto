@@ -44,4 +44,5 @@ message User {
   int32 exp = 5;
   string display_name = 6;
   string profile_image = 7;
+  string created_at = 8;
 }

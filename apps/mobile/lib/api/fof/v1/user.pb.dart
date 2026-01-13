@@ -222,6 +222,7 @@ class User extends $pb.GeneratedMessage {
     $core.int? exp,
     $core.String? displayName,
     $core.String? profileImage,
+    $core.String? createdAt,
   }) {
     final $result = create();
     if (id != null) {
@@ -245,6 +246,9 @@ class User extends $pb.GeneratedMessage {
     if (profileImage != null) {
       $result.profileImage = profileImage;
     }
+    if (createdAt != null) {
+      $result.createdAt = createdAt;
+    }
     return $result;
   }
   User._() : super();
@@ -259,6 +263,7 @@ class User extends $pb.GeneratedMessage {
     ..a<$core.int>(5, _omitFieldNames ? '' : 'exp', $pb.PbFieldType.O3)
     ..aOS(6, _omitFieldNames ? '' : 'displayName')
     ..aOS(7, _omitFieldNames ? '' : 'profileImage')
+    ..aOS(8, _omitFieldNames ? '' : 'createdAt')
     ..hasRequiredFields = false
   ;
 
@@ -345,6 +350,15 @@ class User extends $pb.GeneratedMessage {
   $core.bool hasProfileImage() => $_has(6);
   @$pb.TagNumber(7)
   void clearProfileImage() => clearField(7);
+
+  @$pb.TagNumber(8)
+  $core.String get createdAt => $_getSZ(7);
+  @$pb.TagNumber(8)
+  set createdAt($core.String v) { $_setString(7, v); }
+  @$pb.TagNumber(8)
+  $core.bool hasCreatedAt() => $_has(7);
+  @$pb.TagNumber(8)
+  void clearCreatedAt() => clearField(8);
 }
 
 

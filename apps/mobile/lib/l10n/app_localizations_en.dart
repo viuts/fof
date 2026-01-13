@@ -917,4 +917,98 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get achDescFridayNight => 'Visit a shop on Friday night (after 6 PM).';
+
+  @override
+  String get paywallTitle => 'FOG OF FLAVOR PRO';
+
+  @override
+  String get paywallHeroTitle => 'Trial Period Ended';
+
+  @override
+  String get paywallHeroSubtitle =>
+      'Your 1-month trial has expired. Upgrade to Fog of Flavor Pro to continue recording your gastronomic journey.';
+
+  @override
+  String get paywallPlanBestValue => 'BEST VALUE';
+
+  @override
+  String get paywallPlanPromoted => 'PROMOTED';
+
+  @override
+  String get paywallPlanAnnualDesc => 'Most popular choice';
+
+  @override
+  String get paywallPlanLifetimeDesc => 'Own it forever';
+
+  @override
+  String get paywallContinueButton => 'CONTINUE';
+
+  @override
+  String get paywallRestoreButton => 'Restore Purchases';
+
+  @override
+  String get paywallSignOutButton => 'Sign Out / Switch Account';
+
+  @override
+  String get paywallPlanMonthly => 'Monthly';
+
+  @override
+  String get paywallPlanAnnual => 'Yearly';
+
+  @override
+  String get paywallPlanLifetime => 'Lifetime';
+
+  @override
+  String get paywallPlanDefault => 'Pro Plan';
+
+  @override
+  String get accountProMember => 'Pro Member';
+
+  @override
+  String get accountProUpgrade => 'Upgrade to Pro';
+
+  @override
+  String get accountProActive => 'Thank you for your support!';
+
+  @override
+  String get accountProUnlock => 'Unlock exclusive themes and more';
+
+  @override
+  String get emailLabel => 'Email';
+
+  @override
+  String get passwordLabel => 'Password';
+
+  @override
+  String get signInButton => 'Sign In';
+
+  @override
+  String get signUpButton => 'Sign Up';
+
+  @override
+  String get noAccountPrompt => 'Don\'t have an account?';
+
+  @override
+  String get alreadyHaveAccountPrompt => 'Already have an account?';
+
+  @override
+  String get invalidEmailError => 'Please enter a valid email address';
+
+  @override
+  String get shortPasswordError => 'Password must be at least 6 characters';
+
+  @override
+  String get passwordsDoNotMatchError => 'Passwords do not match';
+
+  @override
+  String get confirmPasswordLabel => 'Confirm Password';
+
+  @override
+  String get fogDiscovery => 'Fog Discovery';
+
+  @override
+  String get clearedArea => 'Cleared Area';
+
+  @override
+  String get worldCoverage => 'World Coverage';
 }

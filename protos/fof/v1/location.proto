@@ -28,6 +28,8 @@ message GetClearedAreaRequest {
 
 message GetClearedAreaResponse {
   string cleared_area_geojson = 1;
+  double cleared_area_meters = 2;
+  double world_coverage_percentage = 3;
 }
 
 message UpdateLocationRequest {
@@ -37,5 +39,5 @@ message UpdateLocationRequest {
 
 message UpdateLocationResponse {
   bool newly_cleared = 1; // True if new area was unlocked
-  string cleared_area_geojson = 2; 
+  string cleared_area_geojson = 2;
 }

@@ -1843,6 +1843,192 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Visit a shop on Friday night (after 6 PM).'**
   String get achDescFridayNight;
+
+  /// No description provided for @paywallTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'FOG OF FLAVOR PRO'**
+  String get paywallTitle;
+
+  /// No description provided for @paywallHeroTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Trial Period Ended'**
+  String get paywallHeroTitle;
+
+  /// No description provided for @paywallHeroSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your 1-month trial has expired. Upgrade to Fog of Flavor Pro to continue recording your gastronomic journey.'**
+  String get paywallHeroSubtitle;
+
+  /// No description provided for @paywallPlanBestValue.
+  ///
+  /// In en, this message translates to:
+  /// **'BEST VALUE'**
+  String get paywallPlanBestValue;
+
+  /// No description provided for @paywallPlanPromoted.
+  ///
+  /// In en, this message translates to:
+  /// **'PROMOTED'**
+  String get paywallPlanPromoted;
+
+  /// No description provided for @paywallPlanAnnualDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Most popular choice'**
+  String get paywallPlanAnnualDesc;
+
+  /// No description provided for @paywallPlanLifetimeDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Own it forever'**
+  String get paywallPlanLifetimeDesc;
+
+  /// No description provided for @paywallContinueButton.
+  ///
+  /// In en, this message translates to:
+  /// **'CONTINUE'**
+  String get paywallContinueButton;
+
+  /// No description provided for @paywallRestoreButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore Purchases'**
+  String get paywallRestoreButton;
+
+  /// No description provided for @paywallSignOutButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign Out / Switch Account'**
+  String get paywallSignOutButton;
+
+  /// No description provided for @paywallPlanMonthly.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly'**
+  String get paywallPlanMonthly;
+
+  /// No description provided for @paywallPlanAnnual.
+  ///
+  /// In en, this message translates to:
+  /// **'Yearly'**
+  String get paywallPlanAnnual;
+
+  /// No description provided for @paywallPlanLifetime.
+  ///
+  /// In en, this message translates to:
+  /// **'Lifetime'**
+  String get paywallPlanLifetime;
+
+  /// No description provided for @paywallPlanDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Pro Plan'**
+  String get paywallPlanDefault;
+
+  /// No description provided for @accountProMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Pro Member'**
+  String get accountProMember;
+
+  /// No description provided for @accountProUpgrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Upgrade to Pro'**
+  String get accountProUpgrade;
+
+  /// No description provided for @accountProActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Thank you for your support!'**
+  String get accountProActive;
+
+  /// No description provided for @accountProUnlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock exclusive themes and more'**
+  String get accountProUnlock;
+
+  /// No description provided for @emailLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get emailLabel;
+
+  /// No description provided for @passwordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get passwordLabel;
+
+  /// No description provided for @signInButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign In'**
+  String get signInButton;
+
+  /// No description provided for @signUpButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign Up'**
+  String get signUpButton;
+
+  /// No description provided for @noAccountPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t have an account?'**
+  String get noAccountPrompt;
+
+  /// No description provided for @alreadyHaveAccountPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Already have an account?'**
+  String get alreadyHaveAccountPrompt;
+
+  /// No description provided for @invalidEmailError.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid email address'**
+  String get invalidEmailError;
+
+  /// No description provided for @shortPasswordError.
+  ///
+  /// In en, this message translates to:
+  /// **'Password must be at least 6 characters'**
+  String get shortPasswordError;
+
+  /// No description provided for @passwordsDoNotMatchError.
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords do not match'**
+  String get passwordsDoNotMatchError;
+
+  /// No description provided for @confirmPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Password'**
+  String get confirmPasswordLabel;
+
+  /// No description provided for @fogDiscovery.
+  ///
+  /// In en, this message translates to:
+  /// **'Fog Discovery'**
+  String get fogDiscovery;
+
+  /// No description provided for @clearedArea.
+  ///
+  /// In en, this message translates to:
+  /// **'Cleared Area'**
+  String get clearedArea;
+
+  /// No description provided for @worldCoverage.
+  ///
+  /// In en, this message translates to:
+  /// **'World Coverage'**
+  String get worldCoverage;
 }
 
 class _AppLocalizationsDelegate

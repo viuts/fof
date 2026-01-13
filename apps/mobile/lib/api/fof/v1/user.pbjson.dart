@@ -72,6 +72,7 @@ const User$json = {
     {'1': 'exp', '3': 5, '4': 1, '5': 5, '10': 'exp'},
     {'1': 'display_name', '3': 6, '4': 1, '5': 9, '10': 'displayName'},
     {'1': 'profile_image', '3': 7, '4': 1, '5': 9, '10': 'profileImage'},
+    {'1': 'created_at', '3': 8, '4': 1, '5': 9, '10': 'createdAt'},
   ],
 };
 
@@ -80,5 +81,5 @@ final $typed_data.Uint8List userDescriptor = $convert.base64Decode(
     'CgRVc2VyEg4KAmlkGAEgASgJUgJpZBIaCgh1c2VybmFtZRgCIAEoCVIIdXNlcm5hbWUSFAoFZW'
     '1haWwYAyABKAlSBWVtYWlsEhQKBWxldmVsGAQgASgFUgVsZXZlbBIQCgNleHAYBSABKAVSA2V4'
     'cBIhCgxkaXNwbGF5X25hbWUYBiABKAlSC2Rpc3BsYXlOYW1lEiMKDXByb2ZpbGVfaW1hZ2UYBy'
-    'ABKAlSDHByb2ZpbGVJbWFnZQ==');
+    'ABKAlSDHByb2ZpbGVJbWFnZRIdCgpjcmVhdGVkX2F0GAggASgJUgljcmVhdGVkQXQ=');
 

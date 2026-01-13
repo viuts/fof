@@ -44,12 +44,14 @@ func (h *LocationHandler) GetClearedArea(ctx context.Context, req *fofv1.GetClea
 		return nil, status.Error(codes.Unauthenticated, "user not authenticated")
 	}
 
-	geoJSON, err := h.locationUC.GetClearedArea(ctx, userID)
+	geoJSON, area, worldCoverage, err := h.locationUC.GetClearedArea(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
 
 	return &fofv1.GetClearedAreaResponse{
-		ClearedAreaGeojson: geoJSON,
+		ClearedAreaGeojson:     geoJSON,
+		ClearedAreaMeters:      area,
+		WorldCoveragePercentage: worldCoverage,
 	}, nil
 }

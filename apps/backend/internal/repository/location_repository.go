@@ -34,7 +34,7 @@ func distance(lat1, lon1, lat2, lon2 float64) float64 {
 
 type LocationRepository interface {
 	UpdateLocation(ctx context.Context, userID uuid.UUID, path []*fofv1.LatLng) (newlyCleared bool, geoJSON string, err error)
-	GetClearedArea(ctx context.Context, userID uuid.UUID) (string, error)
+	GetClearedArea(ctx context.Context, userID uuid.UUID) (string, float64, float64, error)
 	ClearAreaAroundPoint(ctx context.Context, tx *gorm.DB, userID uuid.UUID, lat, lng, radius float64) (string, error)
 }
 
@@ -48,8 +48,8 @@ func NewLocationRepository(db *gorm.DB) LocationRepository {
 
 func (r *locationRepository) UpdateLocation(ctx context.Context, userID uuid.UUID, path []*fofv1.LatLng) (bool, string, error) {
 	if len(path) == 0 {
-		area, _ := r.GetClearedArea(ctx, userID)
-		return false, area, nil
+		areaStr, _, _, _ := r.GetClearedArea(ctx, userID)
+		return false, areaStr, nil
 	}
 
 	var geoms []string
@@ -114,13 +114,20 @@ func (r *locationRepository) UpdateLocation(ctx context.Context, userID uuid.UUI
 	return true, geoJSON, nil
 }
 
-func (r *locationRepository) GetClearedArea(ctx context.Context, userID uuid.UUID) (string, error) {
-	var geoJSON string
-	err := r.db.WithContext(ctx).Raw("SELECT ST_AsGeoJSON(cleared_area) FROM user_fogs WHERE user_id = ?", userID).Scan(&geoJSON).Error
-	if err == gorm.ErrRecordNotFound || geoJSON == "" {
-		return `{"type":"MultiPolygon","coordinates":[]}`, nil
+func (r *locationRepository) GetClearedArea(ctx context.Context, userID uuid.UUID) (string, float64, float64, error) {
+	var result struct {
+		GeoJSON string
+		Area    float64
 	}
-	return geoJSON, err
+	err := r.db.WithContext(ctx).Raw("SELECT ST_AsGeoJSON(cleared_area) as geo_json, ST_Area(cleared_area::geography) as area FROM user_fogs WHERE user_id = ?", userID).Scan(&result).Error
+	if err == gorm.ErrRecordNotFound || result.GeoJSON == "" {
+		return `{"type":"MultiPolygon","coordinates":[]}`, 0, 0, nil
+	}
+
+	// Earth land area is approx 148,940,000 km^2 = 148,940,000,000,000 m^2
+	worldCoverage := (result.Area / 148940000000000.0) * 100
+
+	return result.GeoJSON, result.Area, worldCoverage, err
 }
 
 func (r *locationRepository) ClearAreaAroundPoint(ctx context.Context, tx *gorm.DB, userID uuid.UUID, lat, lng, radius float64) (string, error) {

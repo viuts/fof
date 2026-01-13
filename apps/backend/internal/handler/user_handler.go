@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/viuts/fof/apps/backend/internal/middleware"
@@ -45,6 +46,7 @@ func (h *UserHandler) GetProfile(ctx context.Context, req *fofv1.GetProfileReque
 			Exp:          int32(user.Exp),
 			DisplayName:  user.DisplayName,
 			ProfileImage: user.ProfileImage,
+			CreatedAt:    user.CreatedAt.Format(time.RFC3339),
 		},
 	}, nil
 }
@@ -85,6 +87,7 @@ func (h *UserHandler) UpdateProfile(ctx context.Context, req *fofv1.UpdateProfil
 			Exp:          int32(user.Exp),
 			DisplayName:  user.DisplayName,
 			ProfileImage: user.ProfileImage,
+			CreatedAt:    user.CreatedAt.Format(time.RFC3339),
 		},
 	}, nil
 }

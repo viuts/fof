@@ -906,8 +906,102 @@ class AppLocalizationsJa extends AppLocalizations {
   String get achDescWeekdayWorker => '平日に10軒のお店を訪問する。';
 
   @override
-  String get achNameFridayNight => '花金';
+  String get achNameFridayNight => 'TGIF';
 
   @override
-  String get achDescFridayNight => '金曜日の夜（18時以降）にお店を訪問する。';
+  String get achDescFridayNight => '金曜日の夜（18時以降）に店を訪問する';
+
+  @override
+  String get paywallTitle => 'FOG OF FLAVOR PRO';
+
+  @override
+  String get paywallHeroTitle => '試用期間が終了しました';
+
+  @override
+  String get paywallHeroSubtitle =>
+      '1ヶ月の無料トライアル期間が終了しました。引き続き美食の旅を記録するには、Fog of Flavor Proへのアップグレードが必要です。';
+
+  @override
+  String get paywallPlanBestValue => '一番人気';
+
+  @override
+  String get paywallPlanPromoted => 'おすすめ';
+
+  @override
+  String get paywallPlanAnnualDesc => '多くの探索者が選んでいます';
+
+  @override
+  String get paywallPlanLifetimeDesc => '一度の支払いで永久に利用可能';
+
+  @override
+  String get paywallContinueButton => '次へ進む';
+
+  @override
+  String get paywallRestoreButton => '購入情報を復元';
+
+  @override
+  String get paywallSignOutButton => 'ログアウト / アカウント切り替え';
+
+  @override
+  String get paywallPlanMonthly => '月間プラン';
+
+  @override
+  String get paywallPlanAnnual => '年間プラン';
+
+  @override
+  String get paywallPlanLifetime => '買い切りプラン';
+
+  @override
+  String get paywallPlanDefault => 'Proプラン';
+
+  @override
+  String get accountProMember => 'Proメンバー';
+
+  @override
+  String get accountProUpgrade => 'Proにアップグレード';
+
+  @override
+  String get accountProActive => 'サポートありがとうございます！';
+
+  @override
+  String get accountProUnlock => '限定マップテーマなどの特典を解放';
+
+  @override
+  String get emailLabel => 'メールアドレス';
+
+  @override
+  String get passwordLabel => 'パスワード';
+
+  @override
+  String get signInButton => 'ログイン';
+
+  @override
+  String get signUpButton => '新規登録';
+
+  @override
+  String get noAccountPrompt => 'アカウントをお持ちでないですか？';
+
+  @override
+  String get alreadyHaveAccountPrompt => '既にアカウントをお持ちですか？';
+
+  @override
+  String get invalidEmailError => '有効なメールアドレスを入力してください';
+
+  @override
+  String get shortPasswordError => 'パスワードは6文字以上で入力してください';
+
+  @override
+  String get passwordsDoNotMatchError => 'パスワードが一致しません';
+
+  @override
+  String get confirmPasswordLabel => 'パスワード（確認）';
+
+  @override
+  String get fogDiscovery => '霧の踏破状況';
+
+  @override
+  String get clearedArea => '解除済み面積';
+
+  @override
+  String get worldCoverage => '世界踏破率';
 }

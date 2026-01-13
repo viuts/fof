@@ -146,6 +146,9 @@ class S {
   String get soundEffects => _l10n.soundEffects;
   String get logout => _l10n.logout;
   String get logoutConfirm => _l10n.logoutConfirm;
+  String get fogDiscovery => _l10n.fogDiscovery;
+  String get clearedArea => _l10n.clearedArea;
+  String get worldCoverage => _l10n.worldCoverage;
 
   // Quest Screen
   String get questTitle => _l10n.questTitle;
@@ -259,4 +262,38 @@ class S {
   String get reservable => _l10n.reservable;
   String get notReservable => _l10n.notReservable;
   String get website => _l10n.website;
+
+  // Paywall
+  String get paywallTitle => _l10n.paywallTitle;
+  String get paywallHeroTitle => _l10n.paywallHeroTitle;
+  String get paywallHeroSubtitle => _l10n.paywallHeroSubtitle;
+  String get paywallPlanBestValue => _l10n.paywallPlanBestValue;
+  String get paywallPlanPromoted => _l10n.paywallPlanPromoted;
+  String get paywallPlanAnnualDesc => _l10n.paywallPlanAnnualDesc;
+  String get paywallPlanLifetimeDesc => _l10n.paywallPlanLifetimeDesc;
+  String get paywallContinueButton => _l10n.paywallContinueButton;
+  String get paywallRestoreButton => _l10n.paywallRestoreButton;
+  String get paywallSignOutButton => _l10n.paywallSignOutButton;
+  String get paywallPlanMonthly => _l10n.paywallPlanMonthly;
+  String get paywallPlanAnnual => _l10n.paywallPlanAnnual;
+  String get paywallPlanLifetime => _l10n.paywallPlanLifetime;
+  String get paywallPlanDefault => _l10n.paywallPlanDefault;
+
+  // Account Pro
+  String get accountProMember => _l10n.accountProMember;
+  String get accountProUpgrade => _l10n.accountProUpgrade;
+  String get accountProActive => _l10n.accountProActive;
+  String get accountProUnlock => _l10n.accountProUnlock;
+
+  // Email Auth
+  String get emailLabel => _l10n.emailLabel;
+  String get passwordLabel => _l10n.passwordLabel;
+  String get signInButton => _l10n.signInButton;
+  String get signUpButton => _l10n.signUpButton;
+  String get noAccountPrompt => _l10n.noAccountPrompt;
+  String get alreadyHaveAccountPrompt => _l10n.alreadyHaveAccountPrompt;
+  String get invalidEmailError => _l10n.invalidEmailError;
+  String get shortPasswordError => _l10n.shortPasswordError;
+  String get passwordsDoNotMatchError => _l10n.passwordsDoNotMatchError;
+  String get confirmPasswordLabel => _l10n.confirmPasswordLabel;
 }

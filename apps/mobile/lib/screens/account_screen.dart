@@ -10,6 +10,8 @@ import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:google_sign_in/google_sign_in.dart';
 import '../services/user_service.dart';
+import '../services/purchase_service.dart';
+import 'paywall_screen.dart';
 
 class AccountScreen extends StatefulWidget {
   const AccountScreen({super.key});
@@ -138,8 +140,13 @@ class _AccountScreenState extends State<AccountScreen> {
     );
 
     if (confirmed == true) {
+      if (!mounted) return;
       setState(() => _isLoading = true);
       try {
+        // Reset local services state
+        Provider.of<UserService>(context, listen: false).reset();
+        await Provider.of<PurchaseService>(context, listen: false).reset();
+
         await GoogleSignIn.instance.initialize();
         await GoogleSignIn.instance.signOut();
         await auth.FirebaseAuth.instance.signOut();
@@ -242,8 +249,59 @@ class _AccountScreenState extends State<AccountScreen> {
                   ),
                 ),
                 const SizedBox(height: AppTheme.spacingXl),
-
-                const SizedBox(height: AppTheme.spacingLg),
+                _buildSectionHeader(s.fogDiscovery),
+                const SizedBox(height: AppTheme.spacingSm),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppTheme.spacingMd),
+                    child: Column(
+                      children: [
+                        _buildStatRow(
+                          s.clearedArea,
+                          _formatArea(userService.clearedAreaMeters),
+                        ),
+                        const Divider(height: AppTheme.spacingLg),
+                        _buildStatRow(
+                          s.worldCoverage,
+                          _formatPercentage(
+                            userService.worldCoveragePercentage,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: AppTheme.spacingXl),
+                _buildSectionHeader('Fog of Flavor Pro'),
+                const SizedBox(height: AppTheme.spacingSm),
+                Card(
+                  child: Consumer<PurchaseService>(
+                    builder: (context, purchaseService, child) {
+                      final isPro = purchaseService.isPro;
+                      return ListTile(
+                        leading: Icon(
+                          Icons.workspace_premium,
+                          color: isPro ? Colors.orange : Colors.grey,
+                        ),
+                        title: Text(
+                          isPro ? s.accountProMember : s.accountProUpgrade,
+                        ),
+                        subtitle: Text(
+                          isPro ? s.accountProActive : s.accountProUnlock,
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () {
+                          if (isPro) {
+                            purchaseService.showCustomerCenter();
+                          } else {
+                            PaywallScreen.show(context);
+                          }
+                        },
+                      );
+                    },
+                  ),
+                ),
                 _buildSectionHeader(s.preferences),
                 const SizedBox(height: AppTheme.spacingSm),
                 Card(
@@ -308,6 +366,49 @@ class _AccountScreenState extends State<AccountScreen> {
           letterSpacing: 1.2,
         ),
       ),
+    );
+  }
+
+  String _formatArea(double meters) {
+    if (meters < 1000000) {
+      return '${meters.toStringAsFixed(0)} m²';
+    }
+    double km2 = meters / 1000000;
+    return '${km2.toStringAsFixed(2)} km²';
+  }
+
+  String _formatPercentage(double value) {
+    if (value == 0) return '0%';
+    if (value >= 0.01) return '${value.toStringAsFixed(2)}%';
+    // For very small values, show more precision but avoid scientific notation
+    String formatted = value.toStringAsFixed(10);
+    // Remove trailing zeros and possible trailing dot
+    formatted = formatted.replaceAll(RegExp(r'0+$'), '');
+    if (formatted.endsWith('.')) {
+      formatted = formatted.substring(0, formatted.length - 1);
+    }
+    return '$formatted%';
+  }
+
+  Widget _buildStatRow(String label, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            color: AppTheme.textSecondary,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        Text(
+          value,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            color: AppTheme.primaryColor,
+          ),
+        ),
+      ],
     );
   }
 

@@ -50,10 +50,18 @@ class GetClearedAreaRequest extends $pb.GeneratedMessage {
 class GetClearedAreaResponse extends $pb.GeneratedMessage {
   factory GetClearedAreaResponse({
     $core.String? clearedAreaGeojson,
+    $core.double? clearedAreaMeters,
+    $core.double? worldCoveragePercentage,
   }) {
     final $result = create();
     if (clearedAreaGeojson != null) {
       $result.clearedAreaGeojson = clearedAreaGeojson;
+    }
+    if (clearedAreaMeters != null) {
+      $result.clearedAreaMeters = clearedAreaMeters;
+    }
+    if (worldCoveragePercentage != null) {
+      $result.worldCoveragePercentage = worldCoveragePercentage;
     }
     return $result;
   }
@@ -63,6 +71,8 @@ class GetClearedAreaResponse extends $pb.GeneratedMessage {
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'GetClearedAreaResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'fof.v1'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'clearedAreaGeojson')
+    ..a<$core.double>(2, _omitFieldNames ? '' : 'clearedAreaMeters', $pb.PbFieldType.OD)
+    ..a<$core.double>(3, _omitFieldNames ? '' : 'worldCoveragePercentage', $pb.PbFieldType.OD)
     ..hasRequiredFields = false
   ;
 
@@ -95,6 +105,24 @@ class GetClearedAreaResponse extends $pb.GeneratedMessage {
   $core.bool hasClearedAreaGeojson() => $_has(0);
   @$pb.TagNumber(1)
   void clearClearedAreaGeojson() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.double get clearedAreaMeters => $_getN(1);
+  @$pb.TagNumber(2)
+  set clearedAreaMeters($core.double v) { $_setDouble(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasClearedAreaMeters() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearClearedAreaMeters() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.double get worldCoveragePercentage => $_getN(2);
+  @$pb.TagNumber(3)
+  set worldCoveragePercentage($core.double v) { $_setDouble(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasWorldCoveragePercentage() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearWorldCoveragePercentage() => clearField(3);
 }
 
 class UpdateLocationRequest extends $pb.GeneratedMessage {

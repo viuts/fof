@@ -7,6 +7,10 @@ import 'map_screen.dart';
 import '../theme/app_theme.dart';
 import '../services/language_service.dart';
 import '../api/fof/v1/shop.pb.dart';
+import 'package:provider/provider.dart';
+import '../services/user_service.dart';
+import '../services/purchase_service.dart';
+import 'paywall_screen.dart';
 
 class MainContainer extends StatefulWidget {
   const MainContainer({super.key});
@@ -21,6 +25,26 @@ class _MainContainerState extends State<MainContainer> {
 
   // These will be used to pass data or trigger resets
   final GlobalKey<MapScreenState> _mapKey = GlobalKey<MapScreenState>();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkSubscription();
+    });
+  }
+
+  void _checkSubscription() {
+    final userService = Provider.of<UserService>(context, listen: false);
+    final purchaseService = Provider.of<PurchaseService>(
+      context,
+      listen: false,
+    );
+
+    if (userService.isTrialExpired && !purchaseService.isPro) {
+      PaywallScreen.show(context, isGate: true);
+    }
+  }
 
   void startQuest(Shop shop) {
     setState(() {

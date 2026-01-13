@@ -10,7 +10,7 @@ import (
 
 type LocationUsecase interface {
 	UpdateLocation(ctx context.Context, userID string, path []*fofv1.LatLng) (bool, string, error)
-	GetClearedArea(ctx context.Context, userID string) (string, error)
+	GetClearedArea(ctx context.Context, userID string) (string, float64, float64, error)
 }
 
 type locationUsecase struct {
@@ -29,10 +29,10 @@ func (u *locationUsecase) UpdateLocation(ctx context.Context, userID string, pat
 	return u.locationRepo.UpdateLocation(ctx, uid, path)
 }
 
-func (u *locationUsecase) GetClearedArea(ctx context.Context, userID string) (string, error) {
+func (u *locationUsecase) GetClearedArea(ctx context.Context, userID string) (string, float64, float64, error) {
 	uid, err := uuid.Parse(userID)
 	if err != nil {
-		return "", err
+		return "", 0, 0, err
 	}
 	return u.locationRepo.GetClearedArea(ctx, uid)
 }

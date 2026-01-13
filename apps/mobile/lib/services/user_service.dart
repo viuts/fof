@@ -4,6 +4,7 @@ import '../api/fof/v1/user.pb.dart';
 import '../api/fof/v1/visit.pb.dart';
 import '../api/fof/v1/shop.pb.dart';
 import '../api/fof/v1/achievement.pb.dart';
+import '../api/fof/v1/location.pb.dart';
 
 class UserService extends ChangeNotifier {
   final ApiService _apiService = ApiService();
@@ -11,6 +12,8 @@ class UserService extends ChangeNotifier {
   User? _profile;
   List<VisitedShop> _visitedShops = [];
   List<UserAchievementStatus> _achievements = [];
+  double _clearedAreaMeters = 0;
+  double _worldCoveragePercentage = 0;
   bool _isLoading = false;
   bool _isInitialized = false;
   Future<void>? _initializationFuture;
@@ -24,6 +27,21 @@ class UserService extends ChangeNotifier {
 
   int get currentLevel => _profile?.level ?? 1;
   int get currentExp => _profile?.exp ?? 0;
+
+  double get clearedAreaMeters => _clearedAreaMeters;
+  double get clearedAreaKm2 => _clearedAreaMeters / 1000000;
+  double get worldCoveragePercentage => _worldCoveragePercentage;
+
+  bool get isTrialExpired {
+    if (_profile == null || _profile!.createdAt.isEmpty) return false;
+    try {
+      final createdAt = DateTime.parse(_profile!.createdAt);
+      final now = DateTime.now();
+      return now.difference(createdAt).inDays > 30;
+    } catch (e) {
+      return false;
+    }
+  }
 
   Future<void> loadInitialData({bool force = false}) async {
     if (_isInitialized && !force) return;
@@ -47,12 +65,16 @@ class UserService extends ChangeNotifier {
         _apiService.getProfile(),
         _apiService.getVisitedShops(),
         _apiService.getAchievements(),
+        _apiService.getClearedArea(),
       ];
 
       final results = await Future.wait(futures);
       _profile = (results[0] as GetProfileResponse).user;
       _visitedShops = (results[1] as GetVisitedShopsResponse).visitedShops;
       _achievements = (results[2] as GetAchievementsResponse).achievements;
+      final areaResponse = results[3] as GetClearedAreaResponse;
+      _clearedAreaMeters = areaResponse.clearedAreaMeters;
+      _worldCoveragePercentage = areaResponse.worldCoveragePercentage;
       _isInitialized = true;
     } catch (e) {
       debugPrint('Error loading user data: $e');
@@ -92,6 +114,17 @@ class UserService extends ChangeNotifier {
     }
   }
 
+  Future<void> refreshClearedArea() async {
+    try {
+      final response = await _apiService.getClearedArea();
+      _clearedAreaMeters = response.clearedAreaMeters;
+      _worldCoveragePercentage = response.worldCoveragePercentage;
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Error refreshing cleared area: $e');
+    }
+  }
+
   void updateProfileData(User user) {
     _profile = user;
     notifyListeners();
@@ -106,6 +139,17 @@ class UserService extends ChangeNotifier {
     }
     refreshVisitedShops();
     refreshAchievements();
+    refreshClearedArea();
+  }
+
+  void reset() {
+    _profile = null;
+    _visitedShops = [];
+    _achievements = [];
+    _clearedAreaMeters = 0;
+    _isInitialized = false;
+    _initializationFuture = null;
+    notifyListeners();
   }
 }
 
