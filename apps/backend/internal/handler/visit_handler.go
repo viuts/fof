@@ -70,7 +70,7 @@ func (h *VisitHandler) CreateVisit(ctx context.Context, req *fofv1.CreateVisitRe
 		return nil, status.Error(codes.Unauthenticated, "user not authenticated")
 	}
 
-	geoJSON, level, currentExp, expGained, unlocked, err := h.visitUC.CreateVisit(ctx, userID, req.ShopId, int(req.Rating), req.Comment)
+	level, currentExp, expGained, unlocked, err := h.visitUC.CreateVisit(ctx, userID, req.ShopId, int(req.Rating), req.Comment)
 	if err != nil {
 		return nil, err
 	}
@@ -89,7 +89,6 @@ func (h *VisitHandler) CreateVisit(ctx context.Context, req *fofv1.CreateVisitRe
 
 	return &fofv1.CreateVisitResponse{
 		Success:              true,
-		ClearedAreaGeojson:   geoJSON,
 		ExpGained:            int32(expGained),
 		CurrentExp:           int32(currentExp),
 		CurrentLevel:         int32(level),

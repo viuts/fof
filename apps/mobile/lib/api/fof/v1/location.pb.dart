@@ -15,13 +15,133 @@ import 'package:protobuf/protobuf.dart' as $pb;
 
 import 'common.pb.dart' as $5;
 
+class GetFogStatsRequest extends $pb.GeneratedMessage {
+  factory GetFogStatsRequest() => create();
+  GetFogStatsRequest._() : super();
+  factory GetFogStatsRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory GetFogStatsRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'GetFogStatsRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'fof.v1'), createEmptyInstance: create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  GetFogStatsRequest clone() => GetFogStatsRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  GetFogStatsRequest copyWith(void Function(GetFogStatsRequest) updates) => super.copyWith((message) => updates(message as GetFogStatsRequest)) as GetFogStatsRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static GetFogStatsRequest create() => GetFogStatsRequest._();
+  GetFogStatsRequest createEmptyInstance() => create();
+  static $pb.PbList<GetFogStatsRequest> createRepeated() => $pb.PbList<GetFogStatsRequest>();
+  @$core.pragma('dart2js:noInline')
+  static GetFogStatsRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<GetFogStatsRequest>(create);
+  static GetFogStatsRequest? _defaultInstance;
+}
+
+class GetFogStatsResponse extends $pb.GeneratedMessage {
+  factory GetFogStatsResponse({
+    $core.double? clearedAreaMeters,
+    $core.double? worldCoveragePercentage,
+  }) {
+    final $result = create();
+    if (clearedAreaMeters != null) {
+      $result.clearedAreaMeters = clearedAreaMeters;
+    }
+    if (worldCoveragePercentage != null) {
+      $result.worldCoveragePercentage = worldCoveragePercentage;
+    }
+    return $result;
+  }
+  GetFogStatsResponse._() : super();
+  factory GetFogStatsResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory GetFogStatsResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'GetFogStatsResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'fof.v1'), createEmptyInstance: create)
+    ..a<$core.double>(1, _omitFieldNames ? '' : 'clearedAreaMeters', $pb.PbFieldType.OD)
+    ..a<$core.double>(2, _omitFieldNames ? '' : 'worldCoveragePercentage', $pb.PbFieldType.OD)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  GetFogStatsResponse clone() => GetFogStatsResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  GetFogStatsResponse copyWith(void Function(GetFogStatsResponse) updates) => super.copyWith((message) => updates(message as GetFogStatsResponse)) as GetFogStatsResponse;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static GetFogStatsResponse create() => GetFogStatsResponse._();
+  GetFogStatsResponse createEmptyInstance() => create();
+  static $pb.PbList<GetFogStatsResponse> createRepeated() => $pb.PbList<GetFogStatsResponse>();
+  @$core.pragma('dart2js:noInline')
+  static GetFogStatsResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<GetFogStatsResponse>(create);
+  static GetFogStatsResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.double get clearedAreaMeters => $_getN(0);
+  @$pb.TagNumber(1)
+  set clearedAreaMeters($core.double v) { $_setDouble(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasClearedAreaMeters() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearClearedAreaMeters() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.double get worldCoveragePercentage => $_getN(1);
+  @$pb.TagNumber(2)
+  set worldCoveragePercentage($core.double v) { $_setDouble(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasWorldCoveragePercentage() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearWorldCoveragePercentage() => clearField(2);
+}
+
 class GetClearedAreaRequest extends $pb.GeneratedMessage {
-  factory GetClearedAreaRequest() => create();
+  factory GetClearedAreaRequest({
+    $core.double? minLat,
+    $core.double? minLng,
+    $core.double? maxLat,
+    $core.double? maxLng,
+  }) {
+    final $result = create();
+    if (minLat != null) {
+      $result.minLat = minLat;
+    }
+    if (minLng != null) {
+      $result.minLng = minLng;
+    }
+    if (maxLat != null) {
+      $result.maxLat = maxLat;
+    }
+    if (maxLng != null) {
+      $result.maxLng = maxLng;
+    }
+    return $result;
+  }
   GetClearedAreaRequest._() : super();
   factory GetClearedAreaRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
   factory GetClearedAreaRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'GetClearedAreaRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'fof.v1'), createEmptyInstance: create)
+    ..a<$core.double>(1, _omitFieldNames ? '' : 'minLat', $pb.PbFieldType.OD)
+    ..a<$core.double>(2, _omitFieldNames ? '' : 'minLng', $pb.PbFieldType.OD)
+    ..a<$core.double>(3, _omitFieldNames ? '' : 'maxLat', $pb.PbFieldType.OD)
+    ..a<$core.double>(4, _omitFieldNames ? '' : 'maxLng', $pb.PbFieldType.OD)
     ..hasRequiredFields = false
   ;
 
@@ -45,6 +165,42 @@ class GetClearedAreaRequest extends $pb.GeneratedMessage {
   @$core.pragma('dart2js:noInline')
   static GetClearedAreaRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<GetClearedAreaRequest>(create);
   static GetClearedAreaRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.double get minLat => $_getN(0);
+  @$pb.TagNumber(1)
+  set minLat($core.double v) { $_setDouble(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasMinLat() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearMinLat() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.double get minLng => $_getN(1);
+  @$pb.TagNumber(2)
+  set minLng($core.double v) { $_setDouble(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasMinLng() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearMinLng() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.double get maxLat => $_getN(2);
+  @$pb.TagNumber(3)
+  set maxLat($core.double v) { $_setDouble(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasMaxLat() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearMaxLat() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.double get maxLng => $_getN(3);
+  @$pb.TagNumber(4)
+  set maxLng($core.double v) { $_setDouble(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasMaxLng() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearMaxLng() => clearField(4);
 }
 
 class GetClearedAreaResponse extends $pb.GeneratedMessage {
@@ -184,26 +340,12 @@ class UpdateLocationRequest extends $pb.GeneratedMessage {
 }
 
 class UpdateLocationResponse extends $pb.GeneratedMessage {
-  factory UpdateLocationResponse({
-    $core.bool? newlyCleared,
-    $core.String? clearedAreaGeojson,
-  }) {
-    final $result = create();
-    if (newlyCleared != null) {
-      $result.newlyCleared = newlyCleared;
-    }
-    if (clearedAreaGeojson != null) {
-      $result.clearedAreaGeojson = clearedAreaGeojson;
-    }
-    return $result;
-  }
+  factory UpdateLocationResponse() => create();
   UpdateLocationResponse._() : super();
   factory UpdateLocationResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
   factory UpdateLocationResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'UpdateLocationResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'fof.v1'), createEmptyInstance: create)
-    ..aOB(1, _omitFieldNames ? '' : 'newlyCleared')
-    ..aOS(2, _omitFieldNames ? '' : 'clearedAreaGeojson')
     ..hasRequiredFields = false
   ;
 
@@ -227,24 +369,6 @@ class UpdateLocationResponse extends $pb.GeneratedMessage {
   @$core.pragma('dart2js:noInline')
   static UpdateLocationResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<UpdateLocationResponse>(create);
   static UpdateLocationResponse? _defaultInstance;
-
-  @$pb.TagNumber(1)
-  $core.bool get newlyCleared => $_getBF(0);
-  @$pb.TagNumber(1)
-  set newlyCleared($core.bool v) { $_setBool(0, v); }
-  @$pb.TagNumber(1)
-  $core.bool hasNewlyCleared() => $_has(0);
-  @$pb.TagNumber(1)
-  void clearNewlyCleared() => clearField(1);
-
-  @$pb.TagNumber(2)
-  $core.String get clearedAreaGeojson => $_getSZ(1);
-  @$pb.TagNumber(2)
-  set clearedAreaGeojson($core.String v) { $_setString(1, v); }
-  @$pb.TagNumber(2)
-  $core.bool hasClearedAreaGeojson() => $_has(1);
-  @$pb.TagNumber(2)
-  void clearClearedAreaGeojson() => clearField(2);
 }
 
 

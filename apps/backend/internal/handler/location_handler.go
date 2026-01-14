@@ -27,15 +27,12 @@ func (h *LocationHandler) UpdateLocation(ctx context.Context, req *fofv1.UpdateL
 		return nil, status.Error(codes.Unauthenticated, "user not authenticated")
 	}
 
-	newlyCleared, geoJSON, err := h.locationUC.UpdateLocation(ctx, userID, req.Path)
+	err := h.locationUC.UpdateLocation(ctx, userID, req.Path)
 	if err != nil {
 		return nil, err
 	}
 
-	return &fofv1.UpdateLocationResponse{
-		NewlyCleared:       newlyCleared,
-		ClearedAreaGeojson: geoJSON,
-	}, nil
+	return &fofv1.UpdateLocationResponse{}, nil
 }
 
 func (h *LocationHandler) GetClearedArea(ctx context.Context, req *fofv1.GetClearedAreaRequest) (*fofv1.GetClearedAreaResponse, error) {
@@ -44,14 +41,31 @@ func (h *LocationHandler) GetClearedArea(ctx context.Context, req *fofv1.GetClea
 		return nil, status.Error(codes.Unauthenticated, "user not authenticated")
 	}
 
-	geoJSON, area, worldCoverage, err := h.locationUC.GetClearedArea(ctx, userID)
+	geoJSON, area, worldCoverage, err := h.locationUC.GetClearedArea(ctx, userID, req.MinLat, req.MinLng, req.MaxLat, req.MaxLng)
 	if err != nil {
 		return nil, err
 	}
 
 	return &fofv1.GetClearedAreaResponse{
-		ClearedAreaGeojson:     geoJSON,
-		ClearedAreaMeters:      area,
+		ClearedAreaGeojson:      geoJSON,
+		ClearedAreaMeters:       area,
+		WorldCoveragePercentage: worldCoverage,
+	}, nil
+}
+
+func (h *LocationHandler) GetFogStats(ctx context.Context, req *fofv1.GetFogStatsRequest) (*fofv1.GetFogStatsResponse, error) {
+	userID, ok := ctx.Value(middleware.ContextKeyUserID).(string)
+	if !ok {
+		return nil, status.Error(codes.Unauthenticated, "user not authenticated")
+	}
+
+	_, area, worldCoverage, err := h.locationUC.GetClearedArea(ctx, userID, 0, 0, 0, 0)
+	if err != nil {
+		return nil, err
+	}
+
+	return &fofv1.GetFogStatsResponse{
+		ClearedAreaMeters:       area,
 		WorldCoveragePercentage: worldCoverage,
 	}, nil
 }

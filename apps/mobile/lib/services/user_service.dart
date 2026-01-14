@@ -65,16 +65,16 @@ class UserService extends ChangeNotifier {
         _apiService.getProfile(),
         _apiService.getVisitedShops(),
         _apiService.getAchievements(),
-        _apiService.getClearedArea(),
+        _apiService.getFogStats(),
       ];
 
       final results = await Future.wait(futures);
       _profile = (results[0] as GetProfileResponse).user;
       _visitedShops = (results[1] as GetVisitedShopsResponse).visitedShops;
       _achievements = (results[2] as GetAchievementsResponse).achievements;
-      final areaResponse = results[3] as GetClearedAreaResponse;
-      _clearedAreaMeters = areaResponse.clearedAreaMeters;
-      _worldCoveragePercentage = areaResponse.worldCoveragePercentage;
+      final statsResponse = results[3] as GetFogStatsResponse;
+      _clearedAreaMeters = statsResponse.clearedAreaMeters;
+      _worldCoveragePercentage = statsResponse.worldCoveragePercentage;
       _isInitialized = true;
     } catch (e) {
       debugPrint('Error loading user data: $e');
@@ -116,7 +116,7 @@ class UserService extends ChangeNotifier {
 
   Future<void> refreshClearedArea() async {
     try {
-      final response = await _apiService.getClearedArea();
+      final response = await _apiService.getFogStats();
       _clearedAreaMeters = response.clearedAreaMeters;
       _worldCoveragePercentage = response.worldCoveragePercentage;
       notifyListeners();

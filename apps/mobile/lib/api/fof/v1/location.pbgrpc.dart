@@ -29,6 +29,10 @@ class LocationServiceClient extends $grpc.Client {
       '/fof.v1.LocationService/GetClearedArea',
       ($1.GetClearedAreaRequest value) => value.writeToBuffer(),
       ($core.List<$core.int> value) => $1.GetClearedAreaResponse.fromBuffer(value));
+  static final _$getFogStats = $grpc.ClientMethod<$1.GetFogStatsRequest, $1.GetFogStatsResponse>(
+      '/fof.v1.LocationService/GetFogStats',
+      ($1.GetFogStatsRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $1.GetFogStatsResponse.fromBuffer(value));
 
   LocationServiceClient($grpc.ClientChannel channel,
       {$grpc.CallOptions? options,
@@ -42,6 +46,10 @@ class LocationServiceClient extends $grpc.Client {
 
   $grpc.ResponseFuture<$1.GetClearedAreaResponse> getClearedArea($1.GetClearedAreaRequest request, {$grpc.CallOptions? options}) {
     return $createUnaryCall(_$getClearedArea, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$1.GetFogStatsResponse> getFogStats($1.GetFogStatsRequest request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$getFogStats, request, options: options);
   }
 }
 
@@ -64,6 +72,13 @@ abstract class LocationServiceBase extends $grpc.Service {
         false,
         ($core.List<$core.int> value) => $1.GetClearedAreaRequest.fromBuffer(value),
         ($1.GetClearedAreaResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$1.GetFogStatsRequest, $1.GetFogStatsResponse>(
+        'GetFogStats',
+        getFogStats_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $1.GetFogStatsRequest.fromBuffer(value),
+        ($1.GetFogStatsResponse value) => value.writeToBuffer()));
   }
 
   $async.Future<$1.UpdateLocationResponse> updateLocation_Pre($grpc.ServiceCall call, $async.Future<$1.UpdateLocationRequest> request) async {
@@ -74,6 +89,11 @@ abstract class LocationServiceBase extends $grpc.Service {
     return getClearedArea(call, await request);
   }
 
+  $async.Future<$1.GetFogStatsResponse> getFogStats_Pre($grpc.ServiceCall call, $async.Future<$1.GetFogStatsRequest> request) async {
+    return getFogStats(call, await request);
+  }
+
   $async.Future<$1.UpdateLocationResponse> updateLocation($grpc.ServiceCall call, $1.UpdateLocationRequest request);
   $async.Future<$1.GetClearedAreaResponse> getClearedArea($grpc.ServiceCall call, $1.GetClearedAreaRequest request);
+  $async.Future<$1.GetFogStatsResponse> getFogStats($grpc.ServiceCall call, $1.GetFogStatsRequest request);
 }

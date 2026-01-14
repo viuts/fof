@@ -120,13 +120,11 @@ func SeedAchievements(db *gorm.DB) {
 		{ID: "friday_night", Name: "TGIF", Description: "Visit a shop on Friday night (after 6 PM).", Category: domain.AchievementCategoryQuest, Tier: domain.AchievementTierBronze, Type: domain.AchievementTypeCondition, TargetValue: 1, ConditionConfig: mustMarshal(domain.ConditionAchievementConfig{Days: []int{5}, HourStart: 18, HourEnd: 24}), ExpReward: 400},
 	}
 
-	for _, a := range achievements {
-		if err := db.Clauses(clause.OnConflict{
-			Columns:   []clause.Column{{Name: "id"}},
-			UpdateAll: true,
-		}).Create(&a).Error; err != nil {
-			log.Printf("Failed to seed achievement %s: %v", a.ID, err)
-		}
+	if err := db.Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "id"}},
+		UpdateAll: true,
+	}).Create(achievements).Error; err != nil {
+		log.Printf("Failed to seed achievements: %v", err)
 	}
 	log.Println("Seeded achievements successfully")
 }

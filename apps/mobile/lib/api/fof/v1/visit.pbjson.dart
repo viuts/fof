@@ -62,7 +62,6 @@ const CreateVisitResponse$json = {
   '1': 'CreateVisitResponse',
   '2': [
     {'1': 'success', '3': 1, '4': 1, '5': 8, '10': 'success'},
-    {'1': 'cleared_area_geojson', '3': 2, '4': 1, '5': 9, '10': 'clearedAreaGeojson'},
     {'1': 'exp_gained', '3': 3, '4': 1, '5': 5, '10': 'expGained'},
     {'1': 'current_exp', '3': 4, '4': 1, '5': 5, '10': 'currentExp'},
     {'1': 'current_level', '3': 5, '4': 1, '5': 5, '10': 'currentLevel'},
@@ -72,11 +71,10 @@ const CreateVisitResponse$json = {
 
 /// Descriptor for `CreateVisitResponse`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List createVisitResponseDescriptor = $convert.base64Decode(
-    'ChNDcmVhdGVWaXNpdFJlc3BvbnNlEhgKB3N1Y2Nlc3MYASABKAhSB3N1Y2Nlc3MSMAoUY2xlYX'
-    'JlZF9hcmVhX2dlb2pzb24YAiABKAlSEmNsZWFyZWRBcmVhR2VvanNvbhIdCgpleHBfZ2FpbmVk'
-    'GAMgASgFUglleHBHYWluZWQSHwoLY3VycmVudF9leHAYBCABKAVSCmN1cnJlbnRFeHASIwoNY3'
-    'VycmVudF9sZXZlbBgFIAEoBVIMY3VycmVudExldmVsEkgKFXVubG9ja2VkX2FjaGlldmVtZW50'
-    'cxgGIAMoCzITLmZvZi52MS5BY2hpZXZlbWVudFIUdW5sb2NrZWRBY2hpZXZlbWVudHM=');
+    'ChNDcmVhdGVWaXNpdFJlc3BvbnNlEhgKB3N1Y2Nlc3MYASABKAhSB3N1Y2Nlc3MSHQoKZXhwX2'
+    'dhaW5lZBgDIAEoBVIJZXhwR2FpbmVkEh8KC2N1cnJlbnRfZXhwGAQgASgFUgpjdXJyZW50RXhw'
+    'EiMKDWN1cnJlbnRfbGV2ZWwYBSABKAVSDGN1cnJlbnRMZXZlbBJIChV1bmxvY2tlZF9hY2hpZX'
+    'ZlbWVudHMYBiADKAsyEy5mb2YudjEuQWNoaWV2ZW1lbnRSFHVubG9ja2VkQWNoaWV2ZW1lbnRz');
 
 @$core.Deprecated('Use getVisitedShopsRequestDescriptor instead')
 const GetVisitedShopsRequest$json = {

@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion7
 const (
 	LocationService_UpdateLocation_FullMethodName = "/fof.v1.LocationService/UpdateLocation"
 	LocationService_GetClearedArea_FullMethodName = "/fof.v1.LocationService/GetClearedArea"
+	LocationService_GetFogStats_FullMethodName    = "/fof.v1.LocationService/GetFogStats"
 )
 
 // LocationServiceClient is the client API for LocationService service.
@@ -31,6 +32,8 @@ type LocationServiceClient interface {
 	UpdateLocation(ctx context.Context, in *UpdateLocationRequest, opts ...grpc.CallOption) (*UpdateLocationResponse, error)
 	// Get the cleared area as GeoJSON for the current user
 	GetClearedArea(ctx context.Context, in *GetClearedAreaRequest, opts ...grpc.CallOption) (*GetClearedAreaResponse, error)
+	// Get only fog statistics (area and percentage) without geometry
+	GetFogStats(ctx context.Context, in *GetFogStatsRequest, opts ...grpc.CallOption) (*GetFogStatsResponse, error)
 }
 
 type locationServiceClient struct {
@@ -59,6 +62,15 @@ func (c *locationServiceClient) GetClearedArea(ctx context.Context, in *GetClear
 	return out, nil
 }
 
+func (c *locationServiceClient) GetFogStats(ctx context.Context, in *GetFogStatsRequest, opts ...grpc.CallOption) (*GetFogStatsResponse, error) {
+	out := new(GetFogStatsResponse)
+	err := c.cc.Invoke(ctx, LocationService_GetFogStats_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // LocationServiceServer is the server API for LocationService service.
 // All implementations must embed UnimplementedLocationServiceServer
 // for forward compatibility
@@ -67,6 +79,8 @@ type LocationServiceServer interface {
 	UpdateLocation(context.Context, *UpdateLocationRequest) (*UpdateLocationResponse, error)
 	// Get the cleared area as GeoJSON for the current user
 	GetClearedArea(context.Context, *GetClearedAreaRequest) (*GetClearedAreaResponse, error)
+	// Get only fog statistics (area and percentage) without geometry
+	GetFogStats(context.Context, *GetFogStatsRequest) (*GetFogStatsResponse, error)
 	mustEmbedUnimplementedLocationServiceServer()
 }
 
@@ -79,6 +93,9 @@ func (UnimplementedLocationServiceServer) UpdateLocation(context.Context, *Updat
 }
 func (UnimplementedLocationServiceServer) GetClearedArea(context.Context, *GetClearedAreaRequest) (*GetClearedAreaResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetClearedArea not implemented")
+}
+func (UnimplementedLocationServiceServer) GetFogStats(context.Context, *GetFogStatsRequest) (*GetFogStatsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetFogStats not implemented")
 }
 func (UnimplementedLocationServiceServer) mustEmbedUnimplementedLocationServiceServer() {}
 
@@ -129,6 +146,24 @@ func _LocationService_GetClearedArea_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _LocationService_GetFogStats_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetFogStatsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(LocationServiceServer).GetFogStats(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: LocationService_GetFogStats_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(LocationServiceServer).GetFogStats(ctx, req.(*GetFogStatsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // LocationService_ServiceDesc is the grpc.ServiceDesc for LocationService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -143,6 +178,10 @@ var LocationService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetClearedArea",
 			Handler:    _LocationService_GetClearedArea_Handler,
+		},
+		{
+			MethodName: "GetFogStats",
+			Handler:    _LocationService_GetFogStats_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

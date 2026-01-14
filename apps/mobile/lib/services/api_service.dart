@@ -23,6 +23,8 @@ class ApiService {
     _baseUrl = EnvironmentConfig.apiUrl;
   }
 
+  Future<Map<String, String>> getHeaders() => _getHeaders();
+
   Future<Map<String, String>> _getHeaders() async {
     final headers = <String, String>{'Content-Type': 'application/json'};
     final user = FirebaseAuth.instance.currentUser;
@@ -88,17 +90,42 @@ class ApiService {
     }
   }
 
-  Future<GetClearedAreaResponse> getClearedArea() async {
-    final response = await http.get(
-      Uri.parse('$_baseUrl/v1/location/cleared'),
-      headers: await _getHeaders(),
-    );
+  Future<GetClearedAreaResponse> getClearedArea({
+    double? minLat,
+    double? minLng,
+    double? maxLat,
+    double? maxLng,
+  }) async {
+    final queryParams = <String, String>{};
+    if (minLat != null) queryParams['minLat'] = minLat.toString();
+    if (minLng != null) queryParams['minLng'] = minLng.toString();
+    if (maxLat != null) queryParams['maxLat'] = maxLat.toString();
+    if (maxLng != null) queryParams['maxLng'] = maxLng.toString();
+
+    final uri = Uri.parse(
+      '$_baseUrl/v1/location/cleared',
+    ).replace(queryParameters: queryParams);
+    final response = await http.get(uri, headers: await _getHeaders());
 
     if (response.statusCode == 200) {
       return GetClearedAreaResponse()
         ..mergeFromProto3Json(jsonDecode(response.body));
     } else {
       throw Exception('Failed to get cleared area: ${response.statusCode}');
+    }
+  }
+
+  Future<GetFogStatsResponse> getFogStats() async {
+    final response = await http.get(
+      Uri.parse('$_baseUrl/v1/location/stats'),
+      headers: await _getHeaders(),
+    );
+
+    if (response.statusCode == 200) {
+      return GetFogStatsResponse()
+        ..mergeFromProto3Json(jsonDecode(response.body));
+    } else {
+      throw Exception('Failed to get fog stats: ${response.statusCode}');
     }
   }
 

@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io' show Platform;
+import 'dart:math' as math;
 import 'package:flutter/foundation.dart' show debugPrint, kIsWeb;
 import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_compass/flutter_compass.dart';
+import 'package:sensors_plus/sensors_plus.dart';
 
 /// Service for location tracking with battery optimization and persistent local caching
 class LocationService {
@@ -13,8 +15,18 @@ class LocationService {
   LocationService._internal();
 
   StreamSubscription<Position>? _positionSubscription;
+  StreamSubscription<AccelerometerEvent>? _accelSubscription;
+  Timer? _saveTimer;
+  Timer? _stationaryTimer;
+
   final _positionController = StreamController<Position>.broadcast();
   Stream<Position> get positionStream => _positionController.stream;
+
+  // Battery Optimization State
+  bool _isHighAccuracy = true;
+  DateTime _lastMovedTime = DateTime.now();
+  static const int _stationaryThresholdSeconds = 60;
+  static const double _motionThreshold = 1.0; // Acceleration delta threshold
 
   // Compass Support
   Stream<double?> get headingStream =>
@@ -46,7 +58,7 @@ class LocationService {
 
     _currentPosition = newPosition;
     _currentPath.add(newPosition);
-    _savePath();
+    _scheduleSave();
 
     for (final listener in _updateListeners) {
       listener(lat, lng);
@@ -86,6 +98,9 @@ class LocationService {
 
   /// Save current path to storage
   Future<void> _savePath() async {
+    _saveTimer?.cancel();
+    _saveTimer = null;
+
     try {
       final prefs = await SharedPreferences.getInstance();
       final String encoded = jsonEncode(
@@ -110,6 +125,14 @@ class LocationService {
     }
   }
 
+  /// Schedule a save operation (Debounced to 30s)
+  void _scheduleSave() {
+    if (_saveTimer != null) return;
+    _saveTimer = Timer(const Duration(seconds: 30), () {
+      _savePath();
+    });
+  }
+
   /// Get current path (without clearing)
   Future<List<Position>> getPath() async {
     return List<Position>.from(_currentPath);
@@ -132,6 +155,14 @@ class LocationService {
   Future<void> startTracking({
     required Function(double lat, double lng) onLocationUpdate,
   }) async {
+    // If already tracking, don't restart unless specifically needed,
+    // but here we just add the listener.
+    if (_positionSubscription != null) {
+      _updateListeners.add(onLocationUpdate);
+      return;
+    }
+
+    _updateListeners.clear();
     _updateListeners.add(onLocationUpdate);
 
     await loadCachedPath(); // Ensure existing cache is loaded
@@ -162,41 +193,103 @@ class LocationService {
       throw Exception('Location permissions are permanently denied');
     }
 
-    // Define platform-specific settings
+    // Initialize Accelerometer for Battery Optimization
+    _startMotionMonitoring();
+
+    // Start with high accuracy initially
+    _startLocationStream(highAccuracy: true);
+  }
+
+  void _startMotionMonitoring() {
+    _lastMovedTime = DateTime.now();
+    _accelSubscription?.cancel();
+
+    if (kIsWeb) return; // No accelerometer on standard web usually
+
+    _accelSubscription = accelerometerEventStream().listen((
+      AccelerometerEvent event,
+    ) {
+      // Calculate magnitude of acceleration vector (including gravity)
+      // Gravity is ~9.8 m/s^2. We check for deviation.
+      final magnitude = math.sqrt(
+        event.x * event.x + event.y * event.y + event.z * event.z,
+      );
+      final delta = (magnitude - 9.8).abs();
+
+      if (delta > _motionThreshold) {
+        _onMotionDetected();
+      }
+    });
+
+    // Check for stationary state periodically
+    _stationaryTimer?.cancel();
+    _stationaryTimer = Timer.periodic(const Duration(seconds: 15), (timer) {
+      final secondsSinceMove = DateTime.now()
+          .difference(_lastMovedTime)
+          .inSeconds;
+      if (secondsSinceMove > _stationaryThresholdSeconds && _isHighAccuracy) {
+        debugPrint(
+          'Device stationary for ${secondsSinceMove}s. Switching to Low Power GPS.',
+        );
+        _startLocationStream(highAccuracy: false);
+      }
+    });
+  }
+
+  void _onMotionDetected() {
+    _lastMovedTime = DateTime.now();
+    if (!_isHighAccuracy) {
+      debugPrint('Motion detected. Switching to High Accuracy GPS.');
+      _startLocationStream(highAccuracy: true);
+    }
+  }
+
+  void _startLocationStream({required bool highAccuracy}) {
+    _isHighAccuracy = highAccuracy;
+    _positionSubscription?.cancel();
+
     late LocationSettings locationSettings;
 
     if (kIsWeb) {
-      // Web-specific settings
       locationSettings = const LocationSettings(
         accuracy: LocationAccuracy.high,
-        distanceFilter: 100, // relaxed filter for web
+        distanceFilter: 100,
       );
     } else if (Platform.isAndroid) {
-      // Android-specific settings
       locationSettings = AndroidSettings(
-        accuracy: LocationAccuracy.high,
-        distanceFilter: 10,
+        accuracy: highAccuracy
+            ? LocationAccuracy.high
+            : LocationAccuracy.medium,
+        distanceFilter: highAccuracy
+            ? 10
+            : 100, // Drastically increase filter when stationary
         forceLocationManager: true,
-        intervalDuration: const Duration(seconds: 10),
+        intervalDuration: Duration(
+          seconds: highAccuracy ? 10 : 60,
+        ), // Slower updates
       );
     } else if (Platform.isIOS || Platform.isMacOS) {
-      // iOS/macOS-specific settings
       locationSettings = AppleSettings(
-        accuracy: LocationAccuracy.high,
-        activityType: ActivityType.fitness,
-        distanceFilter: 10,
+        accuracy: highAccuracy
+            ? LocationAccuracy.high
+            : LocationAccuracy.medium,
+        activityType: highAccuracy
+            ? ActivityType.fitness
+            : ActivityType
+                  .automotiveNavigation, // fitness keeps it active, auto might be more lenient? actually fitness is good for walking.
+        distanceFilter: highAccuracy ? 10 : 100,
         pauseLocationUpdatesAutomatically: true,
         showBackgroundLocationIndicator: true,
       );
     } else {
-      // Fallback for other platforms
-      locationSettings = const LocationSettings(
-        accuracy: LocationAccuracy.high,
-        distanceFilter: 10,
+      locationSettings = LocationSettings(
+        accuracy: highAccuracy
+            ? LocationAccuracy.high
+            : LocationAccuracy.medium,
+        distanceFilter: highAccuracy ? 10 : 100,
       );
     }
 
-    // Start position stream
     try {
       _positionSubscription =
           Geolocator.getPositionStream(
@@ -205,7 +298,7 @@ class LocationService {
             (Position position) {
               _currentPosition = position;
               _currentPath.add(position);
-              _savePath(); // Persist immediately
+              _scheduleSave();
               for (final listener in _updateListeners) {
                 listener(position.latitude, position.longitude);
               }
@@ -226,7 +319,11 @@ class LocationService {
   /// Stop location tracking
   void stopTracking() {
     _positionSubscription?.cancel();
+    _accelSubscription?.cancel();
+    _stationaryTimer?.cancel();
     _positionSubscription = null;
+    _accelSubscription = null;
+    _stationaryTimer = null;
     _updateListeners.clear();
   }
 

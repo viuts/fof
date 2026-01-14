@@ -233,7 +233,6 @@ class CreateVisitRequest extends $pb.GeneratedMessage {
 class CreateVisitResponse extends $pb.GeneratedMessage {
   factory CreateVisitResponse({
     $core.bool? success,
-    $core.String? clearedAreaGeojson,
     $core.int? expGained,
     $core.int? currentExp,
     $core.int? currentLevel,
@@ -242,9 +241,6 @@ class CreateVisitResponse extends $pb.GeneratedMessage {
     final $result = create();
     if (success != null) {
       $result.success = success;
-    }
-    if (clearedAreaGeojson != null) {
-      $result.clearedAreaGeojson = clearedAreaGeojson;
     }
     if (expGained != null) {
       $result.expGained = expGained;
@@ -266,7 +262,6 @@ class CreateVisitResponse extends $pb.GeneratedMessage {
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'CreateVisitResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'fof.v1'), createEmptyInstance: create)
     ..aOB(1, _omitFieldNames ? '' : 'success')
-    ..aOS(2, _omitFieldNames ? '' : 'clearedAreaGeojson')
     ..a<$core.int>(3, _omitFieldNames ? '' : 'expGained', $pb.PbFieldType.O3)
     ..a<$core.int>(4, _omitFieldNames ? '' : 'currentExp', $pb.PbFieldType.O3)
     ..a<$core.int>(5, _omitFieldNames ? '' : 'currentLevel', $pb.PbFieldType.O3)
@@ -304,44 +299,35 @@ class CreateVisitResponse extends $pb.GeneratedMessage {
   @$pb.TagNumber(1)
   void clearSuccess() => clearField(1);
 
-  @$pb.TagNumber(2)
-  $core.String get clearedAreaGeojson => $_getSZ(1);
-  @$pb.TagNumber(2)
-  set clearedAreaGeojson($core.String v) { $_setString(1, v); }
-  @$pb.TagNumber(2)
-  $core.bool hasClearedAreaGeojson() => $_has(1);
-  @$pb.TagNumber(2)
-  void clearClearedAreaGeojson() => clearField(2);
-
   @$pb.TagNumber(3)
-  $core.int get expGained => $_getIZ(2);
+  $core.int get expGained => $_getIZ(1);
   @$pb.TagNumber(3)
-  set expGained($core.int v) { $_setSignedInt32(2, v); }
+  set expGained($core.int v) { $_setSignedInt32(1, v); }
   @$pb.TagNumber(3)
-  $core.bool hasExpGained() => $_has(2);
+  $core.bool hasExpGained() => $_has(1);
   @$pb.TagNumber(3)
   void clearExpGained() => clearField(3);
 
   @$pb.TagNumber(4)
-  $core.int get currentExp => $_getIZ(3);
+  $core.int get currentExp => $_getIZ(2);
   @$pb.TagNumber(4)
-  set currentExp($core.int v) { $_setSignedInt32(3, v); }
+  set currentExp($core.int v) { $_setSignedInt32(2, v); }
   @$pb.TagNumber(4)
-  $core.bool hasCurrentExp() => $_has(3);
+  $core.bool hasCurrentExp() => $_has(2);
   @$pb.TagNumber(4)
   void clearCurrentExp() => clearField(4);
 
   @$pb.TagNumber(5)
-  $core.int get currentLevel => $_getIZ(4);
+  $core.int get currentLevel => $_getIZ(3);
   @$pb.TagNumber(5)
-  set currentLevel($core.int v) { $_setSignedInt32(4, v); }
+  set currentLevel($core.int v) { $_setSignedInt32(3, v); }
   @$pb.TagNumber(5)
-  $core.bool hasCurrentLevel() => $_has(4);
+  $core.bool hasCurrentLevel() => $_has(3);
   @$pb.TagNumber(5)
   void clearCurrentLevel() => clearField(5);
 
   @$pb.TagNumber(6)
-  $core.List<$0.Achievement> get unlockedAchievements => $_getList(5);
+  $core.List<$0.Achievement> get unlockedAchievements => $_getList(4);
 }
 
 class GetVisitedShopsRequest extends $pb.GeneratedMessage {

@@ -9,8 +9,8 @@ import (
 )
 
 type LocationUsecase interface {
-	UpdateLocation(ctx context.Context, userID string, path []*fofv1.LatLng) (bool, string, error)
-	GetClearedArea(ctx context.Context, userID string) (string, float64, float64, error)
+	UpdateLocation(ctx context.Context, userID string, path []*fofv1.LatLng) error
+	GetClearedArea(ctx context.Context, userID string, minLat, minLng, maxLat, maxLng float64) (string, float64, float64, error)
 }
 
 type locationUsecase struct {
@@ -21,18 +21,19 @@ func NewLocationUsecase(r repository.LocationRepository) LocationUsecase {
 	return &locationUsecase{locationRepo: r}
 }
 
-func (u *locationUsecase) UpdateLocation(ctx context.Context, userID string, path []*fofv1.LatLng) (bool, string, error) {
+func (u *locationUsecase) UpdateLocation(ctx context.Context, userID string, path []*fofv1.LatLng) error {
 	uid, err := uuid.Parse(userID)
 	if err != nil {
-		return false, "", err
+		return err
 	}
 	return u.locationRepo.UpdateLocation(ctx, uid, path)
 }
 
-func (u *locationUsecase) GetClearedArea(ctx context.Context, userID string) (string, float64, float64, error) {
+func (u *locationUsecase) GetClearedArea(ctx context.Context, userID string, minLat, minLng, maxLat, maxLng float64) (string, float64, float64, error) {
 	uid, err := uuid.Parse(userID)
 	if err != nil {
 		return "", 0, 0, err
 	}
-	return u.locationRepo.GetClearedArea(ctx, uid)
+	return u.locationRepo.GetClearedArea(ctx, uid, minLat, minLng, maxLat, maxLng)
 }
+

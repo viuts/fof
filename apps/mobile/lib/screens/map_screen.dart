@@ -12,7 +12,6 @@ import '../services/language_service.dart';
 import 'visit_detail_screen.dart';
 import '../api/fof/v1/shop.pb.dart';
 import '../api/fof/v1/common.pb.dart';
-import '../api/fof/v1/location.pb.dart';
 import '../api/fof/v1/achievement.pb.dart';
 import '../api/fof/v1/shop_extensions.dart';
 import '../widgets/fog_layer.dart';
@@ -50,10 +49,14 @@ class MapScreenState extends State<MapScreen>
 
   Timer? _shopUpdateTimer;
   Timer? _locationBatchTimer;
+  Timer? _fogUpdateTimer;
   bool _isMapReady = false;
   bool _hasCentered = false;
   bool _hasFetchedNearbyShops = false;
+  latlong2.LatLng? _lastFetchCenter;
+  double _lastFetchZoom = 0;
   int _virtualStepCount = 0;
+  bool _isFetchingFog = false;
 
   // Shop Entry Feature
   bool _isEntering = false;
@@ -87,7 +90,7 @@ class MapScreenState extends State<MapScreen>
       (_) => _fetchNearbyShops(),
     );
     _locationBatchTimer = Timer.periodic(
-      const Duration(seconds: 10),
+      const Duration(seconds: 30),
       (_) => _sendBatchedLocationUpdate(),
     );
     // wait for 10s to show initial loading overlay
@@ -198,22 +201,7 @@ class MapScreenState extends State<MapScreen>
   Future<void> _loadInitialData() async {
     try {
       final userService = Provider.of<UserService>(context, listen: false);
-      final futures = <Future>[
-        ApiService().getClearedArea(),
-        userService.loadInitialData(),
-      ];
-
-      final results = await Future.wait(futures);
-
-      if (!mounted) return;
-
-      final clearedAreaResponse = results[0] as GetClearedAreaResponse;
-
-      setState(() {
-        _clearedAreaGeojson = clearedAreaResponse.clearedAreaGeojson;
-        _clearedRings = GeoUtils.parseGeoJson(_clearedAreaGeojson);
-        _updateMarkers();
-      });
+      await userService.loadInitialData();
     } catch (e) {
       debugPrint('Failed to load initial data: $e');
     } finally {
@@ -233,14 +221,18 @@ class MapScreenState extends State<MapScreen>
       final path = pathPositions
           .map((p) => LatLng(lat: p.latitude, lng: p.longitude))
           .toList();
-      final response = await ApiService().updateLocation(path);
+      await ApiService().updateLocation(path);
 
       await LocationService().clearPath();
 
-      if (response.newlyCleared && mounted) {
+      if (mounted) {
         setState(() {
-          _clearedAreaGeojson = response.clearedAreaGeojson;
-          _clearedRings = GeoUtils.parseGeoJson(_clearedAreaGeojson);
+          // Manually add the new path points to cleared rings locally
+          // This provides zero-latency clearing on the map
+          final List<latlong2.LatLng> newRing = pathPositions
+              .map((p) => latlong2.LatLng(p.latitude, p.longitude))
+              .toList();
+          _clearedRings.add(newRing);
           _updateMarkers();
         });
       }
@@ -649,8 +641,7 @@ class MapScreenState extends State<MapScreen>
         final oldLevel = userService.currentLevel;
 
         setState(() {
-          _clearedAreaGeojson = response.clearedAreaGeojson;
-          _clearedRings = GeoUtils.parseGeoJson(_clearedAreaGeojson);
+          _fetchFogForCurrentViewport(); // Refresh geometry from backend (simplified)
           _fetchNearbyShops();
           _enteringShop = null;
 
@@ -777,6 +768,7 @@ class MapScreenState extends State<MapScreen>
     LocationService().stopTracking();
     _shopUpdateTimer?.cancel();
     _locationBatchTimer?.cancel();
+    _fogUpdateTimer?.cancel();
     _countdownTimer?.cancel();
     _blastController.dispose();
     _focusNode.dispose();
@@ -828,6 +820,7 @@ class MapScreenState extends State<MapScreen>
                 },
                 onPositionChanged: (position, hasGesture) {
                   _updateMarkers();
+                  _onMapPositionChanged();
                 },
               ),
               children: [
@@ -1339,6 +1332,60 @@ class MapScreenState extends State<MapScreen>
         );
       },
     );
+  }
+
+  void _onMapPositionChanged() {
+    _fogUpdateTimer?.cancel();
+    _fogUpdateTimer = Timer(const Duration(milliseconds: 500), () {
+      final camera = _mapController.camera;
+      final currentCenter = camera.center;
+      final currentZoom = camera.zoom;
+
+      // Distance check: Avoid refetching for jitters or small movements
+      double distanceMoved = 0;
+      if (_lastFetchCenter != null) {
+        distanceMoved = Geolocator.distanceBetween(
+          _lastFetchCenter!.latitude,
+          _lastFetchCenter!.longitude,
+          currentCenter.latitude,
+          currentCenter.longitude,
+        );
+      }
+
+      final zoomChanged = (currentZoom - _lastFetchZoom).abs() > 0.5;
+
+      if (_lastFetchCenter == null || distanceMoved > 50 || zoomChanged) {
+        _lastFetchCenter = currentCenter;
+        _lastFetchZoom = currentZoom;
+        _fetchFogForCurrentViewport();
+      }
+    });
+  }
+
+  Future<void> _fetchFogForCurrentViewport() async {
+    if (!_isMapReady || _isFetchingFog) return;
+    _isFetchingFog = true;
+
+    try {
+      final bounds = _mapController.camera.visibleBounds;
+      final response = await ApiService().getClearedArea(
+        minLat: bounds.south,
+        minLng: bounds.west,
+        maxLat: bounds.north,
+        maxLng: bounds.east,
+      );
+
+      if (mounted) {
+        setState(() {
+          _clearedAreaGeojson = response.clearedAreaGeojson;
+          _clearedRings = GeoUtils.parseGeoJson(_clearedAreaGeojson);
+        });
+      }
+    } catch (e) {
+      debugPrint('Error fetching viewport fog: $e');
+    } finally {
+      _isFetchingFog = false;
+    }
   }
 }
 

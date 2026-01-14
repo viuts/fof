@@ -21,9 +21,27 @@ service LocationService {
       get: "/v1/location/cleared"
     };
   }
+
+  // Get only fog statistics (area and percentage) without geometry
+  rpc GetFogStats(GetFogStatsRequest) returns (GetFogStatsResponse) {
+    option (google.api.http) = {
+      get: "/v1/location/stats"
+    };
+  }
+}
+
+message GetFogStatsRequest {}
+
+message GetFogStatsResponse {
+  double cleared_area_meters = 1;
+  double world_coverage_percentage = 2;
 }
 
 message GetClearedAreaRequest {
+  double min_lat = 1;
+  double min_lng = 2;
+  double max_lat = 3;
+  double max_lng = 4;
 }
 
 message GetClearedAreaResponse {
@@ -37,7 +55,4 @@ message UpdateLocationRequest {
   double accuracy = 2;
 }
 
-message UpdateLocationResponse {
-  bool newly_cleared = 1; // True if new area was unlocked
-  string cleared_area_geojson = 2;
-}
+message UpdateLocationResponse {}

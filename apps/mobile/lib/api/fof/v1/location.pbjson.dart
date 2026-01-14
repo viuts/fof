@@ -13,14 +13,46 @@ import 'dart:convert' as $convert;
 import 'dart:core' as $core;
 import 'dart:typed_data' as $typed_data;
 
+@$core.Deprecated('Use getFogStatsRequestDescriptor instead')
+const GetFogStatsRequest$json = {
+  '1': 'GetFogStatsRequest',
+};
+
+/// Descriptor for `GetFogStatsRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List getFogStatsRequestDescriptor = $convert.base64Decode(
+    'ChJHZXRGb2dTdGF0c1JlcXVlc3Q=');
+
+@$core.Deprecated('Use getFogStatsResponseDescriptor instead')
+const GetFogStatsResponse$json = {
+  '1': 'GetFogStatsResponse',
+  '2': [
+    {'1': 'cleared_area_meters', '3': 1, '4': 1, '5': 1, '10': 'clearedAreaMeters'},
+    {'1': 'world_coverage_percentage', '3': 2, '4': 1, '5': 1, '10': 'worldCoveragePercentage'},
+  ],
+};
+
+/// Descriptor for `GetFogStatsResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List getFogStatsResponseDescriptor = $convert.base64Decode(
+    'ChNHZXRGb2dTdGF0c1Jlc3BvbnNlEi4KE2NsZWFyZWRfYXJlYV9tZXRlcnMYASABKAFSEWNsZW'
+    'FyZWRBcmVhTWV0ZXJzEjoKGXdvcmxkX2NvdmVyYWdlX3BlcmNlbnRhZ2UYAiABKAFSF3dvcmxk'
+    'Q292ZXJhZ2VQZXJjZW50YWdl');
+
 @$core.Deprecated('Use getClearedAreaRequestDescriptor instead')
 const GetClearedAreaRequest$json = {
   '1': 'GetClearedAreaRequest',
+  '2': [
+    {'1': 'min_lat', '3': 1, '4': 1, '5': 1, '10': 'minLat'},
+    {'1': 'min_lng', '3': 2, '4': 1, '5': 1, '10': 'minLng'},
+    {'1': 'max_lat', '3': 3, '4': 1, '5': 1, '10': 'maxLat'},
+    {'1': 'max_lng', '3': 4, '4': 1, '5': 1, '10': 'maxLng'},
+  ],
 };
 
 /// Descriptor for `GetClearedAreaRequest`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List getClearedAreaRequestDescriptor = $convert.base64Decode(
-    'ChVHZXRDbGVhcmVkQXJlYVJlcXVlc3Q=');
+    'ChVHZXRDbGVhcmVkQXJlYVJlcXVlc3QSFwoHbWluX2xhdBgBIAEoAVIGbWluTGF0EhcKB21pbl'
+    '9sbmcYAiABKAFSBm1pbkxuZxIXCgdtYXhfbGF0GAMgASgBUgZtYXhMYXQSFwoHbWF4X2xuZxgE'
+    'IAEoAVIGbWF4TG5n');
 
 @$core.Deprecated('Use getClearedAreaResponseDescriptor instead')
 const GetClearedAreaResponse$json = {
@@ -56,14 +88,9 @@ final $typed_data.Uint8List updateLocationRequestDescriptor = $convert.base64Dec
 @$core.Deprecated('Use updateLocationResponseDescriptor instead')
 const UpdateLocationResponse$json = {
   '1': 'UpdateLocationResponse',
-  '2': [
-    {'1': 'newly_cleared', '3': 1, '4': 1, '5': 8, '10': 'newlyCleared'},
-    {'1': 'cleared_area_geojson', '3': 2, '4': 1, '5': 9, '10': 'clearedAreaGeojson'},
-  ],
 };
 
 /// Descriptor for `UpdateLocationResponse`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List updateLocationResponseDescriptor = $convert.base64Decode(
-    'ChZVcGRhdGVMb2NhdGlvblJlc3BvbnNlEiMKDW5ld2x5X2NsZWFyZWQYASABKAhSDG5ld2x5Q2'
-    'xlYXJlZBIwChRjbGVhcmVkX2FyZWFfZ2VvanNvbhgCIAEoCVISY2xlYXJlZEFyZWFHZW9qc29u');
+    'ChZVcGRhdGVMb2NhdGlvblJlc3BvbnNl');
 

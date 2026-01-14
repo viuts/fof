@@ -21,6 +21,7 @@ func AutoMigrate(db *gorm.DB) error {
 		&domain.Shop{},
 		&domain.Visit{},
 		&domain.UserFog{},
+		&domain.UserFogTile{},
 		&domain.Achievement{},
 		&domain.UserAchievement{},
 	); err != nil {
@@ -40,6 +41,7 @@ func DropTables(db *gorm.DB) error {
 		&domain.Shop{},
 		&domain.Visit{},
 		&domain.UserFog{},
+		&domain.UserFogTile{},
 		&domain.Achievement{},
 		&domain.UserAchievement{},
 	); err != nil {

@@ -15,27 +15,22 @@ import (
 const (
 	// Earth radius in meters
 	earthRadius = 6371000.0
-	// Distance threshold to split paths (meters)
-	pathSplitThreshold = 200.0
+	// Zoom level for fog tiles
+	fogZoom = 15
 )
 
-// distance calculates the Haversine distance between two points in meters.
-func distance(lat1, lon1, lat2, lon2 float64) float64 {
-	dLat := (lat2 - lat1) * math.Pi / 180.0
-	dLon := (lon2 - lon1) * math.Pi / 180.0
-
-	a := math.Sin(dLat/2)*math.Sin(dLat/2) +
-		math.Cos(lat1*math.Pi/180.0)*math.Cos(lat2*math.Pi/180.0)*
-			math.Sin(dLon/2)*math.Sin(dLon/2)
-	c := 2 * math.Atan2(math.Sqrt(a), math.Sqrt(1-a))
-
-	return earthRadius * c
+func latLngToTile(lat, lng float64, zoom int) (x, y int) {
+	n := math.Exp2(float64(zoom))
+	x = int((lng + 180.0) / 360.0 * n)
+	latRad := lat * math.Pi / 180.0
+	y = int((1.0 - math.Log(math.Tan(latRad)+(1.0/math.Cos(latRad)))/math.Pi) / 2.0 * n)
+	return x, y
 }
 
 type LocationRepository interface {
-	UpdateLocation(ctx context.Context, userID uuid.UUID, path []*fofv1.LatLng) (newlyCleared bool, geoJSON string, err error)
-	GetClearedArea(ctx context.Context, userID uuid.UUID) (string, float64, float64, error)
-	ClearAreaAroundPoint(ctx context.Context, tx *gorm.DB, userID uuid.UUID, lat, lng, radius float64) (string, error)
+	UpdateLocation(ctx context.Context, userID uuid.UUID, path []*fofv1.LatLng) error
+	GetClearedArea(ctx context.Context, userID uuid.UUID, minLat, minLng, maxLat, maxLng float64) (string, float64, float64, error)
+	ClearAreaAroundPoint(ctx context.Context, tx *gorm.DB, userID uuid.UUID, lat, lng, radius float64) error
 }
 
 type locationRepository struct {
@@ -46,80 +41,110 @@ func NewLocationRepository(db *gorm.DB) LocationRepository {
 	return &locationRepository{db: db}
 }
 
-func (r *locationRepository) UpdateLocation(ctx context.Context, userID uuid.UUID, path []*fofv1.LatLng) (bool, string, error) {
+func (r *locationRepository) UpdateLocation(ctx context.Context, userID uuid.UUID, path []*fofv1.LatLng) error {
 	if len(path) == 0 {
-		areaStr, _, _, _ := r.GetClearedArea(ctx, userID)
-		return false, areaStr, nil
+		return nil
 	}
 
-	var geoms []string
-
+	var geomWKT string
 	if len(path) == 1 {
-		geoms = append(geoms, fmt.Sprintf("POINT(%f %f)", path[0].Lng, path[0].Lat))
+		geomWKT = fmt.Sprintf("POINT(%f %f)", path[0].Lng, path[0].Lat)
 	} else {
-		var currentSegment []string
-		currentSegment = append(currentSegment, fmt.Sprintf("%f %f", path[0].Lng, path[0].Lat))
-
-		for i := 1; i < len(path); i++ {
-			p1 := path[i-1]
-			p2 := path[i]
-
-			dist := distance(p1.Lat, p1.Lng, p2.Lat, p2.Lng)
-
-			if dist > pathSplitThreshold {
-				// Close current segment as a LineString if it has more than one point, otherwise a Point
-				if len(currentSegment) > 1 {
-					geoms = append(geoms, fmt.Sprintf("LINESTRING(%s)", strings.Join(currentSegment, ",")))
-				} else {
-					geoms = append(geoms, fmt.Sprintf("POINT(%s)", currentSegment[0]))
-				}
-				// Start new segment
-				currentSegment = []string{fmt.Sprintf("%f %f", p2.Lng, p2.Lat)}
-			} else {
-				currentSegment = append(currentSegment, fmt.Sprintf("%f %f", p2.Lng, p2.Lat))
-			}
+		var points []string
+		for _, p := range path {
+			points = append(points, fmt.Sprintf("%f %f", p.Lng, p.Lat))
 		}
+		geomWKT = fmt.Sprintf("LINESTRING(%s)", strings.Join(points, ","))
+	}
 
-		// Close final segment
-		if len(currentSegment) > 1 {
-			geoms = append(geoms, fmt.Sprintf("LINESTRING(%s)", strings.Join(currentSegment, ",")))
-		} else {
-			geoms = append(geoms, fmt.Sprintf("POINT(%s)", currentSegment[0]))
+	// Calculate tile range
+	margin := 0.002 // Approx 200m
+	minLat, maxLat := path[0].Lat, path[0].Lat
+	minLng, maxLng := path[0].Lng, path[0].Lng
+	for _, p := range path {
+		if p.Lat < minLat {
+			minLat = p.Lat
+		}
+		if p.Lat > maxLat {
+			maxLat = p.Lat
+		}
+		if p.Lng < minLng {
+			minLng = p.Lng
+		}
+		if p.Lng > maxLng {
+			maxLng = p.Lng
 		}
 	}
 
-	geomWKT := fmt.Sprintf("GEOMETRYCOLLECTION(%s)", strings.Join(geoms, ","))
+	x1, y1 := latLngToTile(minLat-margin, minLng-margin, fogZoom)
+	x2, y2 := latLngToTile(maxLat+margin, maxLng+margin, fogZoom)
+
+	minX, maxX := x1, x2
+	if x1 > x2 {
+		minX, maxX = x2, x1
+	}
+	minY, maxY := y1, y2
+	if y1 > y2 {
+		minY, maxY = y2, y1
+	}
 
 	query := `
-		INSERT INTO user_fogs (user_id, cleared_area, updated_at)
-		VALUES (?, ST_Multi(ST_Buffer(ST_GeomFromText(?, 4326)::geography, 100)::geometry), ?)
-		ON CONFLICT (user_id) DO UPDATE SET
-			cleared_area = ST_Multi(ST_Buffer(
+		WITH new_area AS (
+			SELECT ST_Multi(ST_Buffer(ST_GeomFromText(?, 4326)::geography, 100)::geometry) as geom
+		)
+		INSERT INTO user_fog_tiles (user_id, z, x, y, geom, updated_at)
+		SELECT 
+			?, ?::integer, x, y, 
+			ST_Multi(ST_Intersection(ST_Transform(ST_TileEnvelope(?::integer, x::integer, y::integer), 4326), (SELECT geom FROM new_area))), 
+			?
+		FROM generate_series(?::integer, ?::integer) AS x, generate_series(?::integer, ?::integer) AS y
+		WHERE ST_Intersects(ST_Transform(ST_TileEnvelope(?::integer, x::integer, y::integer), 4326), (SELECT geom FROM new_area))
+		ON CONFLICT (user_id, z, x, y) DO UPDATE SET
+			geom = ST_Multi(ST_Buffer(
 				ST_Union(
-					user_fogs.cleared_area::geometry,
-					ST_Buffer(ST_GeomFromText(?, 4326)::geography, 100)::geometry
+					user_fog_tiles.geom,
+					ST_Intersection(ST_Transform(ST_TileEnvelope(user_fog_tiles.z::integer, user_fog_tiles.x::integer, user_fog_tiles.y::integer), 4326), (SELECT geom FROM new_area))
 				)::geography,
 				0
 			)::geometry),
-			updated_at = EXCLUDED.updated_at
-		RETURNING ST_AsGeoJSON(cleared_area)
+			updated_at = EXCLUDED.updated_at;
 	`
 
-	var geoJSON string
-	err := r.db.WithContext(ctx).Raw(query, userID, geomWKT, time.Now(), geomWKT).Scan(&geoJSON).Error
+	err := r.db.WithContext(ctx).Exec(query,
+		geomWKT,
+		userID, fogZoom, fogZoom, time.Now(),
+		minX, maxX, minY, maxY,
+		fogZoom,
+	).Error
 	if err != nil {
-		return false, "", err
+		return err
 	}
 
-	return true, geoJSON, nil
+	return nil
 }
 
-func (r *locationRepository) GetClearedArea(ctx context.Context, userID uuid.UUID) (string, float64, float64, error) {
+func (r *locationRepository) GetClearedArea(ctx context.Context, userID uuid.UUID, minLat, minLng, maxLat, maxLng float64) (string, float64, float64, error) {
 	var result struct {
 		GeoJSON string
 		Area    float64
 	}
-	err := r.db.WithContext(ctx).Raw("SELECT ST_AsGeoJSON(cleared_area) as geo_json, ST_Area(cleared_area::geography) as area FROM user_fogs WHERE user_id = ?", userID).Scan(&result).Error
+
+	whereClause := "user_id = ?"
+	args := []interface{}{userID}
+
+	if minLat != 0 || minLng != 0 || maxLat != 0 || maxLng != 0 {
+		whereClause += " AND ST_Intersects(geom, ST_MakeEnvelope(?, ?, ?, ?, 4326))"
+		args = append(args, minLng, minLat, maxLng, maxLat)
+	}
+
+	query := fmt.Sprintf(`
+		SELECT 
+			ST_AsGeoJSON(ST_SimplifyPreserveTopology(ST_Multi(ST_Union(geom)), 0.00001)) as geo_json, 
+			SUM(ST_Area(geom::geography)) as area 
+		FROM user_fog_tiles 
+		WHERE %s
+	`, whereClause)
+	err := r.db.WithContext(ctx).Raw(query, args...).Scan(&result).Error
 	if err == gorm.ErrRecordNotFound || result.GeoJSON == "" {
 		return `{"type":"MultiPolygon","coordinates":[]}`, 0, 0, nil
 	}
@@ -130,23 +155,54 @@ func (r *locationRepository) GetClearedArea(ctx context.Context, userID uuid.UUI
 	return result.GeoJSON, result.Area, worldCoverage, err
 }
 
-func (r *locationRepository) ClearAreaAroundPoint(ctx context.Context, tx *gorm.DB, userID uuid.UUID, lat, lng, radius float64) (string, error) {
+func (r *locationRepository) ClearAreaAroundPoint(ctx context.Context, tx *gorm.DB, userID uuid.UUID, lat, lng, radius float64) error {
 	geomWKT := fmt.Sprintf("POINT(%f %f)", lng, lat)
+
+	// Calculate tile range
+	marginRad := radius / 111320.0 // Very rough approx for tile range
+	x1, y1 := latLngToTile(lat-marginRad, lng-marginRad, fogZoom)
+	x2, y2 := latLngToTile(lat+marginRad, lng+marginRad, fogZoom)
+
+	minX, maxX := x1, x2
+	if x1 > x2 {
+		minX, maxX = x2, x1
+	}
+	minY, maxY := y1, y2
+	if y1 > y2 {
+		minY, maxY = y2, y1
+	}
+
 	query := `
-		INSERT INTO user_fogs (user_id, cleared_area, updated_at)
-		VALUES (?, ST_Multi(ST_Buffer(ST_GeomFromText(?, 4326)::geography, ?)::geometry), ?)
-		ON CONFLICT (user_id) DO UPDATE SET
-			cleared_area = ST_Multi(ST_Buffer(
+		WITH new_area AS (
+			SELECT ST_Multi(ST_Buffer(ST_GeomFromText(?, 4326)::geography, ?)::geometry) as geom
+		)
+		INSERT INTO user_fog_tiles (user_id, z, x, y, geom, updated_at)
+		SELECT 
+			?, ?::integer, x, y, 
+			ST_Multi(ST_Intersection(ST_Transform(ST_TileEnvelope(?::integer, x::integer, y::integer), 4326), (SELECT geom FROM new_area))), 
+			?
+		FROM generate_series(?::integer, ?::integer) AS x, generate_series(?::integer, ?::integer) AS y
+		WHERE ST_Intersects(ST_Transform(ST_TileEnvelope(?::integer, x::integer, y::integer), 4326), (SELECT geom FROM new_area))
+		ON CONFLICT (user_id, z, x, y) DO UPDATE SET
+			geom = ST_Multi(ST_Buffer(
 				ST_Union(
-					user_fogs.cleared_area::geometry,
-					ST_Buffer(ST_GeomFromText(?, 4326)::geography, ?)::geometry
+					user_fog_tiles.geom,
+					ST_Intersection(ST_Transform(ST_TileEnvelope(user_fog_tiles.z::integer, user_fog_tiles.x::integer, user_fog_tiles.y::integer), 4326), (SELECT geom FROM new_area))
 				)::geography,
 				0
 			)::geometry),
-			updated_at = EXCLUDED.updated_at
-		RETURNING ST_AsGeoJSON(cleared_area)
+			updated_at = EXCLUDED.updated_at;
 	`
-	var geoJSON string
-	err := tx.Raw(query, userID, geomWKT, radius, time.Now(), geomWKT, radius).Scan(&geoJSON).Error
-	return geoJSON, err
+
+	err := tx.Exec(query,
+		geomWKT, radius,
+		userID, fogZoom, fogZoom, time.Now(),
+		minX, maxX, minY, maxY,
+		fogZoom,
+	).Error
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
