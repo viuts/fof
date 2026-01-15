@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../services/language_service.dart';
 import '../services/api_service.dart';
 import '../services/location_service.dart';
+import '../services/quest_service.dart';
 import '../api/fof/v1/shop.pb.dart';
 import '../constants/category_colors.dart';
 import '../theme/app_theme.dart';
 
 class QuestSelectionScreen extends StatefulWidget {
-  final Function(Shop) onStartQuest;
+  final VoidCallback onQuestStarted;
 
-  const QuestSelectionScreen({super.key, required this.onStartQuest});
+  const QuestSelectionScreen({super.key, required this.onQuestStarted});
 
   @override
   State<QuestSelectionScreen> createState() => _QuestSelectionScreenState();
@@ -385,7 +387,11 @@ class _QuestSelectionScreenState extends State<QuestSelectionScreen> {
               );
 
               if (response.hasShop()) {
-                widget.onStartQuest(response.shop);
+                Provider.of<QuestService>(
+                  context,
+                  listen: false,
+                ).startQuest(response.shop);
+                widget.onQuestStarted();
               } else {
                 if (mounted) {
                   _showNoShopsDialog();

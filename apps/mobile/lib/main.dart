@@ -17,6 +17,7 @@ import 'services/map_style_service.dart';
 import 'services/language_service.dart';
 import 'services/user_service.dart';
 import 'services/purchase_service.dart';
+import 'services/quest_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -43,6 +44,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => LanguageService()),
         ChangeNotifierProvider(create: (_) => MapStyleService()),
         ChangeNotifierProvider(create: (_) => UserService()),
+        ChangeNotifierProvider(create: (_) => QuestService()),
         ChangeNotifierProvider.value(value: purchaseService),
       ],
       child: const FogOfFlavorApp(),

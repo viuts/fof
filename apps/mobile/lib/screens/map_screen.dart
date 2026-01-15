@@ -25,12 +25,10 @@ import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:provider/provider.dart';
 import '../services/map_style_service.dart';
 import '../services/user_service.dart';
+import '../services/quest_service.dart';
 
 class MapScreen extends StatefulWidget {
-  final Shop? questShop;
-  final VoidCallback? onCancelQuest;
-
-  const MapScreen({super.key, this.questShop, this.onCancelQuest});
+  const MapScreen({super.key});
 
   @override
   State<MapScreen> createState() => MapScreenState();
@@ -40,7 +38,6 @@ class MapScreenState extends State<MapScreen>
     with SingleTickerProviderStateMixin {
   final MapController _mapController = MapController();
   final FocusNode _focusNode = FocusNode();
-  String? _clearedAreaGeojson;
   final List<Shop> _nearbyShops = [];
   List<Marker> _shopMarkers = [];
   List<List<latlong2.LatLng>> _clearedRings = []; // Cached parsed GeoJSON
@@ -69,8 +66,11 @@ class MapScreenState extends State<MapScreen>
       false; // Whether the next overlay transition should be animated
   bool _hasArrivedAtQuest =
       false; // Flag to ensure arrival sequence triggers only once
+  String? _lastQuestId;
 
   // Blast Animation
+  // ... (skip down to build)
+
   late AnimationController _blastController;
   latlong2.LatLng? _blastCenterLocation;
   double? _blastRadius;
@@ -128,15 +128,22 @@ class MapScreenState extends State<MapScreen>
           if (!_hasFetchedNearbyShops) {
             _hasFetchedNearbyShops = true;
             _fetchNearbyShops();
+            _fetchFogForCurrentViewport();
           }
 
           // Arrival Detection for Quest
-          if (widget.questShop != null && !_hasArrivedAtQuest) {
+          final questService = Provider.of<QuestService>(
+            context,
+            listen: false,
+          );
+          final activeQuest = questService.activeQuest;
+
+          if (activeQuest != null && !_hasArrivedAtQuest) {
             final distance = Geolocator.distanceBetween(
               newLoc.latitude,
               newLoc.longitude,
-              widget.questShop!.lat,
-              widget.questShop!.lng,
+              activeQuest.lat,
+              activeQuest.lng,
             );
 
             if (distance < 25) {
@@ -183,9 +190,6 @@ class MapScreenState extends State<MapScreen>
   @override
   void didUpdateWidget(MapScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.questShop?.id != oldWidget.questShop?.id) {
-      _hasArrivedAtQuest = false;
-    }
   }
 
   Future<void> _saveFilters() async {
@@ -337,23 +341,28 @@ class MapScreenState extends State<MapScreen>
   }
 
   void _showArrivalSequence() {
-    if (widget.questShop == null) return;
+    final activeQuest = Provider.of<QuestService>(
+      context,
+      listen: false,
+    ).activeQuest;
+    if (activeQuest == null) return;
 
     // Select shop locally to show the detail card
     setState(() {
-      _selectedShop = widget.questShop;
+      _selectedShop = activeQuest;
       _isQuestTransition = true;
     });
 
     // Notify parent to complete/cancel the quest as we've arrived
-    widget.onCancelQuest?.call();
+    Provider.of<QuestService>(context, listen: false).cancelQuest();
 
     // Feedback
     HapticFeedback.heavyImpact();
   }
 
   Widget _buildQuestOverlay() {
-    if (widget.questShop == null || _currentLocation == null) {
+    final activeQuest = Provider.of<QuestService>(context).activeQuest;
+    if (activeQuest == null || _currentLocation == null) {
       return const SizedBox.shrink();
     }
 
@@ -365,8 +374,8 @@ class MapScreenState extends State<MapScreen>
     final distance = Geolocator.distanceBetween(
       _currentLocation!.latitude,
       _currentLocation!.longitude,
-      widget.questShop!.lat,
-      widget.questShop!.lng,
+      activeQuest.lat,
+      activeQuest.lng,
     );
 
     final isArrived = distance < 30; // Within 30 meters
@@ -411,9 +420,7 @@ class MapScreenState extends State<MapScreen>
                     Text(
                       S
                           .of(context)
-                          .translateCategory(
-                            widget.questShop!.effectiveFoodCategory,
-                          ),
+                          .translateCategory(activeQuest.effectiveFoodCategory),
                       style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
@@ -423,7 +430,7 @@ class MapScreenState extends State<MapScreen>
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      isArrived ? widget.questShop!.name : '???',
+                      isArrived ? activeQuest.name : '???',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w800,
@@ -437,7 +444,10 @@ class MapScreenState extends State<MapScreen>
               ),
               IconButton(
                 icon: const Icon(Icons.close, size: 20),
-                onPressed: widget.onCancelQuest,
+                onPressed: () => Provider.of<QuestService>(
+                  context,
+                  listen: false,
+                ).cancelQuest(),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
               ),
@@ -778,6 +788,13 @@ class MapScreenState extends State<MapScreen>
   @override
   Widget build(BuildContext context) {
     final mapStyleService = Provider.of<MapStyleService>(context);
+    final activeQuest = Provider.of<QuestService>(context).activeQuest;
+
+    // Reset arrival status if quest changes
+    if (activeQuest?.id != _lastQuestId) {
+      _lastQuestId = activeQuest?.id;
+      _hasArrivedAtQuest = false;
+    }
 
     return KeyboardListener(
       focusNode: _focusNode,
@@ -882,7 +899,7 @@ class MapScreenState extends State<MapScreen>
                 MarkerLayer(
                   markers: [
                     // Quest Direction Arrow (Standalone)
-                    if (_currentLocation != null && widget.questShop != null)
+                    if (_currentLocation != null && activeQuest != null)
                       Marker(
                         point: _currentLocation!,
                         width: 100,
@@ -892,8 +909,8 @@ class MapScreenState extends State<MapScreen>
                             final bearing = Geolocator.bearingBetween(
                               _currentLocation!.latitude,
                               _currentLocation!.longitude,
-                              widget.questShop!.lat,
-                              widget.questShop!.lng,
+                              activeQuest.lat,
+                              activeQuest.lng,
                             );
                             return Transform.rotate(
                               angle: bearing * (math.pi / 180),
@@ -907,11 +924,11 @@ class MapScreenState extends State<MapScreen>
                       ),
                     ..._shopMarkers,
                     // Quest marker (if active)
-                    if (widget.questShop != null)
+                    if (activeQuest != null)
                       Marker(
                         point: latlong2.LatLng(
-                          widget.questShop!.lat,
-                          widget.questShop!.lng,
+                          activeQuest.lat,
+                          activeQuest.lng,
                         ),
                         width: 24,
                         height: 24,
@@ -1007,7 +1024,7 @@ class MapScreenState extends State<MapScreen>
                           }
                         },
                       )
-                    : (widget.questShop != null && _currentLocation != null
+                    : (activeQuest != null && _currentLocation != null
                           ? _buildQuestOverlay()
                           : const SizedBox.shrink(
                               key: ValueKey('empty_bottom'),
@@ -1357,7 +1374,6 @@ class MapScreenState extends State<MapScreen>
       if (_lastFetchCenter == null || distanceMoved > 50 || zoomChanged) {
         _lastFetchCenter = currentCenter;
         _lastFetchZoom = currentZoom;
-        _fetchFogForCurrentViewport();
       }
     });
   }
@@ -1377,8 +1393,7 @@ class MapScreenState extends State<MapScreen>
 
       if (mounted) {
         setState(() {
-          _clearedAreaGeojson = response.clearedAreaGeojson;
-          _clearedRings = GeoUtils.parseGeoJson(_clearedAreaGeojson);
+          _clearedRings = GeoUtils.parseGeoJson(response.clearedAreaGeojson);
         });
       }
     } catch (e) {

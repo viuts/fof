@@ -6,7 +6,6 @@ import 'quest_selection_screen.dart';
 import 'map_screen.dart';
 import '../theme/app_theme.dart';
 import '../services/language_service.dart';
-import '../api/fof/v1/shop.pb.dart';
 import 'package:provider/provider.dart';
 import '../services/user_service.dart';
 import '../services/purchase_service.dart';
@@ -21,7 +20,6 @@ class MainContainer extends StatefulWidget {
 
 class _MainContainerState extends State<MainContainer> {
   int _currentIndex = 2; // Default to Map (Middle)
-  Shop? _questShop; // Quest destination shop
 
   // These will be used to pass data or trigger resets
   final GlobalKey<MapScreenState> _mapKey = GlobalKey<MapScreenState>();
@@ -46,16 +44,9 @@ class _MainContainerState extends State<MainContainer> {
     }
   }
 
-  void startQuest(Shop shop) {
+  void onQuestStarted() {
     setState(() {
-      _questShop = shop;
       _currentIndex = 2; // Switch to map tab
-    });
-  }
-
-  void cancelQuest() {
-    setState(() {
-      _questShop = null;
     });
   }
 
@@ -65,13 +56,9 @@ class _MainContainerState extends State<MainContainer> {
       body: IndexedStack(
         index: _currentIndex,
         children: [
-          QuestSelectionScreen(onStartQuest: startQuest),
+          QuestSelectionScreen(onQuestStarted: onQuestStarted),
           const JournalScreen(),
-          MapScreen(
-            key: _mapKey,
-            questShop: _questShop,
-            onCancelQuest: cancelQuest,
-          ),
+          MapScreen(key: _mapKey),
           const AchievementsScreen(),
           const AccountScreen(),
         ],
