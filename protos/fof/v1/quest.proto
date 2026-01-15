@@ -1,0 +1,126 @@
+syntax = "proto3";
+package fof.v1;
+
+import "google/api/annotations.proto";
+import "fof/v1/shop.proto";
+
+option go_package = "github.com/viuts/fof/api/proto/v1;fofv1";
+
+service QuestService {
+  // Start a new quest to a shop
+  rpc StartQuest(StartQuestRequest) returns (StartQuestResponse) {
+    option (google.api.http) = {
+      post: "/v1/quests/start"
+      body: "*"
+    };
+  }
+
+  // Complete the active quest
+  rpc CompleteQuest(CompleteQuestRequest) returns (CompleteQuestResponse) {
+    option (google.api.http) = {
+      post: "/v1/quests/complete"
+      body: "*"
+    };
+  }
+
+  // Cancel the active quest
+  rpc CancelQuest(CancelQuestRequest) returns (CancelQuestResponse) {
+    option (google.api.http) = {
+      post: "/v1/quests/cancel"
+      body: "*"
+    };
+  }
+
+  // Get the user's active quest
+  rpc GetActiveQuest(GetActiveQuestRequest) returns (GetActiveQuestResponse) {
+    option (google.api.http) = {
+      get: "/v1/quests/active"
+    };
+  }
+
+  // Get the user's quest history
+  rpc GetQuestHistory(GetQuestHistoryRequest) returns (GetQuestHistoryResponse) {
+    option (google.api.http) = {
+      get: "/v1/quests/history"
+    };
+  }
+}
+
+// Quest status enumeration
+enum QuestStatus {
+  QUEST_STATUS_UNSPECIFIED = 0;
+  QUEST_STATUS_ACTIVE = 1;
+  QUEST_STATUS_COMPLETED = 2;
+  QUEST_STATUS_CANCELLED = 3;
+}
+
+// Quest message
+message Quest {
+  string id = 1;
+  string user_id = 2;
+  Shop shop = 3;
+  QuestStatus status = 4;
+  string created_at = 5;  // ISO 8601 string
+  string updated_at = 6;  // ISO 8601 string
+  string completed_at = 7; // ISO 8601 string (optional)
+}
+
+// Start quest request and response
+message StartQuestRequest {
+  // Optional: if provided, start quest with this specific shop ID
+  string shop_id = 1;
+  
+  // Quest shop search filters (used if shop_id is not provided)
+  double lat = 2;
+  double lng = 3;
+  double radius_meters = 4;
+  repeated string categories = 5;
+  string keyword = 6;
+  QuestRatingFilter rating_filter = 7;
+  int64 open_at_time = 8; // Unix timestamp in seconds
+  bool exclusive_independent = 9;
+}
+
+message StartQuestResponse {
+  Quest quest = 1;
+}
+
+// Complete quest request and response
+message CompleteQuestRequest {
+  string quest_id = 1;
+}
+
+message CompleteQuestResponse {
+  bool success = 1;
+  Quest quest = 2;
+}
+
+// Cancel quest request and response
+message CancelQuestRequest {
+  string quest_id = 1;
+}
+
+message CancelQuestResponse {
+  bool success = 1;
+  Quest quest = 2;
+}
+
+// Get active quest request and response
+message GetActiveQuestRequest {
+}
+
+message GetActiveQuestResponse {
+  Quest quest = 1; // Null if no active quest
+  bool has_active_quest = 2;
+}
+
+// Get quest history request and response
+message GetQuestHistoryRequest {
+  int32 limit = 1;
+  int32 offset = 2;
+}
+
+message GetQuestHistoryResponse {
+  repeated Quest quests = 1;
+  int32 total = 2;
+}

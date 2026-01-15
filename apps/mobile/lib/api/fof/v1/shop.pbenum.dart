@@ -68,6 +68,7 @@ class FoodCategory extends $pb.ProtobufEnum {
   const FoodCategory._($core.int v, $core.String n) : super(v, n);
 }
 
+/// Quest rating filter - kept for use by QuestService
 class QuestRatingFilter extends $pb.ProtobufEnum {
   static const QuestRatingFilter QUEST_RATING_FILTER_UNSPECIFIED = QuestRatingFilter._(0, _omitEnumNames ? '' : 'QUEST_RATING_FILTER_UNSPECIFIED');
   static const QuestRatingFilter QUEST_RATING_FILTER_ALL = QuestRatingFilter._(1, _omitEnumNames ? '' : 'QUEST_RATING_FILTER_ALL');

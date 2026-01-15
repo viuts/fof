@@ -14,6 +14,7 @@ type VisitRepository interface {
 	CreateWithTx(ctx context.Context, tx *gorm.DB, visit *domain.Visit) error
 	Save(ctx context.Context, visit *domain.Visit) error
 	GetDB() *gorm.DB
+	GetCategoryVisitRanking(ctx context.Context, category string, limit int) ([]domain.UserRankingEntry, error)
 }
 
 type visitRepository struct {
@@ -54,4 +55,19 @@ func (r *visitRepository) Save(ctx context.Context, visit *domain.Visit) error {
 
 func (r *visitRepository) GetDB() *gorm.DB {
 	return r.db
+}
+
+func (r *visitRepository) GetCategoryVisitRanking(ctx context.Context, category string, limit int) ([]domain.UserRankingEntry, error) {
+	var results []domain.UserRankingEntry
+	err := r.db.WithContext(ctx).
+		Table("users").
+		Select("users.*, COUNT(DISTINCT visits.shop_id) as score").
+		Joins("JOIN visits ON users.id = visits.user_id").
+		Joins("JOIN shops ON visits.shop_id = shops.id").
+		Where("users.deleted_at IS NULL AND shops.category = ?", category).
+		Group("users.id").
+		Order("score DESC").
+		Limit(limit).
+		Scan(&results).Error
+	return results, err
 }

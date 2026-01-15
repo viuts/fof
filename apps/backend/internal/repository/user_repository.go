@@ -16,6 +16,9 @@ type UserRepository interface {
 	GetByID(ctx context.Context, userID uuid.UUID) (*domain.User, error)
 	Save(ctx context.Context, user *domain.User) error
 	SaveWithTx(ctx context.Context, tx *gorm.DB, user *domain.User) error
+	GetAreaCoverageRanking(ctx context.Context, limit int) ([]domain.UserRankingEntry, error)
+	GetLevelRanking(ctx context.Context, limit int) ([]domain.UserRankingEntry, error)
+	GetVisitCountRanking(ctx context.Context, limit int) ([]domain.UserRankingEntry, error)
 }
 
 type userRepository struct {
@@ -68,4 +71,46 @@ func (r *userRepository) Save(ctx context.Context, user *domain.User) error {
 
 func (r *userRepository) SaveWithTx(ctx context.Context, tx *gorm.DB, user *domain.User) error {
 	return tx.WithContext(ctx).Save(user).Error
+}
+
+func (r *userRepository) GetAreaCoverageRanking(ctx context.Context, limit int) ([]domain.UserRankingEntry, error) {
+	var results []domain.UserRankingEntry
+	// Calculate ST_Area of cleared_area in user_fogs
+	// user_fogs has one row per user with accumulated MultiPolygon?
+	// Based on fog.go: ClearedArea *string `gorm:"type:geometry(MultiPolygon,4326)"`
+	err := r.db.WithContext(ctx).
+		Table("users").
+		Select("users.*, COALESCE(ST_Area(user_fogs.cleared_area::geography), 0) as score").
+		Joins("LEFT JOIN user_fogs ON users.id = user_fogs.user_id").
+		Where("users.deleted_at IS NULL").
+		Order("score DESC").
+		Limit(limit).
+		Scan(&results).Error
+	return results, err
+}
+
+func (r *userRepository) GetLevelRanking(ctx context.Context, limit int) ([]domain.UserRankingEntry, error) {
+	var results []domain.UserRankingEntry
+	err := r.db.WithContext(ctx).
+		Table("users").
+		Select("*, level as score").
+		Where("deleted_at IS NULL").
+		Order("level DESC, exp DESC").
+		Limit(limit).
+		Scan(&results).Error
+	return results, err
+}
+
+func (r *userRepository) GetVisitCountRanking(ctx context.Context, limit int) ([]domain.UserRankingEntry, error) {
+	var results []domain.UserRankingEntry
+	err := r.db.WithContext(ctx).
+		Table("users").
+		Select("users.*, COUNT(DISTINCT visits.shop_id) as score").
+		Joins("LEFT JOIN visits ON users.id = visits.user_id").
+		Where("users.deleted_at IS NULL").
+		Group("users.id").
+		Order("score DESC").
+		Limit(limit).
+		Scan(&results).Error
+	return results, err
 }

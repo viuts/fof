@@ -3,7 +3,6 @@ import '../theme/app_theme.dart';
 import '../api/fof/v1/achievement.pb.dart';
 import '../l10n/app_localizations.dart';
 import '../utils/achievement_localization.dart';
-import '../services/language_service.dart';
 import '../services/user_service.dart';
 import 'package:provider/provider.dart';
 
@@ -41,27 +40,8 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
-    return Scaffold(
-      backgroundColor: AppTheme.lightBackground,
-      appBar: AppBar(
-        title: Text(s.achievementTabTitle),
-        backgroundColor: AppTheme.lightSurface,
-        surfaceTintColor: Colors.transparent,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh_rounded),
-            onPressed: () {
-              Provider.of<UserService>(
-                context,
-                listen: false,
-              ).refreshAchievements();
-            },
-          ),
-        ],
-      ),
-      body: _buildBody(),
-    );
+    // No Scaffold, used as tab content
+    return Container(color: AppTheme.lightBackground, child: _buildBody());
   }
 
   Widget _buildBody() {
@@ -77,6 +57,82 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
         // Right Content: Filtered Achievements
         Expanded(child: _buildAchievementList()),
       ],
+    );
+  }
+
+  // ... _buildSidebar ...
+
+  Widget _buildAchievementList() {
+    final userService = Provider.of<UserService>(context);
+    final achievements = userService.achievements;
+    final filtered =
+        (_selectedCategory == 'ALL'
+              ? achievements
+              : achievements
+                    .where(
+                      (a) =>
+                          a.achievement.category.toUpperCase() ==
+                          _selectedCategory,
+                    )
+                    .toList())
+          ..sort((a, b) {
+            // Prioritize In Progress (Not unlocked, partial progress)
+            final aInProgress = !a.isUnlocked && a.currentValue > 0;
+            final bInProgress = !b.isUnlocked && b.currentValue > 0;
+            if (aInProgress && !bInProgress) return -1;
+            if (!aInProgress && bInProgress) return 1;
+
+            // Then No Progress (Not unlocked, no progress)
+            final aNoProgress = !a.isUnlocked && a.currentValue == 0;
+            final bNoProgress = !b.isUnlocked && b.currentValue == 0;
+            if (aNoProgress && !bNoProgress) return -1;
+            if (!aNoProgress && bNoProgress) return 1;
+
+            // Finally Achieved (Unlocked), sorted by most recently unlocked
+            if (a.isUnlocked && b.isUnlocked) {
+              if (a.unlockedAt.isNotEmpty && b.unlockedAt.isNotEmpty) {
+                return b.unlockedAt.compareTo(a.unlockedAt); // Descending
+              }
+            }
+
+            return 0;
+          });
+
+    if (filtered.isEmpty) {
+      return Center(
+        child: Text(
+          AppLocalizations.of(context)!.noAchievementsYet,
+          style: TextStyle(color: AppTheme.textSecondaryLight),
+        ),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: () async {
+        await Provider.of<UserService>(
+          context,
+          listen: false,
+        ).refreshAchievements();
+      },
+      child: ListView.builder(
+        padding: const EdgeInsets.only(
+          left: AppTheme.spacingMd,
+          right: AppTheme.spacingMd,
+          top: AppTheme.spacingMd,
+          bottom: 16,
+        ),
+        itemCount: filtered.length + 1,
+        itemBuilder: (context, index) {
+          if (index == 0) {
+            return _buildTrophySummary(filtered);
+          }
+          final status = filtered[index - 1];
+          return Padding(
+            padding: const EdgeInsets.only(bottom: AppTheme.spacingMd),
+            child: _buildAchievementCard(status),
+          );
+        },
+      ),
     );
   }
 
@@ -143,75 +199,6 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
           );
         },
       ),
-    );
-  }
-
-  Widget _buildAchievementList() {
-    final userService = Provider.of<UserService>(context);
-    final achievements = userService.achievements;
-    final filtered =
-        (_selectedCategory == 'ALL'
-              ? achievements
-              : achievements
-                    .where(
-                      (a) =>
-                          a.achievement.category.toUpperCase() ==
-                          _selectedCategory,
-                    )
-                    .toList())
-          ..sort((a, b) {
-            // Prioritize In Progress (Not unlocked, partial progress)
-            final aInProgress = !a.isUnlocked && a.currentValue > 0;
-            final bInProgress = !b.isUnlocked && b.currentValue > 0;
-            if (aInProgress && !bInProgress) return -1;
-            if (!aInProgress && bInProgress) return 1;
-
-            // Then No Progress (Not unlocked, no progress)
-            final aNoProgress = !a.isUnlocked && a.currentValue == 0;
-            final bNoProgress = !b.isUnlocked && b.currentValue == 0;
-            if (aNoProgress && !bNoProgress) return -1;
-            if (!aNoProgress && bNoProgress) return 1;
-
-            // Finally Achieved (Unlocked), sorted by most recently unlocked
-            if (a.isUnlocked && b.isUnlocked) {
-              // Parse dates if available, otherwise strict sort isn't critical but good to have
-              // unlockedAt is string ISO? Proto says string. Assuming ISO8601 or empty.
-              if (a.unlockedAt.isNotEmpty && b.unlockedAt.isNotEmpty) {
-                return b.unlockedAt.compareTo(a.unlockedAt); // Descending
-              }
-            }
-
-            // Fallback to name or ID if needed, or keep stable
-            return 0;
-          });
-
-    if (filtered.isEmpty) {
-      return Center(
-        child: Text(
-          S.of(context).noAchievementsYet,
-          style: TextStyle(color: AppTheme.textSecondaryLight),
-        ),
-      );
-    }
-
-    return ListView.builder(
-      padding: const EdgeInsets.only(
-        left: AppTheme.spacingMd,
-        right: AppTheme.spacingMd,
-        top: AppTheme.spacingMd,
-        bottom: 16,
-      ),
-      itemCount: filtered.length + 1,
-      itemBuilder: (context, index) {
-        if (index == 0) {
-          return _buildTrophySummary(filtered);
-        }
-        final status = filtered[index - 1];
-        return Padding(
-          padding: const EdgeInsets.only(bottom: AppTheme.spacingMd),
-          child: _buildAchievementCard(status),
-        );
-      },
     );
   }
 

@@ -13,7 +13,7 @@ import 'dart:core' as $core;
 
 import 'package:protobuf/protobuf.dart' as $pb;
 
-import 'common.pb.dart' as $5;
+import 'common.pb.dart' as $7;
 
 class GetFogStatsRequest extends $pb.GeneratedMessage {
   factory GetFogStatsRequest() => create();
@@ -283,7 +283,7 @@ class GetClearedAreaResponse extends $pb.GeneratedMessage {
 
 class UpdateLocationRequest extends $pb.GeneratedMessage {
   factory UpdateLocationRequest({
-    $core.Iterable<$5.LatLng>? path,
+    $core.Iterable<$7.LatLng>? path,
     $core.double? accuracy,
   }) {
     final $result = create();
@@ -300,7 +300,7 @@ class UpdateLocationRequest extends $pb.GeneratedMessage {
   factory UpdateLocationRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'UpdateLocationRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'fof.v1'), createEmptyInstance: create)
-    ..pc<$5.LatLng>(1, _omitFieldNames ? '' : 'path', $pb.PbFieldType.PM, subBuilder: $5.LatLng.create)
+    ..pc<$7.LatLng>(1, _omitFieldNames ? '' : 'path', $pb.PbFieldType.PM, subBuilder: $7.LatLng.create)
     ..a<$core.double>(2, _omitFieldNames ? '' : 'accuracy', $pb.PbFieldType.OD)
     ..hasRequiredFields = false
   ;
@@ -327,7 +327,7 @@ class UpdateLocationRequest extends $pb.GeneratedMessage {
   static UpdateLocationRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.List<$5.LatLng> get path => $_getList(0);
+  $core.List<$7.LatLng> get path => $_getList(0);
 
   @$pb.TagNumber(2)
   $core.double get accuracy => $_getN(1);

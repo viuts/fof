@@ -54,6 +54,7 @@ class MapScreenState extends State<MapScreen>
   double _lastFetchZoom = 0;
   int _virtualStepCount = 0;
   bool _isFetchingFog = false;
+  bool _isQuestLoading = false;
 
   // Shop Entry Feature
   bool _isEntering = false;
@@ -205,7 +206,11 @@ class MapScreenState extends State<MapScreen>
   Future<void> _loadInitialData() async {
     try {
       final userService = Provider.of<UserService>(context, listen: false);
-      await userService.loadInitialData();
+      final questService = Provider.of<QuestService>(context, listen: false);
+      await Future.wait([
+        userService.loadInitialData(),
+        questService.loadActiveQuest(),
+      ]);
     } catch (e) {
       debugPrint('Failed to load initial data: $e');
     } finally {
@@ -442,15 +447,30 @@ class MapScreenState extends State<MapScreen>
                   ],
                 ),
               ),
-              IconButton(
-                icon: const Icon(Icons.close, size: 20),
-                onPressed: () => Provider.of<QuestService>(
-                  context,
-                  listen: false,
-                ).cancelQuest(),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-              ),
+              _isQuestLoading
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : IconButton(
+                      icon: const Icon(Icons.close, size: 20),
+                      onPressed: () async {
+                        setState(() => _isQuestLoading = true);
+                        try {
+                          await Provider.of<QuestService>(
+                            context,
+                            listen: false,
+                          ).cancelQuest();
+                        } finally {
+                          if (mounted) {
+                            setState(() => _isQuestLoading = false);
+                          }
+                        }
+                      },
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                    ),
             ],
           ),
           const SizedBox(height: 16),
@@ -1120,8 +1140,9 @@ class MapScreenState extends State<MapScreen>
   }
 
   Widget _buildBlastLayer({double radiusInMeters = 250.0}) {
-    if (_blastCenterLocation == null || !_isMapReady)
+    if (_blastCenterLocation == null || !_isMapReady) {
       return const SizedBox.shrink();
+    }
 
     return IgnorePointer(
       child: CustomPaint(

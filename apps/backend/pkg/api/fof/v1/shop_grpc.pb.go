@@ -20,7 +20,6 @@ const _ = grpc.SupportPackageIsVersion7
 
 const (
 	ShopService_GetNearbyShops_FullMethodName = "/fof.v1.ShopService/GetNearbyShops"
-	ShopService_GetQuestShop_FullMethodName   = "/fof.v1.ShopService/GetQuestShop"
 )
 
 // ShopServiceClient is the client API for ShopService service.
@@ -29,8 +28,6 @@ const (
 type ShopServiceClient interface {
 	// Get nearby unvisited indie shops (For Quest/Explore mode)
 	GetNearbyShops(ctx context.Context, in *GetNearbyShopsRequest, opts ...grpc.CallOption) (*GetNearbyShopsResponse, error)
-	// Get a single quest shop with advanced filtering
-	GetQuestShop(ctx context.Context, in *GetQuestShopRequest, opts ...grpc.CallOption) (*GetQuestShopResponse, error)
 }
 
 type shopServiceClient struct {
@@ -50,23 +47,12 @@ func (c *shopServiceClient) GetNearbyShops(ctx context.Context, in *GetNearbySho
 	return out, nil
 }
 
-func (c *shopServiceClient) GetQuestShop(ctx context.Context, in *GetQuestShopRequest, opts ...grpc.CallOption) (*GetQuestShopResponse, error) {
-	out := new(GetQuestShopResponse)
-	err := c.cc.Invoke(ctx, ShopService_GetQuestShop_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // ShopServiceServer is the server API for ShopService service.
 // All implementations must embed UnimplementedShopServiceServer
 // for forward compatibility
 type ShopServiceServer interface {
 	// Get nearby unvisited indie shops (For Quest/Explore mode)
 	GetNearbyShops(context.Context, *GetNearbyShopsRequest) (*GetNearbyShopsResponse, error)
-	// Get a single quest shop with advanced filtering
-	GetQuestShop(context.Context, *GetQuestShopRequest) (*GetQuestShopResponse, error)
 	mustEmbedUnimplementedShopServiceServer()
 }
 
@@ -76,9 +62,6 @@ type UnimplementedShopServiceServer struct {
 
 func (UnimplementedShopServiceServer) GetNearbyShops(context.Context, *GetNearbyShopsRequest) (*GetNearbyShopsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetNearbyShops not implemented")
-}
-func (UnimplementedShopServiceServer) GetQuestShop(context.Context, *GetQuestShopRequest) (*GetQuestShopResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetQuestShop not implemented")
 }
 func (UnimplementedShopServiceServer) mustEmbedUnimplementedShopServiceServer() {}
 
@@ -111,24 +94,6 @@ func _ShopService_GetNearbyShops_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ShopService_GetQuestShop_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetQuestShopRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ShopServiceServer).GetQuestShop(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ShopService_GetQuestShop_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ShopServiceServer).GetQuestShop(ctx, req.(*GetQuestShopRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // ShopService_ServiceDesc is the grpc.ServiceDesc for ShopService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -139,10 +104,6 @@ var ShopService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetNearbyShops",
 			Handler:    _ShopService_GetNearbyShops_Handler,
-		},
-		{
-			MethodName: "GetQuestShop",
-			Handler:    _ShopService_GetQuestShop_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

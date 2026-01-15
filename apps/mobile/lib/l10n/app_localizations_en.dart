@@ -259,6 +259,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorNoShopsFound => 'No shops found matching your criteria';
 
   @override
+  String get errorQuestAlreadyActive => 'You already have an active quest';
+
+  @override
   String get close => 'Close';
 
   @override
@@ -1011,4 +1014,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get worldCoverage => 'World Coverage';
+
+  @override
+  String get tabRanking => 'Ranking';
+
+  @override
+  String get rankingTypeArea => 'Area';
+
+  @override
+  String get rankingTypeLevel => 'Level';
+
+  @override
+  String get rankingTypeVisits => 'Visits';
+
+  @override
+  String get rankingTypeCategory => 'Category';
+
+  @override
+  String get rankingLabelClearedArea => 'Cleared Area';
+
+  @override
+  String get rankingLabelLevel => 'Level';
+
+  @override
+  String get rankingLabelShopsVisited => 'Shops Visited';
+
+  @override
+  String get rankingLabelVisits => 'Visits';
+
+  @override
+  String get rankingLabelPoints => 'Points';
 }

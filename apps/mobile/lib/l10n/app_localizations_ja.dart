@@ -259,6 +259,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get errorNoShopsFound => '対象のお店はありませんでした';
 
   @override
+  String get errorQuestAlreadyActive => '既に進行中のクエストがあります';
+
+  @override
   String get close => '閉じる';
 
   @override
@@ -1004,4 +1007,34 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get worldCoverage => '世界踏破率';
+
+  @override
+  String get tabRanking => 'ランキング';
+
+  @override
+  String get rankingTypeArea => 'エリア';
+
+  @override
+  String get rankingTypeLevel => 'レベル';
+
+  @override
+  String get rankingTypeVisits => '店舗数';
+
+  @override
+  String get rankingTypeCategory => 'カテゴリー';
+
+  @override
+  String get rankingLabelClearedArea => '解除済みエリア';
+
+  @override
+  String get rankingLabelLevel => 'レベル';
+
+  @override
+  String get rankingLabelShopsVisited => '訪問店舗数';
+
+  @override
+  String get rankingLabelVisits => '訪問回数';
+
+  @override
+  String get rankingLabelPoints => 'ポイント';
 }

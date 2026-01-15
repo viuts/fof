@@ -15,20 +15,20 @@ import 'dart:core' as $core;
 import 'package:grpc/service_api.dart' as $grpc;
 import 'package:protobuf/protobuf.dart' as $pb;
 
-import 'user.pb.dart' as $3;
+import 'user.pb.dart' as $5;
 
 export 'user.pb.dart';
 
 @$pb.GrpcServiceName('fof.v1.UserService')
 class UserServiceClient extends $grpc.Client {
-  static final _$getProfile = $grpc.ClientMethod<$3.GetProfileRequest, $3.GetProfileResponse>(
+  static final _$getProfile = $grpc.ClientMethod<$5.GetProfileRequest, $5.GetProfileResponse>(
       '/fof.v1.UserService/GetProfile',
-      ($3.GetProfileRequest value) => value.writeToBuffer(),
-      ($core.List<$core.int> value) => $3.GetProfileResponse.fromBuffer(value));
-  static final _$updateProfile = $grpc.ClientMethod<$3.UpdateProfileRequest, $3.UpdateProfileResponse>(
+      ($5.GetProfileRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $5.GetProfileResponse.fromBuffer(value));
+  static final _$updateProfile = $grpc.ClientMethod<$5.UpdateProfileRequest, $5.UpdateProfileResponse>(
       '/fof.v1.UserService/UpdateProfile',
-      ($3.UpdateProfileRequest value) => value.writeToBuffer(),
-      ($core.List<$core.int> value) => $3.UpdateProfileResponse.fromBuffer(value));
+      ($5.UpdateProfileRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $5.UpdateProfileResponse.fromBuffer(value));
 
   UserServiceClient($grpc.ClientChannel channel,
       {$grpc.CallOptions? options,
@@ -36,11 +36,11 @@ class UserServiceClient extends $grpc.Client {
       : super(channel, options: options,
         interceptors: interceptors);
 
-  $grpc.ResponseFuture<$3.GetProfileResponse> getProfile($3.GetProfileRequest request, {$grpc.CallOptions? options}) {
+  $grpc.ResponseFuture<$5.GetProfileResponse> getProfile($5.GetProfileRequest request, {$grpc.CallOptions? options}) {
     return $createUnaryCall(_$getProfile, request, options: options);
   }
 
-  $grpc.ResponseFuture<$3.UpdateProfileResponse> updateProfile($3.UpdateProfileRequest request, {$grpc.CallOptions? options}) {
+  $grpc.ResponseFuture<$5.UpdateProfileResponse> updateProfile($5.UpdateProfileRequest request, {$grpc.CallOptions? options}) {
     return $createUnaryCall(_$updateProfile, request, options: options);
   }
 }
@@ -50,30 +50,30 @@ abstract class UserServiceBase extends $grpc.Service {
   $core.String get $name => 'fof.v1.UserService';
 
   UserServiceBase() {
-    $addMethod($grpc.ServiceMethod<$3.GetProfileRequest, $3.GetProfileResponse>(
+    $addMethod($grpc.ServiceMethod<$5.GetProfileRequest, $5.GetProfileResponse>(
         'GetProfile',
         getProfile_Pre,
         false,
         false,
-        ($core.List<$core.int> value) => $3.GetProfileRequest.fromBuffer(value),
-        ($3.GetProfileResponse value) => value.writeToBuffer()));
-    $addMethod($grpc.ServiceMethod<$3.UpdateProfileRequest, $3.UpdateProfileResponse>(
+        ($core.List<$core.int> value) => $5.GetProfileRequest.fromBuffer(value),
+        ($5.GetProfileResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$5.UpdateProfileRequest, $5.UpdateProfileResponse>(
         'UpdateProfile',
         updateProfile_Pre,
         false,
         false,
-        ($core.List<$core.int> value) => $3.UpdateProfileRequest.fromBuffer(value),
-        ($3.UpdateProfileResponse value) => value.writeToBuffer()));
+        ($core.List<$core.int> value) => $5.UpdateProfileRequest.fromBuffer(value),
+        ($5.UpdateProfileResponse value) => value.writeToBuffer()));
   }
 
-  $async.Future<$3.GetProfileResponse> getProfile_Pre($grpc.ServiceCall call, $async.Future<$3.GetProfileRequest> request) async {
+  $async.Future<$5.GetProfileResponse> getProfile_Pre($grpc.ServiceCall call, $async.Future<$5.GetProfileRequest> request) async {
     return getProfile(call, await request);
   }
 
-  $async.Future<$3.UpdateProfileResponse> updateProfile_Pre($grpc.ServiceCall call, $async.Future<$3.UpdateProfileRequest> request) async {
+  $async.Future<$5.UpdateProfileResponse> updateProfile_Pre($grpc.ServiceCall call, $async.Future<$5.UpdateProfileRequest> request) async {
     return updateProfile(call, await request);
   }
 
-  $async.Future<$3.GetProfileResponse> getProfile($grpc.ServiceCall call, $3.GetProfileRequest request);
-  $async.Future<$3.UpdateProfileResponse> updateProfile($grpc.ServiceCall call, $3.UpdateProfileRequest request);
+  $async.Future<$5.GetProfileResponse> getProfile($grpc.ServiceCall call, $5.GetProfileRequest request);
+  $async.Future<$5.UpdateProfileResponse> updateProfile($grpc.ServiceCall call, $5.UpdateProfileRequest request);
 }

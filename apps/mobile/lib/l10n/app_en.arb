@@ -123,6 +123,7 @@
     "groupOthers": "Others",
     "errorLocationUnavailable": "Location not available",
     "errorNoShopsFound": "No shops found matching your criteria",
+    "errorQuestAlreadyActive": "You already have an active quest",
     "close": "Close",
     "exploreAreaMsg": "Please explore this area. You need to clear the fog to see shop details.",
     "locationLabel": "Location",
@@ -424,5 +425,15 @@
     "confirmPasswordLabel": "Confirm Password",
     "fogDiscovery": "Fog Discovery",
     "clearedArea": "Cleared Area",
-    "worldCoverage": "World Coverage"
+    "worldCoverage": "World Coverage",
+    "tabRanking": "Ranking",
+    "rankingTypeArea": "Area",
+    "rankingTypeLevel": "Level",
+    "rankingTypeVisits": "Visits",
+    "rankingTypeCategory": "Category",
+    "rankingLabelClearedArea": "Cleared Area",
+    "rankingLabelLevel": "Level",
+    "rankingLabelShopsVisited": "Shops Visited",
+    "rankingLabelVisits": "Visits",
+    "rankingLabelPoints": "Points"
 }

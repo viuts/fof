@@ -172,6 +172,7 @@ class S {
 
   String get errorLocationUnavailable => _l10n.errorLocationUnavailable;
   String get errorNoShopsFound => _l10n.errorNoShopsFound;
+  String get errorQuestAlreadyActive => _l10n.errorQuestAlreadyActive;
 
   // Group Labels
   String get groupJapanese => _l10n.groupJapanese;

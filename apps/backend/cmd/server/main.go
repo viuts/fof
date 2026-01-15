@@ -60,17 +60,22 @@ func main() {
 	locationRepo := repository.NewLocationRepository(db)
 	visitRepo := repository.NewVisitRepository(db)
 	achievementRepo := repository.NewAchievementRepository(db)
+	questRepo := repository.NewQuestRepository(db)
 
 	achievementUC := usecase.NewAchievementUseCase(achievementRepo)
 	shopUC := usecase.NewShopUsecase(shopRepo)
 	locationUC := usecase.NewLocationUsecase(locationRepo)
 	visitUC := usecase.NewVisitUsecase(visitRepo, shopRepo, userRepo, locationRepo, achievementUC)
+	questUC := usecase.NewQuestUsecase(questRepo, shopRepo)
+	rankingUC := usecase.NewRankingUsecase(userRepo, visitRepo)
 
 	shopHandler := handler.NewShopHandler(shopUC, visitUC)
 	locationHandler := handler.NewLocationHandler(locationUC)
 	visitHandler := handler.NewVisitHandler(visitUC)
 	achievementHandler := handler.NewAchievementHandler(achievementUC)
 	userHandler := handler.NewUserHandler(userRepo)
+	questHandler := handler.NewQuestHandler(questUC)
+	rankingHandler := handler.NewRankingHandler(rankingUC)
 
 	// Unified Server setup
 	port := os.Getenv("PORT")
@@ -86,6 +91,8 @@ func main() {
 	fofv1.RegisterVisitServiceServer(grpcServer, visitHandler)
 	fofv1.RegisterAchievementServiceServer(grpcServer, achievementHandler)
 	fofv1.RegisterUserServiceServer(grpcServer, userHandler)
+	fofv1.RegisterQuestServiceServer(grpcServer, questHandler)
+	fofv1.RegisterRankingServiceServer(grpcServer, rankingHandler)
 
 	mux := runtime.NewServeMux(
 		runtime.WithMarshalerOption(runtime.MIMEWildcard, &runtime.JSONPb{
@@ -112,6 +119,12 @@ func main() {
 	}
 	if err := fofv1.RegisterUserServiceHandlerServer(ctx, mux, userHandler); err != nil {
 		log.Fatalf("failed to register user gateway: %v", err)
+	}
+	if err := fofv1.RegisterQuestServiceHandlerServer(ctx, mux, questHandler); err != nil {
+		log.Fatalf("failed to register quest gateway: %v", err)
+	}
+	if err := fofv1.RegisterRankingServiceHandlerServer(ctx, mux, rankingHandler); err != nil {
+		log.Fatalf("failed to register ranking gateway: %v", err)
 	}
 
 	mixedHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

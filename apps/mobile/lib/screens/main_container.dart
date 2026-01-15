@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'achievements_screen.dart';
+import 'awards_screen.dart';
 import 'account_screen.dart';
 import 'journal_screen.dart';
 import 'quest_selection_screen.dart';
@@ -59,7 +59,7 @@ class _MainContainerState extends State<MainContainer> {
           QuestSelectionScreen(onQuestStarted: onQuestStarted),
           const JournalScreen(),
           MapScreen(key: _mapKey),
-          const AchievementsScreen(),
+          const AwardsScreen(),
           const AccountScreen(),
         ],
       ),

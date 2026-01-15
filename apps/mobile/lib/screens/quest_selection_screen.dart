@@ -24,6 +24,7 @@ class _QuestSelectionScreenState extends State<QuestSelectionScreen> {
   QuestRatingFilter _selectedRating =
       QuestRatingFilter.QUEST_RATING_FILTER_UNSPECIFIED;
   bool _openNow = true;
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -357,69 +358,92 @@ class _QuestSelectionScreenState extends State<QuestSelectionScreen> {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () async {
-            final locationService = LocationService();
-            final position = locationService.currentPosition;
+          onTap: _isLoading
+              ? null
+              : () async {
+                  setState(() => _isLoading = true);
+                  final locationService = LocationService();
+                  final position = locationService.currentPosition;
 
-            if (position == null) {
-              _showToast(S.of(context).errorLocationUnavailable);
-              return;
-            }
+                  if (position == null) {
+                    _showToast(S.of(context).errorLocationUnavailable);
+                    setState(() => _isLoading = false);
+                    return;
+                  }
 
-            // Calculate Open Time
-            int? openAtTime;
-            if (_openNow) {
-              openAtTime = DateTime.now().millisecondsSinceEpoch ~/ 1000;
-            }
+                  // Calculate Open Time
+                  int? openAtTime;
+                  if (_openNow) {
+                    openAtTime = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+                  }
 
-            // Call API with quest parameters
-            try {
-              final apiService = ApiService();
-              final response = await apiService.getQuestShop(
-                lat: position.latitude,
-                lng: position.longitude,
-                radius: _distance,
-                categories: [_selectedCategory.name],
-                keyword: _keywordController.text.trim(),
-                ratingFilter: _selectedRating,
-                openAtTime: openAtTime,
-                exclusiveIndependent: true,
-              );
+                  // Call API with quest parameters
+                  try {
+                    final apiService = ApiService();
+                    final response = await apiService.startQuest(
+                      lat: position.latitude,
+                      lng: position.longitude,
+                      radius: _distance,
+                      categories: [_selectedCategory.name],
+                      keyword: _keywordController.text.trim(),
+                      ratingFilter: _selectedRating,
+                      openAtTime: openAtTime,
+                      exclusiveIndependent: true,
+                    );
 
-              if (response.hasShop()) {
-                Provider.of<QuestService>(
-                  context,
-                  listen: false,
-                ).startQuest(response.shop);
-                widget.onQuestStarted();
-              } else {
-                if (mounted) {
-                  _showNoShopsDialog();
-                }
-              }
-            } catch (e) {
-              if (mounted) {
-                if (e.toString().contains('404')) {
-                  _showNoShopsDialog();
-                } else {
-                  _showToast(S.of(context).errorLabel(e.toString()));
-                }
-              }
-            }
-          },
+                    if (response.hasQuest()) {
+                      if (context.mounted) {
+                        Provider.of<QuestService>(
+                          context,
+                          listen: false,
+                        ).setQuest(response.quest);
+                        widget.onQuestStarted();
+                      }
+                    } else {
+                      if (mounted) {
+                        _showNoShopsDialog();
+                      }
+                    }
+                  } catch (e) {
+                    if (mounted) {
+                      if (e.toString().contains('404')) {
+                        _showNoShopsDialog();
+                      } else if (e.toString().contains('409') ||
+                          e.toString().contains('active quest')) {
+                        _showToast(S.of(context).errorQuestAlreadyActive);
+                      } else {
+                        _showToast(S.of(context).errorLabel(e.toString()));
+                      }
+                    }
+                  } finally {
+                    if (mounted) {
+                      setState(() => _isLoading = false);
+                    }
+                  }
+                },
           borderRadius: BorderRadius.circular(28),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                S.of(context).questButton,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.0,
+              if (_isLoading)
+                const SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                    strokeWidth: 2.5,
+                  ),
+                )
+              else
+                Text(
+                  S.of(context).questButton,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.0,
+                  ),
                 ),
-              ),
             ],
           ),
         ),

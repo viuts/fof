@@ -25,7 +25,6 @@ class _LoginScreenState extends State<LoginScreen> {
   final _confirmPasswordController = TextEditingController();
 
   bool _isLoading = false;
-  bool _showEmailLogin = false;
   bool _isSignUp = false;
   String? _errorMessage;
 
@@ -188,33 +187,39 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
 
-              if (_showEmailLogin) ...[
-                _buildEmailForm(s),
-                const SizedBox(height: 16),
-                TextButton(
-                  onPressed: () => setState(() => _showEmailLogin = false),
-                  child: const Text('Back to Google Sign In'),
-                ),
-              ] else ...[
-                if (_isLoading)
-                  const CircularProgressIndicator()
-                else ...[
-                  buildGoogleSignInButton(
-                    context,
-                    onPressed: _signInWithGoogle,
-                  ),
-                  const SizedBox(height: 16),
-                  OutlinedButton.icon(
-                    onPressed: () => setState(() => _showEmailLogin = true),
-                    icon: const Icon(Icons.email),
-                    label: Text(s.signInButton),
-                    style: OutlinedButton.styleFrom(
-                      minimumSize: const Size(double.infinity, 50),
-                      side: const BorderSide(color: Colors.grey),
+              // Email login form (always shown)
+              _buildEmailForm(s),
+              
+              const SizedBox(height: 24),
+              
+              // Divider
+              Row(
+                children: [
+                  const Expanded(child: Divider()),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Text(
+                      'OR',
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                        fontSize: 14,
+                      ),
                     ),
                   ),
+                  const Expanded(child: Divider()),
                 ],
-              ],
+              ),
+              
+              const SizedBox(height: 24),
+              
+              // Google Sign-In
+              if (_isLoading)
+                const CircularProgressIndicator()
+              else
+                buildGoogleSignInButton(
+                  context,
+                  onPressed: _signInWithGoogle,
+                ),
             ],
           ),
         ),

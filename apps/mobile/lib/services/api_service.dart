@@ -9,6 +9,8 @@ import '../api/fof/v1/location.pb.dart';
 import '../api/fof/v1/visit.pb.dart';
 import '../api/fof/v1/achievement.pb.dart';
 import '../api/fof/v1/user.pb.dart';
+import '../api/fof/v1/ranking.pb.dart';
+import '../api/fof/v1/quest.pb.dart';
 import '../config/environment_config.dart';
 import 'package:fixnum/fixnum.dart';
 
@@ -129,7 +131,7 @@ class ApiService {
     }
   }
 
-  Future<GetQuestShopResponse> getQuestShop({
+  Future<StartQuestResponse> startQuest({
     required double lat,
     required double lng,
     required double radius,
@@ -141,10 +143,10 @@ class ApiService {
     bool exclusiveIndependent = false,
   }) async {
     final response = await http.post(
-      Uri.parse('$_baseUrl/v1/shops/quest/search'),
+      Uri.parse('$_baseUrl/v1/quests/start'),
       headers: await _getHeaders(),
       body: jsonEncode(
-        GetQuestShopRequest(
+        StartQuestRequest(
           lat: lat,
           lng: lng,
           radiusMeters: radius,
@@ -158,10 +160,10 @@ class ApiService {
     );
 
     if (response.statusCode == 200) {
-      return GetQuestShopResponse()
+      return StartQuestResponse()
         ..mergeFromProto3Json(jsonDecode(response.body));
     } else {
-      throw Exception('Failed to get quest shop: ${response.statusCode}');
+      throw Exception('Failed to start quest: ${response.statusCode}');
     }
   }
 
@@ -296,6 +298,7 @@ class ApiService {
     ).ref();
 
     final fileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
+    // Use shopId as folder name to group visit images
     final imageRef = storageRef.child('visits/${user.uid}/$shopId/$fileName');
 
     if (imageFile is List<int>) {
@@ -305,5 +308,118 @@ class ApiService {
     }
 
     return await imageRef.getDownloadURL();
+  }
+
+  // --- Ranking API ---
+
+  Future<GetRankingResponse> getAreaCoverageRanking({int limit = 100}) async {
+    final response = await http.get(
+      Uri.parse('$_baseUrl/v1/rankings/area-coverage?limit=$limit'),
+      headers: await _getHeaders(),
+    );
+
+    if (response.statusCode == 200) {
+      return GetRankingResponse()
+        ..mergeFromProto3Json(jsonDecode(response.body));
+    } else {
+      throw Exception(
+        'Failed to get area coverage ranking: ${response.statusCode}',
+      );
+    }
+  }
+
+  Future<GetRankingResponse> getLevelRanking({int limit = 100}) async {
+    final response = await http.get(
+      Uri.parse('$_baseUrl/v1/rankings/level?limit=$limit'),
+      headers: await _getHeaders(),
+    );
+
+    if (response.statusCode == 200) {
+      return GetRankingResponse()
+        ..mergeFromProto3Json(jsonDecode(response.body));
+    } else {
+      throw Exception('Failed to get level ranking: ${response.statusCode}');
+    }
+  }
+
+  Future<GetRankingResponse> getVisitCountRanking({int limit = 100}) async {
+    final response = await http.get(
+      Uri.parse('$_baseUrl/v1/rankings/visit-count?limit=$limit'),
+      headers: await _getHeaders(),
+    );
+
+    if (response.statusCode == 200) {
+      return GetRankingResponse()
+        ..mergeFromProto3Json(jsonDecode(response.body));
+    } else {
+      throw Exception(
+        'Failed to get visit count ranking: ${response.statusCode}',
+      );
+    }
+  }
+
+  Future<GetRankingResponse> getCategoryVisitRanking(
+    String category, {
+    int limit = 100,
+  }) async {
+    final response = await http.get(
+      Uri.parse('$_baseUrl/v1/rankings/category/$category?limit=$limit'),
+      headers: await _getHeaders(),
+    );
+
+    if (response.statusCode == 200) {
+      return GetRankingResponse()
+        ..mergeFromProto3Json(jsonDecode(response.body));
+    } else {
+      throw Exception(
+        'Failed to get category visit ranking: ${response.statusCode}',
+      );
+    }
+  }
+
+  // --- Quest Management ---
+
+  Future<GetActiveQuestResponse> getActiveQuest() async {
+    final response = await http.get(
+      Uri.parse('$_baseUrl/v1/quests/active'),
+      headers: await _getHeaders(),
+    );
+
+    if (response.statusCode == 200) {
+      return GetActiveQuestResponse()
+        ..mergeFromProto3Json(jsonDecode(response.body));
+    } else {
+      throw Exception('Failed to get active quest: ${response.statusCode}');
+    }
+  }
+
+  Future<CancelQuestResponse> cancelQuest(String questId) async {
+    final response = await http.post(
+      Uri.parse('$_baseUrl/v1/quests/cancel'),
+      headers: await _getHeaders(),
+      body: jsonEncode(CancelQuestRequest(questId: questId).toProto3Json()),
+    );
+
+    if (response.statusCode == 200) {
+      return CancelQuestResponse()
+        ..mergeFromProto3Json(jsonDecode(response.body));
+    } else {
+      throw Exception('Failed to cancel quest: ${response.statusCode}');
+    }
+  }
+
+  Future<CompleteQuestResponse> completeQuest(String questId) async {
+    final response = await http.post(
+      Uri.parse('$_baseUrl/v1/quests/complete'),
+      headers: await _getHeaders(),
+      body: jsonEncode(CompleteQuestRequest(questId: questId).toProto3Json()),
+    );
+
+    if (response.statusCode == 200) {
+      return CompleteQuestResponse()
+        ..mergeFromProto3Json(jsonDecode(response.body));
+    } else {
+      throw Exception('Failed to complete quest: ${response.statusCode}');
+    }
   }
 }

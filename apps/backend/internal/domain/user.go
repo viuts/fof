@@ -20,3 +20,9 @@ type User struct {
 	UpdatedAt   time.Time
 	DeletedAt   gorm.DeletedAt `gorm:"index"`
 }
+
+type UserRankingEntry struct {
+	User
+	Score float64
+	Rank  int
+}

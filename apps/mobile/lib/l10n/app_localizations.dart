@@ -566,6 +566,12 @@ abstract class AppLocalizations {
   /// **'No shops found matching your criteria'**
   String get errorNoShopsFound;
 
+  /// No description provided for @errorQuestAlreadyActive.
+  ///
+  /// In en, this message translates to:
+  /// **'You already have an active quest'**
+  String get errorQuestAlreadyActive;
+
   /// No description provided for @close.
   ///
   /// In en, this message translates to:
@@ -2029,6 +2035,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'World Coverage'**
   String get worldCoverage;
+
+  /// No description provided for @tabRanking.
+  ///
+  /// In en, this message translates to:
+  /// **'Ranking'**
+  String get tabRanking;
+
+  /// No description provided for @rankingTypeArea.
+  ///
+  /// In en, this message translates to:
+  /// **'Area'**
+  String get rankingTypeArea;
+
+  /// No description provided for @rankingTypeLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Level'**
+  String get rankingTypeLevel;
+
+  /// No description provided for @rankingTypeVisits.
+  ///
+  /// In en, this message translates to:
+  /// **'Visits'**
+  String get rankingTypeVisits;
+
+  /// No description provided for @rankingTypeCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get rankingTypeCategory;
+
+  /// No description provided for @rankingLabelClearedArea.
+  ///
+  /// In en, this message translates to:
+  /// **'Cleared Area'**
+  String get rankingLabelClearedArea;
+
+  /// No description provided for @rankingLabelLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Level'**
+  String get rankingLabelLevel;
+
+  /// No description provided for @rankingLabelShopsVisited.
+  ///
+  /// In en, this message translates to:
+  /// **'Shops Visited'**
+  String get rankingLabelShopsVisited;
+
+  /// No description provided for @rankingLabelVisits.
+  ///
+  /// In en, this message translates to:
+  /// **'Visits'**
+  String get rankingLabelVisits;
+
+  /// No description provided for @rankingLabelPoints.
+  ///
+  /// In en, this message translates to:
+  /// **'Points'**
+  String get rankingLabelPoints;
 }
 
 class _AppLocalizationsDelegate

@@ -1,0 +1,59 @@
+syntax = "proto3";
+package fof.v1;
+
+import "google/api/annotations.proto";
+
+option go_package = "github.com/viuts/fof/api/proto/v1;fofv1";
+
+service RankingService {
+  // Get area coverage ranking (fog cleared area)
+  rpc GetAreaCoverageRanking(GetRankingRequest) returns (GetRankingResponse) {
+    option (google.api.http) = {
+      get: "/v1/rankings/area-coverage"
+    };
+  }
+
+  // Get level ranking
+  rpc GetLevelRanking(GetRankingRequest) returns (GetRankingResponse) {
+    option (google.api.http) = {
+      get: "/v1/rankings/level"
+    };
+  }
+
+  // Get visit count ranking
+  rpc GetVisitCountRanking(GetRankingRequest) returns (GetRankingResponse) {
+    option (google.api.http) = {
+      get: "/v1/rankings/visit-count"
+    };
+  }
+
+  // Get category-specific visit ranking
+  rpc GetCategoryVisitRanking(GetCategoryRankingRequest) returns (GetRankingResponse) {
+    option (google.api.http) = {
+      get: "/v1/rankings/category/{category}"
+    };
+  }
+}
+
+message GetRankingRequest {
+  int32 limit = 1; // Max number of results (default: 100)
+}
+
+message GetCategoryRankingRequest {
+  string category = 1; // Shop category to filter by
+  int32 limit = 2; // Max number of results (default: 100)
+}
+
+message GetRankingResponse {
+  repeated RankingEntry entries = 1;
+}
+
+message RankingEntry {
+  int32 rank = 1; // 1-indexed position
+  string user_id = 2;
+  string username = 3;
+  string display_name = 4;
+  string profile_image = 5;
+  double score = 6; // Area (sqm), level, or visit count
+  int32 level = 7; // User level (for context)
+}

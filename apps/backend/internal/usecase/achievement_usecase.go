@@ -45,6 +45,7 @@ func (u *achievementUseCase) CheckAchievements(ctx context.Context, userID uuid.
 	var unlocked []domain.Achievement
 
 	// 3. Evaluate each achievement
+	var progressToSave []*domain.UserAchievement
 	for _, ach := range allAchievements {
 		// Skip if already unlocked
 		if p, exists := progressMap[ach.ID]; exists && p.IsUnlocked {
@@ -70,9 +71,14 @@ func (u *achievementUseCase) CheckAchievements(ctx context.Context, userID uuid.
 			unlocked = append(unlocked, ach)
 		}
 
-		// Save progress (even if not unlocked, to track count)
-		if err := u.achievementRepo.SaveUserProgress(ctx, currentProg); err != nil {
-			log.Printf("Failed to save user progress: %v", err)
+		// Add to batch
+		progressToSave = append(progressToSave, currentProg)
+	}
+
+	// 4. Batch Save
+	if len(progressToSave) > 0 {
+		if err := u.achievementRepo.SaveUserProgressBatch(ctx, progressToSave); err != nil {
+			log.Printf("Failed to save user progress batch: %v", err)
 		}
 	}
 

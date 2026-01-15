@@ -123,6 +123,7 @@
     "groupOthers": "その他",
     "errorLocationUnavailable": "位置情報が利用できません",
     "errorNoShopsFound": "対象のお店はありませんでした",
+    "errorQuestAlreadyActive": "既に進行中のクエストがあります",
     "close": "閉じる",
     "exploreAreaMsg": "この地域を探索してください。お店の詳細を確認するには、フォグをクリアする必要があります。",
     "locationLabel": "場所",
@@ -424,5 +425,15 @@
     "confirmPasswordLabel": "パスワード（確認）",
     "fogDiscovery": "霧の踏破状況",
     "clearedArea": "解除済み面積",
-    "worldCoverage": "世界踏破率"
+    "worldCoverage": "世界踏破率",
+    "tabRanking": "ランキング",
+    "rankingTypeArea": "エリア",
+    "rankingTypeLevel": "レベル",
+    "rankingTypeVisits": "店舗数",
+    "rankingTypeCategory": "カテゴリー",
+    "rankingLabelClearedArea": "解除済みエリア",
+    "rankingLabelLevel": "レベル",
+    "rankingLabelShopsVisited": "訪問店舗数",
+    "rankingLabelVisits": "訪問回数",
+    "rankingLabelPoints": "ポイント"
 }

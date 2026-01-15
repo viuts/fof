@@ -12,14 +12,6 @@ service ShopService {
       get: "/v1/shops/nearby"
     };
   }
-
-  // Get a single quest shop with advanced filtering
-  rpc GetQuestShop(GetQuestShopRequest) returns (GetQuestShopResponse) {
-    option (google.api.http) = {
-      post: "/v1/shops/quest/search"
-      body: "*"
-    };
-  }
 }
 
 message Shop {
@@ -78,25 +70,11 @@ message GetNearbyShopsResponse {
   repeated Shop shops = 1;
 }
 
+// Quest rating filter - kept for use by QuestService
 enum QuestRatingFilter {
   QUEST_RATING_FILTER_UNSPECIFIED = 0;
   QUEST_RATING_FILTER_ALL = 1;
   QUEST_RATING_FILTER_EXCELLENT = 2; // > 3.5
   QUEST_RATING_FILTER_AVERAGE = 3;   // 3.0 - 3.5
   QUEST_RATING_FILTER_MIXED = 4;     // < 3.0
-}
-
-message GetQuestShopRequest {
-  double lat = 1;
-  double lng = 2;
-  double radius_meters = 3;
-  repeated string categories = 4; // Filter by categories
-  string keyword = 5; // Filter by name or other text
-  QuestRatingFilter rating_filter = 6;
-  int64 open_at_time = 7; // Unix timestamp in seconds. If 0/unset, ignore opening hours.
-  bool exclusive_independent = 9;
-}
-
-message GetQuestShopResponse {
-  Shop shop = 1;
 }

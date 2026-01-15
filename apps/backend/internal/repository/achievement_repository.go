@@ -14,6 +14,7 @@ type AchievementRepository interface {
 	GetUserProgress(ctx context.Context, userID uuid.UUID) ([]domain.UserAchievement, error)
 	SaveUserProgress(ctx context.Context, progress *domain.UserAchievement) error
 	GetUnlockedAchievements(ctx context.Context, userID uuid.UUID) ([]domain.Achievement, error)
+	SaveUserProgressBatch(ctx context.Context, progressList []*domain.UserAchievement) error
 }
 
 type achievementRepository struct {
@@ -41,6 +42,16 @@ func (r *achievementRepository) SaveUserProgress(ctx context.Context, progress *
 		Columns:   []clause.Column{{Name: "user_id"}, {Name: "achievement_id"}},
 		UpdateAll: true,
 	}).Create(progress).Error
+}
+
+func (r *achievementRepository) SaveUserProgressBatch(ctx context.Context, progressList []*domain.UserAchievement) error {
+	if len(progressList) == 0 {
+		return nil
+	}
+	return r.db.WithContext(ctx).Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "user_id"}, {Name: "achievement_id"}},
+		UpdateAll: true,
+	}).Create(progressList).Error
 }
 
 func (r *achievementRepository) GetUnlockedAchievements(ctx context.Context, userID uuid.UUID) ([]domain.Achievement, error) {
